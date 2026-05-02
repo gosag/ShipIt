@@ -1,0 +1,28 @@
+{
+  "name": "team-done",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "dev": "concurrently \"npm run server\" \"npm run client\"",
+    "client": "npm run dev --prefix client",
+    "server": "npm run dev --prefix server"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/gosag/Team-Done.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/gosag/Team-Done/issues"
+  },
+  "homepage": "https://github.com/gosag/Team-Done#readme",
+  "devDependencies": {
+    "concurrently": "^9.2.1"
+  },
+  "dependencies": {
+    "morgan": "^1.10.1"
+  }
+}
