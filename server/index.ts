@@ -17,6 +17,6 @@ app.listen(PORT,()=>{
     console.log(`Server is running on port ${PORT}`)
 })
 app.get("/",(req,res)=>{
-    res.json({message:"Hello from the server!"})
+    res.json({message:"Hello from the server!111 hh"})
     console.log("nodemon activated")
 })
