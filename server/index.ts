@@ -14,8 +14,9 @@ const corsOptions = {
 app.use(cors(corsOptions))
 app.use(morgan("dev"))
 app.listen(PORT,()=>{
-    console.log("Server is started")
+    console.log(`Server is running on port ${PORT}`)
 })
 app.get("/",(req,res)=>{
-    res.json({message:"TeamDone's endpoint"})
+    res.json({message:"Hello from the server!"})
+    console.log("nodemon activated")
 })

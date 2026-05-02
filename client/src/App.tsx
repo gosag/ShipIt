@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import reactLogo from './assets/react.svg'
 import viteLogo from './assets/vite.svg'
 import heroImg from './assets/hero.png'
@@ -6,7 +6,28 @@ import './App.css'
 
 function App() {
   const [count, setCount] = useState(0)
-
+  const [message,setMessage]=useState<null | string>(null)
+  useEffect(()=>{
+    
+    const controller= new AbortController()
+    const fetchData=async()=>{
+      try{
+      const url=import.meta.env.VITE_URL || "http://localhost:8000"
+      const res= await fetch(url,{
+        
+        method:"GET",
+        signal:controller.signal
+      })
+      const data=await res.json()
+      setMessage(data.message)
+      console.log(data.message)
+    }catch(err){
+        console.log(err)
+      }
+    }
+    fetchData()
+    return ()=> controller.abort()
+  },[])
   return (
     <>
       <section id="center">
@@ -17,6 +38,7 @@ function App() {
         </div>
         <div>
           <h1>Get started</h1>
+          {message && <h1>{message}</h1>}
           <p>
             Edit <code>src/App.tsx</code> and save to test <code>HMR</code>
           </p>
