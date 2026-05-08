@@ -3,8 +3,10 @@ import cors from "cors"
 import dotenv from "dotenv"
 import morgan from "morgan"
 import mongoose from "mongoose"
+import cookieParser from "cookie-parser"
 
 import * as models from './src/models/index.js'
+import authRoutes from './src/routes/authRoutes.js'
 
 dotenv.config()
 const app=express()
@@ -17,19 +19,13 @@ const corsOptions = {
   };
 app.use(cors(corsOptions))
 app.use(morgan("dev"))
+app.use(express.json());
+app.use(cookieParser());
 
 console.log('Models loaded:', Object.keys(models));
 
-mongoose.connect(process.env.MONGODB_URI || 'mongodb://localhost:27017/team-done')
-  .then(() => {
-    console.log('Connected to MongoDB');
-    app.listen(PORT,()=>{
-        console.log(`Server is running on port ${PORT}`)
-    })
-  })
-  .catch(err => {
-    console.error('MongoDB connection error:', err);
-  });
+// Routes
+app.use('/api/auth', authRoutes);
 
 app.get("/",(req,res)=>{
     res.json({message:"Hello from the server!111 hh"})
