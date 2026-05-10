@@ -3,7 +3,7 @@ import { useNavigate } from "react-router-dom";
 import { z } from "zod";
 
 const schema = z.object({
-  email: z.email("Invalid email address"),
+  email: z.string().email("Invalid email address"),
   password: z.string().min(6, "Password must be at least 6 characters"),
 });
 const Register=()=>{
@@ -37,7 +37,7 @@ const Register=()=>{
                 {errors.email && <p>{errors.email.message}</p>}
                 <input type="password" placeholder="Password" {...register("password")} />
                 {errors.password && <p>{errors.password.message}</p>}
-                <input type="submit">Submit</input>
+                <button type="submit">Submit</button>
             </form>
         </div>
     )
