@@ -2,12 +2,11 @@ import express from 'express';
 import cors from "cors"
 import dotenv from "dotenv"
 import morgan from "morgan"
-import mongoose from "mongoose"
 import cookieParser from "cookie-parser"
 
 import * as models from './src/models/index.js'
 import authRoutes from './src/routes/authRoutes.js'
-
+import errorMiddleware from './src/middleware/errror.js'
 dotenv.config()
 const app=express()
 const PORT= process.env.PORT || 8000
@@ -20,6 +19,7 @@ const corsOptions = {
 app.use(cors(corsOptions))
 app.use(morgan("dev"))
 app.use(express.json());
+app.use(express.urlencoded({ extended: true }));
 app.use(cookieParser());
 
 console.log('Models loaded:', Object.keys(models));
@@ -28,6 +28,10 @@ console.log('Models loaded:', Object.keys(models));
 app.use('/api/auth', authRoutes);
 
 app.get("/",(req,res)=>{
-    res.json({message:"Hello from the server!111 hh"})
+    res.json({message:"Hello from the ShipIt Server!"})
     console.log("nodemon activated")
 })
+app.listen(PORT, () => {
+    console.log(`Server is running on port ${PORT}`);
+});
+app.use(errorMiddleware)
