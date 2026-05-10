@@ -11,13 +11,15 @@ const Register=()=>{
     type FormData = z.infer<typeof schema>;
     const { register, handleSubmit, formState: { errors } } = useForm<FormData>();
     const onSubmit = async (data: FormData) => {
+        const controller= new AbortController();
         try{
             const result= await fetch(`${import.meta.env.VITE_URL}/register`,{
                 method:"POST",
                 headers:{
                     "Content-Type":"application/json"
                 },
-                body:JSON.stringify(data)
+                body:JSON.stringify(data),
+                signal:controller.signal
             })
             const res= await result.json()
             if(!res.ok){
@@ -26,6 +28,7 @@ const Register=()=>{
         }catch(err){
             console.log(err)
         }
+        return()=>controller.abort();
     }
     return(
         <div>
