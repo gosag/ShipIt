@@ -7,6 +7,7 @@ import cookieParser from "cookie-parser"
 import * as models from './src/models/index.js'
 import authRoutes from './src/routes/authRoutes.js'
 import errorMiddleware from './src/middleware/errror.js'
+import DbConnect from './config/db.js'; 
 dotenv.config()
 const app=express()
 const PORT= process.env.PORT || 8000
@@ -16,6 +17,7 @@ const corsOptions = {
     allowedHeaders: 'Content-Type,Authorization',
     credentials: true,
   };
+DbConnect()
 app.use(cors(corsOptions))
 app.use(morgan("dev"))
 app.use(express.json());

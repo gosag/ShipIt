@@ -5,7 +5,7 @@
   "type": "module",
   "main": "index.ts",
   "scripts": {
-    "dev": "nodemon -e ts --exec \"node --loader ts-node/esm\" index.ts",
+    "dev": "nodemon -e ts --exec \"node --loader ts-node/esm\" server.ts",
     "start": "node --loader ts-node/esm index.ts"
   },
   "keywords": [],
