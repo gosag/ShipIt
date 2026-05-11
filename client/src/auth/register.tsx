@@ -3,6 +3,7 @@ import { useNavigate } from "react-router-dom";
 import { z } from "zod";
 
 const schema = z.object({
+  name: z.string().min(2, "Name must be at least 2 characters"),
   email: z.string().email("Invalid email address"),
   password: z.string().min(6, "Password must be at least 6 characters"),
 });
@@ -88,6 +89,28 @@ const Register=()=>{
                     </div>
 
                     <form className="space-y-6" onSubmit={handleSubmit(onSubmit)}>
+                        <div className="space-y-1.5 group">
+                            <label htmlFor="name" className="block text-sm font-semibold text-gray-700 transition-colors group-focus-within:text-indigo-600">
+                                Full Name
+                            </label>
+                            <div className="relative">
+                                <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
+                                    <svg className={`h-5 w-5 ${errors.name ? 'text-red-400' : 'text-gray-400 group-focus-within:text-indigo-500'} transition-colors duration-200`} fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+                                    </svg>
+                                </div>
+                                <input
+                                    id="name"
+                                    type="text"
+                                    autoComplete="name"
+                                    placeholder="John Doe"
+                                    className={`pl-11 block w-full px-4 py-3.5 bg-gray-50/50 border ${errors.name ? 'border-red-300 ring-4 ring-red-50 focus:border-red-500 focus:ring-red-100 bg-red-50/50' : 'border-gray-200 focus:bg-white focus:border-indigo-500 focus:ring-4 focus:ring-indigo-500/10 hover:border-gray-300'} rounded-xl text-gray-900 placeholder-gray-400 shadow-sm sm:text-sm transition-all duration-200 outline-none`}
+                                    {...register("name")}
+                                />
+                            </div>
+                            {errors.name && <p className="text-sm text-red-500 mt-1.5 font-medium">{errors.name.message}</p>}
+                        </div>
+
                         <div className="space-y-1.5 group">
                             <label htmlFor="email" className="block text-sm font-semibold text-gray-700 transition-colors group-focus-within:text-indigo-600">
                                 Email Address
