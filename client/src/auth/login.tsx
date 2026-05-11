@@ -22,7 +22,7 @@ const Login = () => {
         const controller = new AbortController();
         try {
             // Send the request to /api/auth/login
-            const res = await axios.post(`${import.meta.env.env.VITE_URL}/api/auth/login`, data, { signal: controller.signal })
+            const res = await axios.post(`${import.meta.env.VITE_URL}/api/auth/login`, data, { signal: controller.signal })
              const responseData = res.data;
             if (responseData.accessToken) {
                 localStorage.setItem("accessToken", responseData.accessToken);
