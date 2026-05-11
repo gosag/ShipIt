@@ -21,6 +21,7 @@ const Login = () => {
         const controller = new AbortController();
         try {
             // Send the request to /api/auth/login
+            
             const result = await fetch(`${import.meta.env.VITE_URL}/api/auth/login`, {
                 method: "POST",
                 headers: {
