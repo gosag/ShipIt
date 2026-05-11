@@ -17,7 +17,7 @@ const corsOptions = {
     allowedHeaders: 'Content-Type,Authorization',
     credentials: true,
   };
-DbConnect()
+
 app.use(cors(corsOptions))
 app.use(morgan("dev"))
 app.use(express.json());
@@ -33,7 +33,12 @@ app.get("/",(req,res)=>{
     res.json({message:"Hello from the ShipIt Server!"})
     console.log("nodemon activated")
 })
-app.listen(PORT, () => {
-    console.log(`Server is running on port ${PORT}`);
+app.use(errorMiddleware);
+DbConnect().then(() => {
+    app.listen(PORT, () => {
+        console.log(`Server is running on port ${PORT}`);
+    });
+}).catch((error) => {
+    console.error("Failed to connect to the database:", error);
+    process.exit(1);
 });
-app.use(errorMiddleware)

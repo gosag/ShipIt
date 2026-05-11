@@ -25,6 +25,7 @@ const Register=()=>{
             if(!res.ok){
                 throw new Error("Something went wrong ")
             }
+            alert("Registration successful! Please log in.");
         }catch(err){
             console.log(err)
         }
@@ -34,7 +35,7 @@ const Register=()=>{
         <div className="flex min-h-screen font-sans bg-white">
             {/* Left Section - Hero/Brand (Hidden on Mobile) */}
             <div className="hidden lg:flex lg:w-1/2 relative bg-indigo-900 items-center justify-center overflow-hidden">
-                <div className="absolute inset-0 bg-gradient-to-br from-indigo-600 via-purple-600 to-pink-500 opacity-90 mix-blend-multiply"></div>
+                <div className="absolute inset-0 bg-linear-to-br from-indigo-600 via-purple-600 to-pink-500 opacity-90 mix-blend-multiply"></div>
                 <div className="absolute inset-0 bg-[url('https://images.unsplash.com/photo-1522071820081-009f0129c71c?ixlib=rb-4.0.3&auto=format&fit=crop&w=1920&q=80')] opacity-30 mix-blend-overlay bg-cover bg-center"></div>
                 
                 {/* Decorative glowing blobs */}
@@ -67,7 +68,7 @@ const Register=()=>{
             {/* Right Section - Registration Form */}
             <div className="w-full lg:w-1/2 flex items-center justify-center p-8 sm:p-12 lg:p-24 bg-white relative">
                 {/* Mobile-only background accent */}
-                <div className="absolute inset-0 bg-gradient-to-b from-indigo-50 to-white lg:hidden -z-10"></div>
+                <div className="absolute inset-0 bg-linear-to-b from-indigo-50 to-white lg:hidden -z-10"></div>
                 
                 <div className="w-full max-w-md mx-auto">
                     <div className="mb-10 lg:mb-12">
