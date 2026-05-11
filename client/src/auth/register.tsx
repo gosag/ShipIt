@@ -2,7 +2,7 @@ import { useForm } from "react-hook-form";
 import { useNavigate, Link } from "react-router-dom";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod"; 
-
+import axios from "axios"
 const schema = z.object({
   name: z.string().min(2, "Name must be at least 2 characters"),
   email: z.string().email("Invalid email address"),
@@ -22,20 +22,13 @@ const Register = () => {
         const controller = new AbortController();
         try{
             // Sending to correct URL
-            const result = await fetch(`${import.meta.env.VITE_URL}/api/auth/register`, {
-                method: "POST",
-                headers: {
-                    "Content-Type": "application/json"
-                },
-                body: JSON.stringify(data),
-                signal: controller.signal
-            });
-            const res = await result.json();
-            
-            if(!result.ok){
-                throw new Error(res.message || "Something went wrong")
+            const res=await axios.post(`${import.meta.env.VITE_URL}/api/auth/register`, data, { signal: controller.signal })
+            const responseData = res.data;
+
+            if(!responseData.accessToken){
+                throw new Error(responseData.message || "Something went wrong")
             }
-            
+            alert("Registration successful! Please log in.");
             navigate("/login");
         }catch(err){
             console.log(err)

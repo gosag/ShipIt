@@ -2,6 +2,7 @@ import { useForm } from "react-hook-form";
 import { useNavigate, Link } from "react-router-dom";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod"; 
+import axios from "axios";
 
 const loginSchema = z.object({
     email: z.string().email("Invalid email address"),
@@ -21,28 +22,11 @@ const Login = () => {
         const controller = new AbortController();
         try {
             // Send the request to /api/auth/login
-            
-            const result = await fetch(`${import.meta.env.VITE_URL}/api/auth/login`, {
-                method: "POST",
-                headers: {
-                    "Content-Type": "application/json"
-                },
-                body: JSON.stringify(data),
-                signal: controller.signal
-            });
-            
-            const res = await result.json();
-            
-            if (!result.ok) {
-                throw new Error(res.message || "Failed to log in");
+            const res = await axios.post(`${import.meta.env.env.VITE_URL}/api/auth/login`, data, { signal: controller.signal })
+             const responseData = res.data;
+            if (responseData.accessToken) {
+                localStorage.setItem("accessToken", responseData.accessToken);
             }
-
-            // Success logs the user in and token is saved
-            if (res.accessToken) {
-                localStorage.setItem("accessToken", res.accessToken);
-            }
-
-            // Navigate to main application logic
             navigate("/"); 
         } catch (err) {
             console.error(err);
