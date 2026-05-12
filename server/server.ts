@@ -6,6 +6,7 @@ import cookieParser from "cookie-parser"
 
 import * as models from './src/models/index.js'
 import authRoutes from './src/routes/authRoutes.js'
+import workspaceRouter from './src/routes/workSpaceRoutes.js';
 import errorMiddleware from './src/middleware/errror.js'
 import DbConnect from './config/db.js'; 
 dotenv.config()
@@ -28,7 +29,7 @@ console.log('Models loaded:', Object.keys(models));
 
 // Routes
 app.use('/api/auth', authRoutes);
-
+app.use('/api/workspace', workspaceRouter);
 app.get("/",(req,res)=>{
     res.json({message:"Hello from the ShipIt Server!"})
     console.log("nodemon activated")
