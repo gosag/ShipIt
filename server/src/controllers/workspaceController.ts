@@ -72,8 +72,8 @@ export const updateWorkspace=async(req:AuthRequest,res:Response,next:NextFunctio
     if(members) updateFields.members=members;
     try{
         const updatedWorkspace= await Workspace.findOneAndUpdate(
-            {_id:workspaceId, "members.user":userId} as any,
-            {$set:updateFields},
+            {_id:workspaceId, members:{$elemMatch:{user:userId, role:"admin"}}} as any,
+            {updateFields},
             {new:true}
         );
         if(!updatedWorkspace){
@@ -101,7 +101,7 @@ export const deleteWorkspace=async(req:AuthRequest,res:Response,next:NextFunctio
 
     try{
         const deletedWorkspace= await Workspace.findOneAndDelete(
-            {_id:workspaceId, "members.user":userId} as any
+            {_id:workspaceId, members:{$elemMatch:{user:userId, role:"admin"}}} as any
         );
         if(!deletedWorkspace){
             const error = new Error("Workspace not found or you are not the owner") as customError;
