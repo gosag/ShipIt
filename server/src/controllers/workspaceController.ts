@@ -14,8 +14,8 @@ export const createWorkspace=async(req:AuthRequest,res:Response,next:NextFunctio
     const userId=req.user._id;
 
    const {name, slug, owner, members} = req.body;
-    if(!name || !slug || !owner){
-        const error = new Error("Name, slug, and owner are required to create a workspace") as customError;
+    if(!name || !slug){
+        const error = new Error("Name and slug are required to create a workspace") as customError;
         error.status = 400;
         next(error);
     }

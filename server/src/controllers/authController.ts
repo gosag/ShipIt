@@ -44,6 +44,7 @@ export const register = async (req: Request, res: Response): Promise<any> => {
       accessToken,
     });
   } catch (error) {
+    console.error("Registration error:", error);
     res.status(500).json({ message: 'Error registering user' });
   }
 };

@@ -4,7 +4,7 @@ import {createWorkspace,getAllWorkSpaces, updateWorkspace, deleteWorkspace} from
 const workspaceRouter = express.Router();
 
 workspaceRouter.post('/create',authenticate,createWorkspace);
-workspaceRouter.get('/getAll',authenticate,getAllWorkSpaces);
+workspaceRouter.get('/get-all',authenticate,getAllWorkSpaces);
 workspaceRouter.put('/update/:id',authenticate,updateWorkspace);
 workspaceRouter.delete('/delete/:id',authenticate,deleteWorkspace);
 export default workspaceRouter;
