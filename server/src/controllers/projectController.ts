@@ -53,3 +53,51 @@ export const getAllProjects= asyncHandler(async(req:AuthRequest,res:Response,nex
     res.status(200).json(projects);
 }
 );
+export const updateProject= asyncHandler(async(req:AuthRequest,res:Response,next:NextFunction)=>{
+    if(!req.user || !req.user._id){
+        const error = new Error("Unauthorized: User not authenticated") as customError;
+        error.status = 401;
+        throw error;
+    }
+    const projectId=req.params.projectId;
+    if(!projectId){
+        const error = new Error("Project ID is required") as customError;
+        error.status = 400;
+        throw error;
+    }
+    const {name, description}= req.body;
+    const updateFields:{description?: string, name?:string}={};
+    if(name) updateFields.name=name;
+    if(description) updateFields.description=description;
+     const updatedProject= await Project.findOneAndUpdate(
+        {_id:projectId, createdBy:req.user._id} as any,
+        {updateFields},
+        {new:true}
+     );
+    if(!updatedProject){
+        const error = new Error("Failed to update the project") as customError;
+        error.status = 404;
+        throw error;
+    }
+    res.status(200).json(updatedProject);
+})
+export const deleteProject= asyncHandler(async(req:AuthRequest,res:Response,next:NextFunction)=>{
+    if(!req.user || !req.user._id){
+        const error = new Error("Unauthorized: User not authenticated") as customError;
+        error.status = 401;
+        throw error;
+    }
+    const projectId=req.params.projectId;
+    if(!projectId){
+        const error = new Error("Project ID is required") as customError;
+        error.status = 400;
+        throw error;
+    }
+    const deletedProject= await Project.findOneAndDelete({_id:projectId, createdBy:req.user._id})
+    if(!deletedProject){
+        const error = new Error("Failed to delete the project") as customError;
+        error.status = 404;
+        throw error;
+    }
+    res.status(200).json({message:"Project deleted successfully", project:deletedProject});
+});
