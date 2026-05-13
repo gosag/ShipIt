@@ -30,9 +30,14 @@ export const createWorkspace=async(req:AuthRequest,res:Response,next:NextFunctio
             name,
             slug,
             owner:userId,
-            members:[{user:userId, role:"admin"}] || [],
+            members:[{user:userId, role:"admin"},members],
         })
         const savedWorkspace= await newWorkspace.save();
+        if(!savedWorkspace){
+            const error= new Error("Failed to save the data to the Database") as customError;
+            error.status=500;
+            throw error;
+        }
         res.status(201).json(savedWorkspace);
     }catch(err){
         const error = new Error("Error checking for existing workspace") as customError;
