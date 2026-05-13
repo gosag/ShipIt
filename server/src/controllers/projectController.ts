@@ -1,0 +1,55 @@
+import type { Response, NextFunction } from "express";
+import type { AuthRequest } from "../middleware/auth.js";
+import { Project } from "../models/Project.js";
+import asyncHandler from "express-async-handler";
+interface customError extends Error {
+    status?: number;
+    statusCode?: number;
+}
+export const newProject= asyncHandler(async(req:AuthRequest,res:Response,next:NextFunction)=>{
+    if(!req.user || !req.user._id){
+        const error = new Error("Unauthorized: User not authenticated") as customError;
+        error.status = 401;
+        throw error;
+    }
+    const {name, description}= req.body;
+    const workspace= req.params.workspaceId;
+    if(!name || !workspace){
+        const error = new Error("Name and workspace are required to create a project") as customError;
+        error.status = 400;
+        throw error;
+    }
+    const userId=req.user._id;
+    const newProject= new Project({
+        name,
+        description,
+        workspace,
+        createdBy:userId,
+    })
+    const savedProject = await newProject.save();
+    if(!savedProject){
+        throw new Error("Failed to save the project to the database");
+    }
+    res.status(201).json(savedProject);
+})
+export const getAllProjects= asyncHandler(async(req:AuthRequest,res:Response,next:NextFunction)=>{
+    if(!req.user || !req.user._id){
+        const error = new Error("Unauthorized: User not authenticated") as customError;
+        error.status = 401;
+        throw error;
+    }
+    const workspaceId=req.params.workspaceId;
+    if(!workspaceId){
+        const error = new Error("Workspace ID is required") as customError;
+        error.status = 400;
+        throw error;
+    }
+    const projects = await Project.find({workspace:workspaceId});
+    if(!projects){
+        const error = new Error("No projects found for the workspace") as customError;
+        error.status = 404;
+        throw error;
+    }
+    res.status(200).json(projects);
+}
+);
