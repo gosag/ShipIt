@@ -28,8 +28,9 @@ const Register = () => {
             if(!responseData.accessToken){
                 throw new Error(responseData.message || "Something went wrong")
             }
-            alert("Registration successful! Please log in.");
-            navigate("/login");
+            localStorage.setItem("accessToken", responseData.accessToken);
+            alert("Registration successful!");
+            navigate("/");
         }catch(err){
             console.log(err)
             alert(err instanceof Error ? err.message : "Error registering");

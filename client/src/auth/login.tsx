@@ -33,7 +33,6 @@ const Login = () => {
             alert(err instanceof Error ? err.message : "Something went wrong during login");
         }
     };
-
     return (
         <div className="min-h-screen bg-[#0A0A0A] flex items-center justify-center p-6 relative overflow-hidden font-sans text-white">
             {/* Ambient Background Glow matching 'Premium/Linear' aesthetic */}

@@ -5,8 +5,8 @@ import { User } from '../models/User.js';
 
 // Configuration
 const ACCESS_TOKEN_EXPIRATION = '15m';
-const REFRESH_TOKEN_EXPIRATION = '7d';
-const REFRESH_TOKEN_COOKIE_MAX_AGE = 7 * 24 * 60 * 60 * 1000; // 7 days in ms
+const REFRESH_TOKEN_EXPIRATION = '30d';
+const REFRESH_TOKEN_COOKIE_MAX_AGE = 30 * 24 * 60 * 60 * 1000; // 30 days in ms
 
 const generateAccessToken = (userId: string, email: string) => {
   return jwt.sign({ _id: userId, email }, process.env.JWT_SECRET || 'fallback_secret', { expiresIn: ACCESS_TOKEN_EXPIRATION });
