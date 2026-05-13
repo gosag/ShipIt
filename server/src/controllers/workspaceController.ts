@@ -40,9 +40,7 @@ export const createWorkspace=async(req:AuthRequest,res:Response,next:NextFunctio
         }
         res.status(201).json(savedWorkspace);
     }catch(err){
-        const error = new Error("Error checking for existing workspace") as customError;
-        error.status = 500;
-        return next(error);
+        next(err);
     }
 }
 export const getAllWorkSpaces=async(req:AuthRequest,res:Response,next:NextFunction)=>{
@@ -85,9 +83,7 @@ export const updateWorkspace=async(req:AuthRequest,res:Response,next:NextFunctio
         }
         res.status(200).json(updatedWorkspace);
     } catch (err) {
-        const error = new Error("Error updating workspace") as customError;
-        error.status = 500;
-        throw error;
+        next(err);
     }
 }
 export const deleteWorkspace=async(req:AuthRequest,res:Response,next:NextFunction)=>{
@@ -114,7 +110,5 @@ export const deleteWorkspace=async(req:AuthRequest,res:Response,next:NextFunctio
         }
         res.status(200).json({message:"Workspace deleted successfully"});
     } catch (err) {
-        const error = new Error("Error deleting workspace") as customError;
-        error.status = 500;
-        throw error;
+        next(err);
     }}
