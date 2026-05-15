@@ -7,6 +7,7 @@ const App=()=>{
     <Routes>
       <Route index element={<Register/>} />
       <Route path="/login" element={<Login/>} />
+      
     </Routes>
     </>
   )
