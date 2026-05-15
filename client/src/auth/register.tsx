@@ -29,8 +29,7 @@ const Register = () => {
                 throw new Error(responseData.message || "Something went wrong")
             }
             localStorage.setItem("accessToken", responseData.accessToken);
-            alert("Registration successful!");
-            navigate("/");
+            window.location.href = "/";
         }catch(err){
             console.log(err)
             alert(err instanceof Error ? err.message : "Error registering");

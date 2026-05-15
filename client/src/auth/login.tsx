@@ -27,7 +27,7 @@ const Login = () => {
             if (responseData.accessToken) {
                 localStorage.setItem("accessToken", responseData.accessToken);
             }
-            navigate("/"); 
+            window.location.href = "/"; 
         } catch (err) {
             console.error(err);
             alert(err instanceof Error ? err.message : "Something went wrong during login");
