@@ -33,7 +33,33 @@ const MainOutlet = () => {
     const [isSidebarOpen, setSidebarOpen] = useState(false);
     const [workspaceModalOpen, setWorkspaceModalOpen] = useState(false);
     const [projectModalOpen, setProjectModalOpen] = useState(false);
-    const [userData,setUserData]=useState<{name:string,email:string,_id:string} | null>(null)
+    const [userData,setUserData]=useState<{name:string,email:string,_id:string} | null>(null);
+    const [workspaces, setWorkspaces] = useState<any[]>([]);
+
+    const getWorkspace = async () => {
+      try {
+        const res = await api.get("/api/workspace/get-all");
+        const workspacesData = res.data;
+        
+        // Fetch projects for each workspace in parallel
+        const workspacesWithProjects = await Promise.all(
+          workspacesData.map(async (ws: any) => {
+            try {
+              const projectRes = await api.get(`/api/project/getAll/${ws._id}`);
+              return { ...ws, projects: projectRes.data };
+            } catch (err) {
+              return { ...ws, projects: [] };
+            }
+          })
+        );
+        
+        setWorkspaces(workspacesWithProjects);
+        console.log("Workspaces fetch:", workspacesWithProjects);
+      } catch (err) {
+        console.log(err);
+      }
+    };
+
     useEffect(()=>{
       try{
       const fetchData=async()=>{
@@ -43,11 +69,45 @@ const MainOutlet = () => {
         setUserData(returnedData)
       }
       fetchData()
+      getWorkspace()
     }catch(err){
       console.log(err)
     }
 
   },[])
+  //create new WorkSpace
+    const [newWorkspaceName, setNewWorkspaceName] = useState("");
+    const [newProjectName, setNewProjectName] = useState("");
+    const [selectedWorkspaceId, setSelectedWorkspaceId] = useState("");
+
+    const handleCreateWorkspace = async (e: React.FormEvent) => {
+      e.preventDefault();
+      if (!newWorkspaceName.trim()) return;
+      try {
+        const slug = newWorkspaceName.toLowerCase().replace(/[^a-z0-9]+/g, '-');
+        await api.post("/api/workspace/create", { name: newWorkspaceName, slug });
+        setNewWorkspaceName("");
+        setWorkspaceModalOpen(false);
+        getWorkspace();
+      } catch (err) {
+        console.error("Error creating workspace:", err);
+      }
+    };
+
+    const handleCreateProject = async (e: React.FormEvent) => {
+      e.preventDefault();
+      if (!newProjectName.trim() || !selectedWorkspaceId) return;
+      try {
+        await api.post(`/api/project/create/${selectedWorkspaceId}`, { name: newProjectName });
+        setNewProjectName("");
+        setSelectedWorkspaceId("");
+        setProjectModalOpen(false);
+        getWorkspace(); // Refresh the list of workspaces and projects
+      } catch (err) {
+        console.error("Error creating project:", err);
+      }
+    };
+  
     const toggleSidebar = () => setSidebarOpen(!isSidebarOpen);
    const firstLetter=(name:string)=>{
     if (!name) return "";
@@ -102,52 +162,58 @@ const MainOutlet = () => {
                     </div>
 
                     {/* Workspaces Section */}
-                    <div className="space-y-1">
-                        <div className="flex items-center justify-between px-3 mb-2 group">
+                    <div className="space-y-4">
+                        <div className="flex items-center justify-between px-3 group">
                           <h3 className="text-xs font-semibold text-gray-500 uppercase tracking-wider">Workspaces</h3>
-                          <button 
-                            onClick={() => setWorkspaceModalOpen(true)}
-                            className="p-1 text-gray-400 opacity-0 group-hover:opacity-100 hover:text-white hover:bg-white/10 rounded-md transition-all"
-                          >
-                            <Plus size={14} />
-                          </button>
-                        </div>
-                        <NavLink 
-                          to="/workspace" 
-                          className={({isActive}) => `flex items-center gap-3 px-3 py-1.5 text-sm font-medium rounded-lg transition-colors duration-150 ${isActive ? 'bg-[#2C2C2E] text-white' : 'text-gray-400 hover:text-gray-100 hover:bg-[#2C2C2E]/50'}`}
-                        >
-                          <div className="flex items-center justify-center w-5 h-5 bg-linear-to-br from-indigo-500 to-purple-600 rounded">
-                            <span className="text-[10px] text-white font-bold">D</span>
+                          <div className="flex gap-1">
+                            <button 
+                              onClick={() => setProjectModalOpen(true)}
+                              className="p-1 text-gray-400 opacity-0 group-hover:opacity-100 hover:text-white hover:bg-white/10 rounded-md transition-all"
+                              title="Create Project"
+                            >
+                              <FolderKanban size={14} />
+                            </button>
+                            <button 
+                              onClick={() => setWorkspaceModalOpen(true)}
+                              className="p-1 text-gray-400 opacity-0 group-hover:opacity-100 hover:text-white hover:bg-white/10 rounded-md transition-all"
+                              title="Create Workspace"
+                            >
+                              <Plus size={14} />
+                            </button>
                           </div>
-                          Design Team
-                        </NavLink>
-                    </div>
-
-                    {/* Projects Section */}
-                    <div className="space-y-1">
-                        <div className="flex items-center justify-between px-3 mb-2 group">
-                          <h3 className="text-xs font-semibold text-gray-500 uppercase tracking-wider">Projects</h3>
-                          <button 
-                            onClick={() => setProjectModalOpen(true)}
-                            className="p-1 text-gray-400 opacity-0 group-hover:opacity-100 hover:text-white hover:bg-white/10 rounded-md transition-all"
-                          >
-                            <Plus size={14} />
-                          </button>
                         </div>
-                        <NavLink 
-                          to="/projects/webapp" 
-                          className={({isActive}) => `flex items-center gap-3 px-3 py-1.5 text-sm font-medium rounded-lg transition-colors duration-150 ${isActive ? 'bg-[#2C2C2E] text-white' : 'text-gray-400 hover:text-gray-100 hover:bg-[#2C2C2E]/50'}`}
-                        >
-                          <FolderKanban size={16} className="text-blue-400" />
-                          Web App Launch
-                        </NavLink>
-                        <NavLink 
-                          to="/projects/mobile" 
-                          className={({isActive}) => `flex items-center gap-3 px-3 py-1.5 text-sm font-medium rounded-lg transition-colors duration-150 ${isActive ? 'bg-[#2C2C2E] text-white' : 'text-gray-400 hover:text-gray-100 hover:bg-[#2C2C2E]/50'}`}
-                        >
-                          <FolderKanban size={16} className="text-pink-400" />
-                          Mobile Revamp
-                        </NavLink>
+
+                        <div className="space-y-2">
+                          {workspaces.map((ws: any) => (
+                            <div key={ws._id} className="space-y-1">
+                              <NavLink 
+                                to={`/workspace/${ws._id}`} 
+                                className={({isActive}) => `flex items-center gap-3 px-3 py-1.5 text-sm font-medium rounded-lg transition-colors duration-150 ${isActive ? 'bg-[#2C2C2E] text-white' : 'text-gray-400 hover:text-gray-100 hover:bg-[#2C2C2E]/50'}`}
+                              >
+                                <div className="flex items-center justify-center w-5 h-5 bg-linear-to-br from-indigo-500 to-purple-600 rounded shrink-0">
+                                  <span className="text-[10px] text-white font-bold">{firstLetter(ws.name)}</span>
+                                </div>
+                                <span className="truncate">{ws.name}</span>
+                              </NavLink>
+
+                              {/* Render Projects for this Workspace */}
+                              {ws.projects && ws.projects.length > 0 && (
+                                <div className="pl-11 pr-3 space-y-1 mt-1 border-l border-[#2C2C2E]/30 ml-[22px]">
+                                  {ws.projects.map((project: any) => (
+                                    <NavLink 
+                                      key={project._id}
+                                      to={`/projects/${project._id}`} 
+                                      className={({isActive}) => `flex items-center gap-3 py-1.5 text-sm font-medium rounded transition-colors duration-150 ${isActive ? 'text-white' : 'text-gray-400 hover:text-gray-100'}`}
+                                    >
+                                      <span className="w-1.5 h-1.5 rounded-full bg-blue-400 shrink-0"></span>
+                                      <span className="truncate">{project.name}</span>
+                                    </NavLink>
+                                  ))}
+                                </div>
+                              )}
+                            </div>
+                          ))}
+                        </div>
                     </div>
                 </div>
 
@@ -190,10 +256,18 @@ const MainOutlet = () => {
 
             {/* Modals */}
             <Modal isOpen={workspaceModalOpen} onClose={() => setWorkspaceModalOpen(false)} title="Create Workspace">
-              <form className="space-y-4" onSubmit={(e) => { e.preventDefault(); setWorkspaceModalOpen(false); }}>
+              <form className="space-y-4" onSubmit={handleCreateWorkspace}>
                 <div>
                   <label className="block text-sm font-medium text-gray-300 mb-1">Workspace Name</label>
-                  <input type="text" className="w-full px-3 py-2 bg-[#2C2C2E] border border-[#3C3C3E] rounded-lg outline-none focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 text-white transition-all placeholder:text-gray-500" placeholder="e.g. Acme Corp" autoFocus />
+                  <input 
+                    type="text" 
+                    value={newWorkspaceName} 
+                    onChange={e => setNewWorkspaceName(e.target.value)} 
+                    className="w-full px-3 py-2 bg-[#2C2C2E] border border-[#3C3C3E] rounded-lg outline-none focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 text-white transition-all placeholder:text-gray-500" 
+                    placeholder="e.g. Acme Corp" 
+                    autoFocus 
+                    required 
+                  />
                 </div>
                 <div className="flex justify-end gap-3 mt-6">
                   <button type="button" onClick={() => setWorkspaceModalOpen(false)} className="px-4 py-2 text-sm font-medium text-gray-300 hover:text-white transition-colors">Cancel</button>
@@ -203,15 +277,34 @@ const MainOutlet = () => {
             </Modal>
 
             <Modal isOpen={projectModalOpen} onClose={() => setProjectModalOpen(false)} title="Create Project">
-              <form className="space-y-4" onSubmit={(e) => { e.preventDefault(); setProjectModalOpen(false); }}>
+              <form className="space-y-4" onSubmit={handleCreateProject}>
+                <div>
+                  <label className="block text-sm font-medium text-gray-300 mb-1">Workspace</label>
+                  <select 
+                    value={selectedWorkspaceId} 
+                    onChange={e => setSelectedWorkspaceId(e.target.value)} 
+                    className="w-full px-3 py-2 bg-[#2C2C2E] border border-[#3C3C3E] rounded-lg outline-none focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 text-white transition-all"
+                    required
+                  >
+                    <option value="" disabled>Select a Workspace</option>
+                    {workspaces.map(ws => (
+                      <option key={ws._id} value={ws._id}>{ws.name}</option>
+                    ))}
+                  </select>
+                </div>
                 <div>
                   <label className="block text-sm font-medium text-gray-300 mb-1">Project Name</label>
-                  <input type="text" className="w-full px-3 py-2 bg-[#2C2C2E] border border-[#3C3C3E] rounded-lg outline-none focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 text-white transition-all placeholder:text-gray-500" placeholder="e.g. Q4 Marketing" autoFocus />
+                  <input 
+                    type="text" 
+                    value={newProjectName} 
+                    onChange={e => setNewProjectName(e.target.value)} 
+                    className="w-full px-3 py-2 bg-[#2C2C2E] border border-[#3C3C3E] rounded-lg outline-none focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 text-white transition-all placeholder:text-gray-500" 
+                    placeholder="e.g. Q4 Marketing" 
+                    autoFocus 
+                    required 
+                  />
                 </div>
-                <div>
-                  <label className="block text-sm font-medium text-gray-300 mb-1">Identifier</label>
-                  <input type="text" className="w-full px-3 py-2 bg-[#2C2C2E] border border-[#3C3C3E] rounded-lg outline-none focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 text-white transition-all placeholder:text-gray-500" placeholder="e.g. MKTG" />
-                </div>
+                {/* Identifier optionally removed since endpoint mostly relies on name/workspace */}
                 <div className="flex justify-end gap-3 mt-6">
                   <button type="button" onClick={() => setProjectModalOpen(false)} className="px-4 py-2 text-sm font-medium text-gray-300 hover:text-white transition-colors">Cancel</button>
                   <button type="submit" className="px-4 py-2 text-sm font-medium text-white bg-indigo-600 rounded-lg hover:bg-indigo-700 transition-colors shadow-sm">Create Project</button>
