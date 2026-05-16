@@ -1,13 +1,17 @@
-import type { Request, Response } from 'express';
+import type { NextFunction, Request, Response } from 'express';
 import bcrypt from 'bcryptjs';
 import jwt from 'jsonwebtoken';
 import { User } from '../models/User.js';
-
+import type { AuthRequest } from '../middleware/auth.js';
+import asyncHandler from 'express-async-handler';
 // Configuration
 const ACCESS_TOKEN_EXPIRATION = '15m';
 const REFRESH_TOKEN_EXPIRATION = '30d';
 const REFRESH_TOKEN_COOKIE_MAX_AGE = 30 * 24 * 60 * 60 * 1000; // 30 days in ms
-
+interface customError extends Error{
+  status?:number,
+  statusCode?:number
+}
 const generateAccessToken = (userId: string, email: string) => {
   return jwt.sign({ _id: userId, email }, process.env.JWT_SECRET || 'fallback_secret', { expiresIn: ACCESS_TOKEN_EXPIRATION });
 };
@@ -103,3 +107,19 @@ export const refresh = async (req: Request, res: Response): Promise<any> => {
     return res.status(401).json({ message: 'Invalid or expired refresh token' });
   }
 };
+export const userInfo= asyncHandler(async(req:AuthRequest,res:Response, next:NextFunction)=>{ 
+  if(!req.user ||!req.user.email){
+    const error = new Error("Not authenticated, No token") as customError;
+    error.status=401;
+    throw error
+  }
+  const email= req.user.email;
+  const userInfo= await User.findOne({email})
+  if(!userInfo){
+    const error= new Error("User info is not found") as customError;
+    error.status=404;
+    throw error;
+  }
+  console.log(userInfo);
+  res.json(userInfo)
+})
