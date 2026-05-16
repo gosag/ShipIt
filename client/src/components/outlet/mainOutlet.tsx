@@ -55,8 +55,8 @@ const MainOutlet = () => {
                 {/* Branding / Top Nav */}
                 <div className="flex items-center justify-between h-14 px-4 border-b border-[#2C2C2E]/50">
                    <div className="flex items-center gap-2 font-semibold">
-                      <img src="/logo.png" alt="ShipIt Logo" className="h-6 w-auto object-contain" />
-                      <span className="text-white">ShipIt</span>
+                      
+                      <span className="text-white">Ship<span className="text-[hsl(263,99%,60%)]">It</span></span>
                    </div>
                    <button className="md:hidden p-1.5 text-gray-400 hover:text-white rounded-md hover:bg-white/5" onClick={toggleSidebar}>
                      <X size={18} />
