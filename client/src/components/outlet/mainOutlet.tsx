@@ -1,5 +1,5 @@
 import { Outlet, NavLink } from "react-router-dom";
-import { useState } from "react";
+import { useState ,useEffect} from "react";
 import {
   FolderKanban, 
   LayoutDashboard, 
@@ -9,7 +9,7 @@ import {
   Menu,
   X
 } from "lucide-react";
-
+import { api } from "../../axios";
 const Modal = ({ isOpen, onClose, title, children }: any) => {
   if (!isOpen) return null;
   return (
@@ -33,9 +33,29 @@ const MainOutlet = () => {
     const [isSidebarOpen, setSidebarOpen] = useState(false);
     const [workspaceModalOpen, setWorkspaceModalOpen] = useState(false);
     const [projectModalOpen, setProjectModalOpen] = useState(false);
+    const [userData,setUserData]=useState<{name:string,email:string,_id:string} | null>(null)
+    useEffect(()=>{
+      try{
+      const fetchData=async()=>{
+        const res= await api.get("/api/auth/user-info")
+        const returnedData=res.data;
+        console.log(returnedData);
+        setUserData(returnedData)
+      }
+      fetchData()
+    }catch(err){
+      console.log(err)
+    }
 
+  },[])
     const toggleSidebar = () => setSidebarOpen(!isSidebarOpen);
-
+   const firstLetter=(name:string)=>{
+    if (!name) return "";
+    const parts = name.trim().split(" ");
+    const firstInitial = parts[0] ? parts[0][0] : "";
+    const lastInitial = parts.length > 1 ? parts[parts.length - 1][0] : "";
+    return (firstInitial + lastInitial).toUpperCase();
+   }
     return (
         <div className="flex h-screen overflow-hidden bg-[#0e0e0f] text-[#f2f2f2] font-sans antialiased selection:bg-indigo-500/30">
             {/* Mobile Sidebar Overlay */}
@@ -135,11 +155,11 @@ const MainOutlet = () => {
                 <div className="p-4 border-t border-[#2C2C2E]/50 mt-auto">
                     <div className="flex items-center gap-3 px-2 py-2 text-sm font-medium rounded-lg text-gray-300 hover:text-white hover:bg-[#2C2C2E]/50 cursor-pointer transition-colors">
                       <div className="w-8 h-8 rounded-full bg-indigo-500 flex items-center justify-center text-white font-semibold shrink-0">
-                        JS
+                        {userData?firstLetter(userData.name):"JD"}
                       </div>
                       <div className="truncate">
-                        <p className="text-sm font-medium">John Smith</p>
-                        <p className="text-xs text-gray-500 truncate">john@shipit.app</p>
+                        <p className="text-sm font-medium">{userData ? userData.name : "John Doe"}</p>
+                        <p className="text-xs text-gray-500 truncate">{userData?.email ? userData.email : "gosa@shipit.app"}</p>
                       </div>
                     </div>
                 </div>
