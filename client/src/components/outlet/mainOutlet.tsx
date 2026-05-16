@@ -198,7 +198,7 @@ const MainOutlet = () => {
 
                               {/* Render Projects for this Workspace */}
                               {ws.projects && ws.projects.length > 0 && (
-                                <div className="pl-11 pr-3 space-y-1 mt-1 border-l border-[#2C2C2E]/30 ml-[22px]">
+                                <div className="pl-11 pr-3 space-y-1 mt-1 border-l border-[#2C2C2E]/30 ml-5.5">
                                   {ws.projects.map((project: any) => (
                                     <NavLink 
                                       key={project._id}
