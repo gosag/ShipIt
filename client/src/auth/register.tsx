@@ -1,5 +1,5 @@
 import { useForm } from "react-hook-form";
-import { useNavigate, Link } from "react-router-dom";
+import { Link } from "react-router-dom";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod"; 
 import axios from "axios"
@@ -12,8 +12,6 @@ const schema = z.object({
 type FormData = z.infer<typeof schema>;
 
 const Register = () => {
-    const navigate = useNavigate();
-    
     const { register, handleSubmit, formState: { errors, isSubmitting } } = useForm<FormData>({
         resolver: zodResolver(schema)
     });
@@ -45,9 +43,8 @@ const Register = () => {
             <div className="w-full max-w-100 relative z-10">
                 {/* Clean minimalist logo block matching shipIt logo */}
                 <div className="flex justify-center mb-10">
-                    <div className="flex items-center text-[40px] font-bold tracking-tight">
-                        <span className="text-white">ship</span>
-                        <span className="text-[#8B5CF6]">It</span>
+                    <div className="flex items-center">
+                        <img src="/logo.png" alt="ShipIt Logo" className="h-12 w-auto object-contain" />
                     </div>
                 </div>
 

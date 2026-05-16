@@ -1,13 +1,11 @@
 import { Outlet, NavLink } from "react-router-dom";
 import { useState } from "react";
-import { 
-  Building2, 
+import {
   FolderKanban, 
   LayoutDashboard, 
   Plus, 
   Settings, 
   Search,
-  CheckCircle2,
   Menu,
   X
 } from "lucide-react";
@@ -57,10 +55,8 @@ const MainOutlet = () => {
                 {/* Branding / Top Nav */}
                 <div className="flex items-center justify-between h-14 px-4 border-b border-[#2C2C2E]/50">
                    <div className="flex items-center gap-2 font-semibold">
-                      <div className="flex items-center justify-center w-6 h-6 bg-indigo-600 rounded-md shadow-sm">
-                        <CheckCircle2 size={14} className="text-white" />
-                      </div>
-                      <span>ShipIt</span>
+                      <img src="/logo.png" alt="ShipIt Logo" className="h-6 w-auto object-contain" />
+                      <span className="text-white">ShipIt</span>
                    </div>
                    <button className="md:hidden p-1.5 text-gray-400 hover:text-white rounded-md hover:bg-white/5" onClick={toggleSidebar}>
                      <X size={18} />
@@ -100,7 +96,7 @@ const MainOutlet = () => {
                           to="/workspace" 
                           className={({isActive}) => `flex items-center gap-3 px-3 py-1.5 text-sm font-medium rounded-lg transition-colors duration-150 ${isActive ? 'bg-[#2C2C2E] text-white' : 'text-gray-400 hover:text-gray-100 hover:bg-[#2C2C2E]/50'}`}
                         >
-                          <div className="flex items-center justify-center w-5 h-5 bg-gradient-to-br from-indigo-500 to-purple-600 rounded">
+                          <div className="flex items-center justify-center w-5 h-5 bg-linear-to-br from-indigo-500 to-purple-600 rounded">
                             <span className="text-[10px] text-white font-bold">D</span>
                           </div>
                           Design Team
@@ -138,7 +134,7 @@ const MainOutlet = () => {
                 {/* User Section */}
                 <div className="p-4 border-t border-[#2C2C2E]/50 mt-auto">
                     <div className="flex items-center gap-3 px-2 py-2 text-sm font-medium rounded-lg text-gray-300 hover:text-white hover:bg-[#2C2C2E]/50 cursor-pointer transition-colors">
-                      <div className="w-8 h-8 rounded-full bg-indigo-500 flex items-center justify-center text-white font-semibold flex-shrink-0">
+                      <div className="w-8 h-8 rounded-full bg-indigo-500 flex items-center justify-center text-white font-semibold shrink-0">
                         JS
                       </div>
                       <div className="truncate">
@@ -154,9 +150,7 @@ const MainOutlet = () => {
                 {/* Mobile Header */}
                 <header className="md:hidden flex items-center justify-between h-14 px-4 border-b border-[#2C2C2E] bg-[#141415]">
                    <div className="flex items-center gap-2 font-semibold text-white">
-                      <div className="flex items-center justify-center w-5 h-5 bg-indigo-600 rounded shadow-sm">
-                        <CheckCircle2 size={12} className="text-white" />
-                      </div>
+                      <img src="/logo.png" alt="ShipIt Logo" className="h-5 w-auto object-contain" />
                       ShipIt
                    </div>
                    <button 
