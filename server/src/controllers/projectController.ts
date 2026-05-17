@@ -1,6 +1,7 @@
 import type { Response, NextFunction } from "express";
 import type { AuthRequest } from "../middleware/auth.js";
 import { Project } from "../models/Project.js";
+import { Column } from "../models/Column.js";
 import asyncHandler from "express-async-handler";
 interface customError extends Error {
     status?: number;
@@ -29,6 +30,19 @@ export const newProject= asyncHandler(async(req:AuthRequest,res:Response,next:Ne
     const savedProject = await newProject.save();
     if(!savedProject){
         throw new Error("Failed to save the project to the database");
+    }
+    const columnNames=["To Do", "In Progress", "Done"];
+    for(const columnName of columnNames){
+        const newColumn= new Column({
+            title: columnName,
+            project: savedProject._id,
+            workspace,
+            order: columnNames.indexOf(columnName),
+        })
+        await newColumn.save();
+        if(!newColumn){
+            throw new Error("Failed to save the column to the database");
+        }
     }
     res.status(201).json(savedProject);
 })
