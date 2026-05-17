@@ -113,5 +113,6 @@ export const deleteProject= asyncHandler(async(req:AuthRequest,res:Response,next
         error.status = 404;
         throw error;
     }
+    await Column.deleteMany({project:projectId});
     res.status(200).json({message:"Project deleted successfully", project:deletedProject});
 });
