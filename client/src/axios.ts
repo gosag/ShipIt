@@ -55,7 +55,8 @@ api.interceptors.response.use(
             isRefreshing = true;
 
             try {
-                const res = await axios.post(`${import.meta.env.VITE_API_BASE_URL || "http://localhost:8000"}/api/auth/refresh`, {}, {
+                const res = await axios.post(`/api/auth/refresh`, {}, {
+                    baseURL: import.meta.env.VITE_API_BASE_URL || "http://localhost:8000/",
                     withCredentials: true
                 });
                 
