@@ -38,8 +38,8 @@ export const register = async (req: Request, res: Response): Promise<any> => {
 
     res.cookie('refreshToken', refreshToken, {
       httpOnly: true,
-      secure: process.env.NODE_ENV === 'production',
-      sameSite: 'lax',
+      secure: true,
+      sameSite: 'none',
       maxAge: REFRESH_TOKEN_COOKIE_MAX_AGE,
     });
 
@@ -73,8 +73,8 @@ export const login = async (req: Request, res: Response): Promise<any> => {
 
     res.cookie('refreshToken', refreshToken, {
       httpOnly: true,
-      secure: process.env.NODE_ENV === 'production',
-      sameSite: 'lax',
+      secure: true,
+      sameSite: 'none',
       maxAge: REFRESH_TOKEN_COOKIE_MAX_AGE,
     });
 
@@ -93,9 +93,11 @@ export const logout = (req: Request, res: Response) => {
 };
 
 export const refresh = async (req: Request, res: Response): Promise<any> => {
+  console.log("Refresh hit! Cookies received:", req.cookies);
   const refreshToken = req.cookies.refreshToken;
 
   if (!refreshToken) {
+    console.log("No refresh token provided.");
     return res.status(401).json({ message: 'No refresh token provided' });
   }
 
