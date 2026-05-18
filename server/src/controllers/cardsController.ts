@@ -51,27 +51,48 @@ export const updateCard= asyncHandler(async(req:AuthRequest,res:Response,next:Ne
         error.status=401;
         throw error;
     }
-
-    const cardId=req.params.cardId;
-    const columnId= req.params.columnId;
-    const {title,description,dueDate,order,assignee,priority,labels}=req.body;
+    const {title,description,dueDate,assignee,priority,labels}=req.body;
     const newFields:any={};
     if(title) newFields.title=title;
     if(description) newFields.description=description;
     if(dueDate) newFields.dueDate=dueDate;
-    if(order) newFields.order=order;
     if(assignee) newFields.assignee=assignee;
     if(priority) newFields.priority=priority;
     if(labels) newFields.labels=labels;
+    const cardId=req.params.cardId;
+
     const updatedCard= await Card.findByIdAndUpdate({ _id: cardId }, newFields, { new: true });
     if(!updatedCard){
         const error= new Error("Failed to update the card") as customError;
         error.status=404;
         throw error;
     }
+
     res.json(updatedCard);
 })
-export const deleteCard= asyncHandler(async(req:AuthRequest,res:Response,next:NextFunction)=>{
+export const moveCard= asyncHandler(async(req:AuthRequest,res:Response,next:NextFunction)=>{
+    if(!req.user || !req.user._id){
+        const error= new Error("Not authenticated or no token!") as customError;
+        error.status=401;
+        throw error;
+    }
+    const {newColumnId, newOrder}=req.body;
+    if(!newColumnId || newOrder === undefined){
+        const error= new Error("New column ID and new order are required") as customError;
+        error.status=400;
+        throw error;
+    }
+    const cardId=req.params.cardId;
+    const newField:{column?:string, order?:string}={}
+    if(newColumnId) newField.column=newColumnId;
+    if(cardId) newField.order=newOrder
+    const updatedCard= await Card.findByIdAndUpdate({ _id: cardId }, newField , { new: true });
+    if(!updatedCard){
+          throw new Error("Was unable to update the card") as customError;
+    }
+    res.json(updatedCard)
+})
+export const deleteCard= asyncHandler(async(req:AuthRequest,res:Response)=>{
     if(!req.user || !req.user._id){
         const error= new Error("Not authenticated or no token!") as customError;
         error.status=401;
