@@ -44,3 +44,29 @@ export const createCard= asyncHandler(async(req:AuthRequest,res:Response,next:Ne
         }
         res.status(201).json(newCard);
 })
+export const updateCard= asyncHandler(async(req:AuthRequest,res:Response,next:NextFunction)=>{
+    if(!req.user || !req.user._id){
+        const error= new Error("Not authenticated or no token!") as customError;
+        error.status=401;
+        throw error;
+    }
+
+    const cardId=req.params.cardId;
+    const columnId= req.params.columnId;
+    const {title,description,dueDate,order,assignee,priority,labels}=req.body;
+    const newFields:any={};
+    if(title) newFields.title=title;
+    if(description) newFields.description=description;
+    if(dueDate) newFields.dueDate=dueDate;
+    if(order) newFields.order=order;
+    if(assignee) newFields.assignee=assignee;
+    if(priority) newFields.priority=priority;
+    if(labels) newFields.labels=labels;
+    const updatedCard= await Card.findByIdAndUpdate({ _id: cardId }, newFields, { new: true });
+    if(!updatedCard){
+        const error= new Error("Failed to update the card") as customError;
+        error.status=404;
+        throw error;
+    }
+    res.json(updatedCard);
+})
