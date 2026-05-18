@@ -2,6 +2,7 @@ import type {Request, Response, NextFunction} from "express";
 import { Card } from "../models/Card.js";
 import asyncHandler from "express-async-handler";
 import type { AuthRequest } from "../middleware/auth.js";
+import { Workspace } from "../models/Workspace.js";
 interface customError extends Error {
     status?: number;
 }
@@ -69,4 +70,38 @@ export const updateCard= asyncHandler(async(req:AuthRequest,res:Response,next:Ne
         throw error;
     }
     res.json(updatedCard);
+})
+export const deleteCard= asyncHandler(async(req:AuthRequest,res:Response,next:NextFunction)=>{
+    if(!req.user || !req.user._id){
+        const error= new Error("Not authenticated or no token!") as customError;
+        error.status=401;
+        throw error;
+    }
+    const cardId=req.params.cardId;
+    const cardToBeDeleted= await Card.findById(cardId);
+    let WorkSpaceId="";
+    if(cardToBeDeleted){
+        WorkSpaceId= cardToBeDeleted.workspace.toString();
+    }
+    const workspace= await Workspace.findById(WorkSpaceId);
+    
+    if(!workspace){
+        const error= new Error("Workspace not found") as customError;
+        error.status=404;
+        throw error;
+    }
+    const userInfoInWorkspace= workspace.members.find(member=> member.user.toString()=== req.user?._id.toString());
+    if(!userInfoInWorkspace){
+        const error= new Error("You are not a member of the workspace") as customError;
+        error.status=403;
+        throw error;
+    }
+
+    if((cardToBeDeleted?.createdBy.toString() !== req.user._id.toString())|| userInfoInWorkspace.role !== "admin"){
+        const error= new Error("You are not authorized to delete this card") as customError;
+        error.status=403;
+        throw error;
+    }
+    await Card.findByIdAndDelete(cardId);
+    res.json({ message: "Card deleted successfully" });
 })
