@@ -1,4 +1,4 @@
-import type {Request, Response, NextFunction} from "express";
+import type {Response, NextFunction} from "express";
 import { Card } from "../models/Card.js";
 import asyncHandler from "express-async-handler";
 import type { AuthRequest } from "../middleware/auth.js";

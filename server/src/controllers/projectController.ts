@@ -31,7 +31,7 @@ export const newProject= asyncHandler(async(req:AuthRequest,res:Response,next:Ne
     if(!savedProject){
         throw new Error("Failed to save the project to the database");
     }
-    const columnNames=["To Do", "In Progress", "Done"];
+    const columnNames=["To Do", "In Progress","Being Approved", "Done"];
     for(const columnName of columnNames){
         const newColumn= new Column({
             title: columnName,
