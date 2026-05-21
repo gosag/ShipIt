@@ -2,6 +2,8 @@ import { Navigate, Route, Routes } from "react-router-dom";
 import Register from "./auth/register";
 import Login from "./auth/login";
 import MainOutlet from "./components/outlet/mainOutlet";
+import { KanbanBoard } from "./components/board/KanbanBoard";
+
 const App=()=>{
   const savedToken=!!localStorage.getItem("accessToken")
   return(
@@ -15,6 +17,7 @@ const App=()=>{
       </Route>):
       (<Route>
         <Route path="/" element={<MainOutlet />}>
+          <Route path="projects/:projectId" element={<KanbanBoard />} />
           <Route path="*" element={<Navigate to="/" replace />} />
         </Route>
       </Route>)}

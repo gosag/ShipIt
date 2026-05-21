@@ -247,8 +247,8 @@ const MainOutlet = () => {
                    </button>
                 </header>
 
-                <div className="flex-1 overflow-auto bg-[#0e0e0f]">
-                  <div className="max-w-6xl mx-auto p-4 md:p-8">
+                <div className="flex-1 overflow-hidden bg-[#0e0e0f] flex flex-col">
+                  <div className="flex-1 flex flex-col w-full p-4 md:p-6 overflow-x-hidden overflow-y-auto">
                     <Outlet />
                   </div>
                 </div>
