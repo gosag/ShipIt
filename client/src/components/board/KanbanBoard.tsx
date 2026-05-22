@@ -21,6 +21,13 @@ export const KanbanBoard: React.FC = () => {
   const [columns, setColumns] = useState<ColumnType[]>([]);
   const [loading, setLoading] = useState(true);
 
+  // New state for task modal
+  const [isTaskModalOpen, setIsTaskModalOpen] = useState(false);
+  const [taskTitle, setTaskTitle] = useState("");
+  const [taskDescription, setTaskDescription] = useState("");
+  const [selectedColumnId, setSelectedColumnId] = useState("");
+  const [refreshTrigger, setRefreshTrigger] = useState(0);
+
   useEffect(() => {
     const fetchColumns = async () => {
       try {
@@ -32,10 +39,34 @@ export const KanbanBoard: React.FC = () => {
         console.error("Failed to fetch columns", error);
       } finally {
         setLoading(false);
-      }
-    };
+      }}
     fetchColumns();
-  }, [projectId]);
+  }, [projectId])
+  ;
+
+  const handleOpenTaskModal = (columnId?: string) => {
+    setSelectedColumnId(columnId || (columns.length > 0 ? columns[0]._id : ""));
+    setIsTaskModalOpen(true);
+  };
+
+  const handleCreateTask = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if(!taskTitle.trim() || !selectedColumnId) return;
+    try {
+      await api.post(`/api/projects/${projectId}/columns/${selectedColumnId}/cards`, {
+        title: taskTitle,
+        description: taskDescription,
+        order: 0
+      });
+      setTaskTitle("");
+      setTaskDescription("");
+      setIsTaskModalOpen(false);
+      setRefreshTrigger(prev => prev + 1); // trigger reload
+    } catch (error) {
+      console.error("Failed to create task:", error);
+    }
+  };
+
   return (
     <div className="flex flex-col h-full w-full">
       {/* Board Header */}
@@ -57,7 +88,10 @@ export const KanbanBoard: React.FC = () => {
             <Filter size={16} />
             <span className="hidden sm:inline">Filter</span>
           </button>
-          <button className="flex items-center gap-2 px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition-colors text-sm font-medium shadow-sm shadow-indigo-900/20">
+          <button 
+            onClick={() => handleOpenTaskModal()}
+            className="flex items-center gap-2 px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition-colors text-sm font-medium shadow-sm shadow-indigo-900/20"
+          >
             <Plus size={16} />
             <span>New Task</span>
           </button>
@@ -73,17 +107,77 @@ export const KanbanBoard: React.FC = () => {
         ) : (
           <div className="flex flex-col lg:grid lg:grid-cols-4 gap-6 h-auto lg:h-full">
             {columns.map((column, index) => (
-              <div key={column._id} className="flex flex-col h-[500px] lg:h-full min-h-0">
+              <div key={column._id} className="flex flex-col h-125 lg:h-full min-h-0">
                 <KanbanColumn 
                   id={column._id} 
                   title={column.title}
                   badgeColor={BADGE_COLORS[index % BADGE_COLORS.length]} 
+                  onAddTask={() => handleOpenTaskModal(column._id)}
+                  refreshTrigger={refreshTrigger}
                 />
               </div>
             ))}
           </div>
         )}
       </div>
+
+      {/* Task Modal */}
+      {isTaskModalOpen && (
+        <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-50">
+          <div className="bg-[#1C1C1E] border border-[#2C2C2E] rounded-xl w-full max-w-md p-6">
+            <h2 className="text-xl font-bold text-white mb-4">Create New Task</h2>
+            <form onSubmit={handleCreateTask} className="space-y-4">
+              <div>
+                <label className="block text-sm font-medium text-gray-300 mb-1">Title</label>
+                <input 
+                  type="text" 
+                  value={taskTitle}
+                  onChange={e => setTaskTitle(e.target.value)}
+                  className="w-full px-3 py-2 bg-[#2C2C2E] border border-[#3C3C3E] rounded-lg outline-none focus:border-indigo-500 focus:ring-1 text-white"
+                  required
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-300 mb-1">Description (optional)</label>
+                <textarea 
+                  value={taskDescription}
+                  onChange={e => setTaskDescription(e.target.value)}
+                  className="w-full px-3 py-2 bg-[#2C2C2E] border border-[#3C3C3E] rounded-lg outline-none focus:border-indigo-500 focus:ring-1 text-white h-24 resize-none"
+                ></textarea>
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-300 mb-1">Column</label>
+                <select 
+                  value={selectedColumnId}
+                  onChange={e => setSelectedColumnId(e.target.value)}
+                  className="w-full px-3 py-2 bg-[#2C2C2E] border border-[#3C3C3E] rounded-lg outline-none focus:border-indigo-500 focus:ring-1 text-white"
+                >
+                  {columns.map(c => (
+                    <option key={c._id} value={c._id}>{c.title}</option>
+                  ))}
+                </select>
+              </div>
+              <div className="flex items-center justify-end gap-3 mt-6 pt-4 border-t border-[#2C2C2E]">
+                <button 
+                  type="button" 
+                  onClick={() => setIsTaskModalOpen(false)}
+                  className="px-4 py-2 text-sm font-medium text-gray-400 hover:text-white transition-colors"
+                >
+                  Cancel
+                </button>
+                <button 
+                  type="submit"
+                  className="px-4 py-2 text-sm font-medium bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition-colors"
+                  disabled={!taskTitle.trim() || !selectedColumnId}
+                >
+                  Create Task
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
+
     </div>
   );
 };

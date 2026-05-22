@@ -3,6 +3,7 @@ import { Card } from "../models/Card.js";
 import asyncHandler from "express-async-handler";
 import type { AuthRequest } from "../middleware/auth.js";
 import { Workspace } from "../models/Workspace.js";
+import { Project } from "../models/Project.js";
 interface customError extends Error {
     status?: number;
 }
@@ -44,12 +45,21 @@ export const createCard= asyncHandler(async(req:AuthRequest,res:Response,next:Ne
      }
      const columnId=req.params.columnId;
      const projectId=req.params.projectId;
-     const workspaceId=req.params.workspaceId;
-     if(!columnId || !projectId || !workspaceId){
-        const error= new Error("Column ID, Project ID and Workspace ID are required") as customError;
+     
+     if(!columnId || !projectId){
+        const error= new Error("Column ID and Project ID are required") as customError;
         error.status=400;
         throw error;
      }
+
+     const project = await Project.findById(projectId);
+     if (!project) {
+        const error= new Error("Project not found") as customError;
+        error.status=404;
+        throw error;
+     }
+     const workspaceId = project.workspace;
+
         const newCard= new Card({
             title,
             description,

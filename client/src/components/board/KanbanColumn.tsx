@@ -7,9 +7,11 @@ interface KanbanColumnProps {
   id: string;
   title: string;
   badgeColor: string;
+  onAddTask?: () => void;
+  refreshTrigger?: number;
 }
 
-export const KanbanColumn: React.FC<KanbanColumnProps> = ({ id, title, badgeColor }) => {
+export const KanbanColumn: React.FC<KanbanColumnProps> = ({ id, title, badgeColor, onAddTask, refreshTrigger }) => {
   const { projectId } = useParams<{ projectId: string }>();
   const [cards, setCards] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
@@ -28,7 +30,7 @@ export const KanbanColumn: React.FC<KanbanColumnProps> = ({ id, title, badgeColo
       }
     };
     fetchCards();
-  }, [projectId, id]);
+  }, [projectId, id, refreshTrigger]);
 
   return (
     <div className="flex flex-col w-full h-full">
@@ -41,7 +43,10 @@ export const KanbanColumn: React.FC<KanbanColumnProps> = ({ id, title, badgeColo
           </span>
         </div>
         <div className="flex items-center gap-1 opacity-0 hover:opacity-100 transition-opacity focus-within:opacity-100" style={{ opacity: 1 /* Keeping it visible for now to match designs where actions are clear */}}>
-          <button className="p-1.5 text-gray-400 hover:text-gray-200 hover:bg-[#2C2C2E] rounded-md transition-colors">
+          <button 
+            onClick={onAddTask}
+            className="p-1.5 text-gray-400 hover:text-gray-200 hover:bg-[#2C2C2E] rounded-md transition-colors"
+          >
             <Plus size={16} />
           </button>
           <button className="p-1.5 text-gray-400 hover:text-gray-200 hover:bg-[#2C2C2E] rounded-md transition-colors">
@@ -78,7 +83,10 @@ export const KanbanColumn: React.FC<KanbanColumnProps> = ({ id, title, badgeColo
             </div>
           ))
         ) : (
-          <div className="flex-1 flex flex-col items-center justify-center border-2 border-dashed border-[#2C2C2E] hover:border-[#3C3C3E] rounded-lg transition-colors duration-200 py-8 group cursor-pointer">
+          <div 
+            onClick={onAddTask}
+            className="flex-1 flex flex-col items-center justify-center border-2 border-dashed border-[#2C2C2E] hover:border-[#3C3C3E] rounded-lg transition-colors duration-200 py-8 group cursor-pointer"
+          >
             <div className="w-10 h-10 rounded-full bg-[#1C1C1E] flex items-center justify-center mb-3 group-hover:scale-110 transition-transform">
               <Plus size={20} className="text-gray-500 group-hover:text-indigo-400 transition-colors" />
             </div>

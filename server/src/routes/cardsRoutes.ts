@@ -3,7 +3,7 @@ import { authenticate } from "../middleware/auth.js";
 import { createCard, updateCard, moveCard, deleteCard, getCards } from "../controllers/cardsController.js";
 const cardsRouter = express.Router();
 
-cardsRouter.post("/:workspaceId/projects/:projectId/columns/:columnId/cards", authenticate, createCard);
+cardsRouter.post("/projects/:projectId/columns/:columnId/cards", authenticate, createCard);
 cardsRouter.get("/projects/:projectId/columns/:columnId/cards", authenticate, getCards);
 cardsRouter.put("/columns/:columnId/cards/:cardId", authenticate, updateCard);
 cardsRouter.put("/columns/:columnId/cards/:cardId/move", authenticate, moveCard);
