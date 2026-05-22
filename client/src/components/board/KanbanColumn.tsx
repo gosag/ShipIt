@@ -9,9 +9,9 @@ interface KanbanColumnProps {
 
 export const KanbanColumn: React.FC<KanbanColumnProps> = ({ title, badgeColor }) => {
   return (
-    <div className="flex flex-col flex-shrink-0 w-[300px] h-full max-h-full">
+    <div className="flex flex-col w-full h-full">
       {/* Column Header */}
-      <div className="flex items-center justify-between mb-4 sticky top-0">
+      <div className="flex-none flex items-center justify-between mb-4 sticky top-0">
         <div className="flex items-center gap-2.5">
           <h3 className="font-semibold text-gray-200 text-sm tracking-wide">{title}</h3>
           <span className={`text-xs font-medium px-2 py-0.5 rounded-full border ${badgeColor}`}>
@@ -29,7 +29,7 @@ export const KanbanColumn: React.FC<KanbanColumnProps> = ({ title, badgeColor })
       </div>
 
       {/* Column Body / Drop Zone */}
-      <div className="flex-1 flex flex-col gap-3 min-h-[150px] transition-colors rounded-xl bg-[#141415] border border-[#2C2C2E] p-3 shadow-sm">
+      <div className="flex-1 min-h-0 flex flex-col gap-3 overflow-y-auto custom-scrollbar transition-colors rounded-xl bg-[#141415] border border-[#2C2C2E] p-3 shadow-sm">
         {/* We will map the cards here later. For now, it's an empty drop zone placeholder */}
         <div className="flex-1 flex flex-col items-center justify-center border-2 border-dashed border-[#2C2C2E] hover:border-[#3C3C3E] rounded-lg transition-colors duration-200 py-8 group cursor-pointer">
           <div className="w-10 h-10 rounded-full bg-[#1C1C1E] flex items-center justify-center mb-3 group-hover:scale-110 transition-transform">

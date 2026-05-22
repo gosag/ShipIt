@@ -38,23 +38,18 @@ export const KanbanBoard: React.FC = () => {
         </div>
       </div>
 
-      {/* Board Scrollable Area */}
-      <div className="flex-1 overflow-x-auto overflow-y-hidden custom-scrollbar pb-4">
-        <div className="flex h-full items-start gap-6 min-w-max">
+      {/* Board Area */}
+      <div className="flex-1 min-h-0 overflow-x-hidden overflow-y-auto lg:overflow-hidden pb-4">
+        <div className="flex flex-col lg:grid lg:grid-cols-4 gap-6 h-auto lg:h-full">
           {COLUMNS.map((column) => (
-            <KanbanColumn 
-              key={column.id} 
-              id={column.id} 
-              title={column.title} 
-              badgeColor={column.badgeColor} 
-            />
+            <div key={column.id} className="flex flex-col h-[500px] lg:h-full min-h-0">
+              <KanbanColumn 
+                id={column.id} 
+                title={column.title} 
+                badgeColor={column.badgeColor} 
+              />
+            </div>
           ))}
-          
-          {/* Add Column Button */}
-          <button className="flex-shrink-0 w-[300px] h-[52px] rounded-xl border border-dashed border-[#3C3C3E] flex items-center justify-center text-gray-500 hover:text-gray-300 hover:border-[#5C5C5E] hover:bg-[#141415]/50 transition-all cursor-pointer font-medium mt-1 group">
-            <Plus size={18} className="mr-2 group-hover:scale-110 transition-transform" />
-            Add Section
-          </button>
         </div>
       </div>
     </div>
