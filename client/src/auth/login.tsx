@@ -41,7 +41,7 @@ const Login = () => {
                 {/* Clean minimalist logo block matching shipIt logo */}
                 <div className="flex justify-center mb-10">
                     <div className="flex items-center">
-                        <img src="/logo.png" alt="ShipIt Logo" className="h-12 w-auto object-contain" />
+                        <img src="/logo.png" alt="ShipIt Logo" className="h-12 w-auto object-contain" ></img>
                     </div>
                 </div>
 
@@ -62,6 +62,7 @@ const Login = () => {
                                 id="email"
                                 type="email"
                                 placeholder="name@company.com"
+                                autoComplete="email"
                                 className={`w-full bg-[#0A0A0A] border ${errors.email ? 'border-red-500/50 focus:border-red-500' : 'border-white/10 focus:border-indigo-500/80'} rounded-lg px-4 py-3 text-sm text-white placeholder-[#52525B] focus:outline-none focus:ring-1 ${errors.email ? 'focus:ring-red-500' : 'focus:ring-indigo-500/50'} transition-all`}
                                 {...register("email")}
                             />
