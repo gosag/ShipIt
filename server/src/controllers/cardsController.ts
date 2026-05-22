@@ -6,6 +6,31 @@ import { Workspace } from "../models/Workspace.js";
 interface customError extends Error {
     status?: number;
 }
+export const getCards = asyncHandler(async (req: AuthRequest, res: Response) => {
+    if (!req.user || !req.user._id) {
+        const error = new Error("Not authenticated or no token!") as customError;
+        error.status = 401;
+        throw error;
+    }
+
+    const { workspaceId, projectId, columnId } = req.params;
+
+    if (!workspaceId || !projectId || !columnId) {
+        const error = new Error("Workspace ID, Project ID, and Column ID are required") as customError;
+        error.status = 400;
+        throw error;
+    }
+
+    // Optionally populate assignee info or leave as just IDs
+    const cards = await Card.find({
+        workspace: workspaceId,
+        project: projectId,
+        column: columnId
+    }).sort({ order: 1 });
+
+    res.status(200).json(cards);
+});
+
 export const createCard= asyncHandler(async(req:AuthRequest,res:Response,next:NextFunction)=>{
     if(!req.user || !req.user._id){
         const error= new Error("Not authenticated or no token!") as customError;
