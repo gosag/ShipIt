@@ -13,17 +13,16 @@ export const getCards = asyncHandler(async (req: AuthRequest, res: Response) => 
         throw error;
     }
 
-    const { workspaceId, projectId, columnId } = req.params;
+    const { projectId, columnId } = req.params;
 
-    if (!workspaceId || !projectId || !columnId) {
-        const error = new Error("Workspace ID, Project ID, and Column ID are required") as customError;
+    if (!projectId || !columnId) {
+        const error = new Error("Project ID, and Column ID are required") as customError;
         error.status = 400;
         throw error;
     }
 
     // Optionally populate assignee info or leave as just IDs
     const cards = await Card.find({
-        workspace: workspaceId,
         project: projectId,
         column: columnId
     }).sort({ order: 1 });

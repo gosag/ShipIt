@@ -1,15 +1,41 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
+import { useParams } from 'react-router-dom';
 import { KanbanColumn } from './KanbanColumn';
-import { Plus, Filter, Search } from 'lucide-react';
+import { Plus, Filter, Search, Loader } from 'lucide-react';
+import { api } from '../../axios';
 
-const COLUMNS = [
-  { id: 'todo', title: 'To do', badgeColor: 'bg-indigo-500/10 text-indigo-400 border-indigo-500/20' },
-  { id: 'processing', title: 'Processing', badgeColor: 'bg-blue-500/10 text-blue-400 border-blue-500/20' },
-  { id: 'being-approved', title: 'Being Approved', badgeColor: 'bg-amber-500/10 text-amber-400 border-amber-500/20' },
-  { id: 'done', title: 'Done', badgeColor: 'bg-emerald-500/10 text-emerald-400 border-emerald-500/20' },
+interface ColumnType {
+  _id: string;
+  title: string;
+}
+
+const BADGE_COLORS = [
+  'bg-indigo-500/10 text-indigo-400 border-indigo-500/20',
+  'bg-blue-500/10 text-blue-400 border-blue-500/20',
+  'bg-amber-500/10 text-amber-400 border-amber-500/20',
+  'bg-emerald-500/10 text-emerald-400 border-emerald-500/20'
 ];
 
 export const KanbanBoard: React.FC = () => {
+  const { projectId } = useParams<{ projectId: string }>();
+  const [columns, setColumns] = useState<ColumnType[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const fetchColumns = async () => {
+      try {
+        if (!projectId) return;
+        setLoading(true);
+        const res = await api.get(`/api/column/${projectId}`);
+        setColumns(res.data);
+      } catch (error) {
+        console.error("Failed to fetch columns", error);
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchColumns();
+  }, [projectId]);
   return (
     <div className="flex flex-col h-full w-full">
       {/* Board Header */}
@@ -40,17 +66,23 @@ export const KanbanBoard: React.FC = () => {
 
       {/* Board Area */}
       <div className="flex-1 min-h-0 overflow-x-hidden overflow-y-auto lg:overflow-hidden pb-4">
-        <div className="flex flex-col lg:grid lg:grid-cols-4 gap-6 h-auto lg:h-full">
-          {COLUMNS.map((column) => (
-            <div key={column.id} className="flex flex-col h-[500px] lg:h-full min-h-0">
-              <KanbanColumn 
-                id={column.id} 
-                title={column.title} 
-                badgeColor={column.badgeColor} 
-              />
-            </div>
-          ))}
-        </div>
+        {loading ? (
+          <div className="flex-1 flex items-center justify-center h-full">
+            <Loader className="animate-spin text-indigo-500" size={32} />
+          </div>
+        ) : (
+          <div className="flex flex-col lg:grid lg:grid-cols-4 gap-6 h-auto lg:h-full">
+            {columns.map((column, index) => (
+              <div key={column._id} className="flex flex-col h-[500px] lg:h-full min-h-0">
+                <KanbanColumn 
+                  id={column._id} 
+                  title={column.title}
+                  badgeColor={BADGE_COLORS[index % BADGE_COLORS.length]} 
+                />
+              </div>
+            ))}
+          </div>
+        )}
       </div>
     </div>
   );
