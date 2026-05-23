@@ -47,7 +47,7 @@ export const KanbanColumn: React.FC<KanbanColumnProps> = ({ id, title, badgeColo
             onClick={onAddTask}
             className="p-1.5 text-gray-400 hover:text-gray-200 hover:bg-[#2C2C2E] rounded-md transition-colors"
           >
-            <Plus size={16} />
+            {cards.length!==0 ? <Plus size={16} /> : null}
           </button>
           <button className="p-1.5 text-gray-400 hover:text-gray-200 hover:bg-[#2C2C2E] rounded-md transition-colors">
             <MoreVertical size={16} />
