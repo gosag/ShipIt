@@ -117,7 +117,7 @@ const MainOutlet = () => {
     return (firstInitial + lastInitial).toUpperCase();
    }
     return (
-        <div className="flex h-screen overflow-hidden bg-[#0e0e0f] text-[#f2f2f2] font-sans antialiased selection:bg-indigo-500/30">
+        <div className="flex min-h-screen overflow-hidden bg-[#0e0e0f] text-[#f2f2f2] font-sans antialiased selection:bg-indigo-500/30">
             {/* Mobile Sidebar Overlay */}
             {isSidebarOpen && (
               <div 
@@ -143,7 +143,7 @@ const MainOutlet = () => {
                    </button>
                 </div>
 
-                <div className="flex-1 px-3 py-4 space-y-6 overflow-y-auto custom-scrollbar">
+                <div className="flex-1 px-3 py-4 space-y-6 ">
                     
                     {/* General Links */}
                     <div className="space-y-1">
@@ -162,7 +162,7 @@ const MainOutlet = () => {
                     </div>
 
                     {/* Workspaces Section */}
-                    <div className="space-y-4">
+                    <div className="space-y-4 overflow-y-auto custom-scrollbar">
                         <div className="flex items-center justify-between px-3 group">
                           <h3 className="text-xs font-semibold text-gray-500 uppercase tracking-wider">Workspaces</h3>
                           <div className="flex gap-1">

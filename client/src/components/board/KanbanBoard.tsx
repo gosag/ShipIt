@@ -25,7 +25,10 @@ export const KanbanBoard: React.FC = () => {
   const [isTaskModalOpen, setIsTaskModalOpen] = useState(false);
   const [taskTitle, setTaskTitle] = useState("");
   const [taskDescription, setTaskDescription] = useState("");
+  const [taskPriority, setTaskPriority] = useState("medium");
+  const [taskLabels, setTaskLabels] = useState("");
   const [selectedColumnId, setSelectedColumnId] = useState("");
+  const [taskDueDate, setTaskDueDate] = useState("");
   const [refreshTrigger, setRefreshTrigger] = useState(0);
 
   useEffect(() => {
@@ -56,7 +59,7 @@ export const KanbanBoard: React.FC = () => {
       await api.post(`/api/projects/${projectId}/columns/${selectedColumnId}/cards`, {
         title: taskTitle,
         description: taskDescription,
-        order: 0
+        order: 0,
       });
       setTaskTitle("");
       setTaskDescription("");
@@ -123,12 +126,12 @@ export const KanbanBoard: React.FC = () => {
 
       {/* Task Modal */}
       {isTaskModalOpen && (
-        <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-50">
-          <div className="bg-[#1C1C1E] border border-[#2C2C2E] rounded-xl w-full max-w-md p-6">
+        <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-50 p-4">
+          <div className="bg-[#1C1C1E] border border-[#2C2C2E] rounded-xl w-full max-w-md p-6 max-h-[90vh] overflow-y-auto [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]">
             <h2 className="text-xl font-bold text-white mb-4">Create New Task</h2>
             <form onSubmit={handleCreateTask} className="space-y-4">
               <div>
-                <label className="block text-sm font-medium text-gray-300 mb-1">Title</label>
+                <label className="block text-sm font-medium text-gray-300 mb-1">Title (A must)</label>
                 <input 
                   type="text" 
                   value={taskTitle}
@@ -138,12 +141,42 @@ export const KanbanBoard: React.FC = () => {
                 />
               </div>
               <div>
-                <label className="block text-sm font-medium text-gray-300 mb-1">Description (optional)</label>
+                <label className="block text-sm font-medium text-gray-300 mb-1">Description</label>
                 <textarea 
                   value={taskDescription}
                   onChange={e => setTaskDescription(e.target.value)}
                   className="w-full px-3 py-2 bg-[#2C2C2E] border border-[#3C3C3E] rounded-lg outline-none focus:border-indigo-500 focus:ring-1 text-white h-24 resize-none"
                 ></textarea>
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-300 mb-1">Priority</label>
+                <select 
+                  value={taskPriority}
+                  onChange={e => setTaskPriority(e.target.value)}
+                  className="w-full px-3 py-2 bg-[#2C2C2E] border border-[#3C3C3E] rounded-lg outline-none focus:border-indigo-500 focus:ring-1 text-white"
+                >
+                  <option value="low">Low</option>
+                  <option value="medium">Medium</option>
+                  <option value="high">High</option>
+                </select>
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-300 mb-1">Labels (comma separated)</label>
+                <input 
+                  type="text" 
+                  value={taskLabels}
+                  onChange={e => setTaskLabels(e.target.value)}
+                  className="w-full px-3 py-2 bg-[#2C2C2E] border border-[#3C3C3E] rounded-lg outline-none focus:border-indigo-500 focus:ring-1 text-white"
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-300 mb-1">Due Date</label>
+                <input 
+                  type="date" 
+                  className="w-full px-3 py-2 bg-[#2C2C2E] border border-[#3C3C3E] rounded-lg outline-none focus:border-indigo-500 focus:ring-1 text-white"
+                  value={taskDueDate}
+                  onChange={e => setTaskDueDate(e.target.value)}
+                />
               </div>
               <div>
                 <label className="block text-sm font-medium text-gray-300 mb-1">Column</label>
