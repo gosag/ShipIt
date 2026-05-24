@@ -226,7 +226,7 @@ const MainOutlet = () => {
                                     >
                                       <span className="w-1.5 h-1.5 rounded-full bg-blue-400 shrink-0"></span>
                                       <span className="truncate">{project.name}</span>
-                                      {project.createdBy === userData?._id && (
+                                      {project.createdBy === userData?._id || ws.owner===userData?._id && (
                                         <button 
                                           className="ml-auto p-1 text-gray-400 hover:text-red-500 transition-colors" 
                                           title="Delete Project"
