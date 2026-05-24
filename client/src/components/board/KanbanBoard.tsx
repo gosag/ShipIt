@@ -108,7 +108,7 @@ export const KanbanBoard: React.FC = () => {
       </div>
 
       {/* Board Area */}
-      <div className="flex-1 min-h-0 overflow-x-hidden overflow-y-auto lg:overflow-hidden pb-4">
+      <div className="flex-1 min-h-0 overflow-x-hidden overflow-y-auto lg:overflow-hidden pb-4 custom-scrollbar">
         {loading ? (
           <div className="flex-1 flex items-center justify-center h-full">
             <Loader className="animate-spin text-indigo-500" size={32} />

@@ -117,7 +117,7 @@ const MainOutlet = () => {
     return (firstInitial + lastInitial).toUpperCase();
    }
     return (
-        <div className="flex min-h-screen overflow-hidden bg-[#0e0e0f] text-[#f2f2f2] font-sans antialiased selection:bg-indigo-500/30">
+        <div className="flex h-screen overflow-hidden bg-[#0e0e0f] text-[#f2f2f2] font-sans antialiased selection:bg-indigo-500/30">
             {/* Mobile Sidebar Overlay */}
             {isSidebarOpen && (
               <div 
@@ -128,7 +128,7 @@ const MainOutlet = () => {
 
             {/* Sidebar */}
             <aside 
-              className={`fixed inset-y-0 left-0 z-30 flex flex-col w-64 md:w-72 border-r border-[#2C2C2E] bg-[#141415] transform transition-transform duration-300 ease-in-out md:translate-x-0 md:static md:inset-0 ${
+              className={`fixed inset-y-0 left-0 z-30 md:static md:inset-auto flex flex-col w-64 md:w-72 h-full border-r border-[#2C2C2E] bg-[#141415] transform transition-transform duration-300 ease-in-out md:translate-x-0 ${
                 isSidebarOpen ? "translate-x-0" : "-translate-x-full"
               }`}
             >
@@ -248,7 +248,7 @@ const MainOutlet = () => {
                 </header>
 
                 <div className="flex-1 overflow-hidden bg-[#0e0e0f] flex flex-col">
-                  <div className="flex-1 flex flex-col w-full p-4 md:p-6 overflow-x-hidden overflow-y-auto">
+                  <div className="flex-1 w-full p-4 md:p-6 overflow-x-hidden overflow-y-auto custom-scrollbar">
                     <Outlet />
                   </div>
                 </div>
