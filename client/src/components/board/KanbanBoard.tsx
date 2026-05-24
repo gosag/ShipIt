@@ -3,7 +3,8 @@ import { useParams } from 'react-router-dom';
 import { KanbanColumn } from './KanbanColumn';
 import { Plus, Filter, Search, Loader } from 'lucide-react';
 import { api } from '../../axios';
-
+import { DndContext } from '@dnd-kit/core';
+import type { DragEndEvent } from '@dnd-kit/core';
 interface ColumnType {
   _id: string;
   title: string;
@@ -30,7 +31,6 @@ export const KanbanBoard: React.FC = () => {
   const [selectedColumnId, setSelectedColumnId] = useState("");
   const [taskDueDate, setTaskDueDate] = useState("");
   const [refreshTrigger, setRefreshTrigger] = useState(0);
-
   useEffect(() => {
     const fetchColumns = async () => {
       try {
@@ -75,7 +75,28 @@ export const KanbanBoard: React.FC = () => {
       console.error("Failed to create task:", error);
     }
   };
+const handleDragEnd = async (event: DragEndEvent) => {
+  const { active, over } = event;
+  if (!over) return;
+  const cardId = String(active.id);
+  const destinationColumnId = String(over.id);
+  // source column id should be attached to the draggable's data
+  // @ts-ignore
+  const sourceColumnId = active?.data?.current?.columnId as string | undefined;
 
+  if (!cardId || !destinationColumnId || sourceColumnId === undefined) return;
+  if (sourceColumnId === destinationColumnId) return;
+
+  try {
+    await api.put(`/api/columns/${sourceColumnId}/cards/${cardId}/move`, {
+      newColumnId: destinationColumnId,
+      newOrder: 0,
+    });
+    setRefreshTrigger(prev => prev + 1);
+  } catch (error) {
+    console.error('Failed to move card:', error);
+  }
+};
   return (
     <div className="flex flex-col h-full w-full">
       {/* Board Header */}
@@ -115,6 +136,7 @@ export const KanbanBoard: React.FC = () => {
           </div>
         ) : (
           <div className="flex flex-col lg:grid lg:grid-cols-4 gap-6 h-auto lg:h-full">
+            <DndContext onDragEnd={handleDragEnd}>
             {columns.map((column, index) => (
               <div key={column._id} className="flex flex-col h-125 lg:h-full min-h-0">
                 <KanbanColumn 
@@ -126,6 +148,7 @@ export const KanbanBoard: React.FC = () => {
                 />
               </div>
             ))}
+            </DndContext>
           </div>
         )}
       </div>
