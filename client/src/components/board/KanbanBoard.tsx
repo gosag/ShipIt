@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { useParams } from 'react-router-dom';
 import { KanbanColumn } from './KanbanColumn';
-import { Plus, Filter, Search, Loader } from 'lucide-react';
+import { Filter, Search, Loader } from 'lucide-react';
 import { api } from '../../axios';
 import { DndContext, DragOverlay, type DragCancelEvent, type DragStartEvent } from '@dnd-kit/core';
 import type { DragEndEvent } from '@dnd-kit/core';
@@ -139,13 +139,7 @@ const handleDragEnd = async (event: DragEndEvent) => {
             <Filter size={16} />
             <span className="hidden sm:inline">Filter</span>
           </button>
-          <button 
-            onClick={() => handleOpenTaskModal()}
-            className="flex items-center gap-2 px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition-colors text-sm font-medium shadow-sm shadow-indigo-900/20"
-          >
-            <Plus size={16} />
-            <span>New Task</span>
-          </button>
+         
         </div>
       </div>
 
