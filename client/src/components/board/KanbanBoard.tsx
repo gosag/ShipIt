@@ -3,11 +3,20 @@ import { useParams } from 'react-router-dom';
 import { KanbanColumn } from './KanbanColumn';
 import { Plus, Filter, Search, Loader } from 'lucide-react';
 import { api } from '../../axios';
-import { DndContext } from '@dnd-kit/core';
+import { DndContext, DragOverlay, type DragCancelEvent, type DragStartEvent } from '@dnd-kit/core';
 import type { DragEndEvent } from '@dnd-kit/core';
 interface ColumnType {
   _id: string;
   title: string;
+}
+
+interface ActiveCardData {
+  _id: string;
+  title: string;
+  description?: string;
+  priority?: string;
+  labels?: string[];
+  dueDate?: string;
 }
 
 const BADGE_COLORS = [
@@ -21,6 +30,7 @@ export const KanbanBoard: React.FC = () => {
   const { projectId } = useParams<{ projectId: string }>();
   const [columns, setColumns] = useState<ColumnType[]>([]);
   const [loading, setLoading] = useState(true);
+  const [activeCard, setActiveCard] = useState<ActiveCardData | null>(null);
 
   // New state for task modal
   const [isTaskModalOpen, setIsTaskModalOpen] = useState(false);
@@ -75,8 +85,19 @@ export const KanbanBoard: React.FC = () => {
       console.error("Failed to create task:", error);
     }
   };
+
+  const handleDragStart = (event: DragStartEvent) => {
+    const card = event.active.data.current?.card as ActiveCardData | undefined;
+    setActiveCard(card ?? null);
+  };
+
+  const handleDragCancel = (_event: DragCancelEvent) => {
+    setActiveCard(null);
+  };
+
 const handleDragEnd = async (event: DragEndEvent) => {
   const { active, over } = event;
+  setActiveCard(null);
   if (!over) return;
   const cardId = String(active.id);
   const destinationColumnId = String(over.id);
@@ -136,7 +157,7 @@ const handleDragEnd = async (event: DragEndEvent) => {
           </div>
         ) : (
           <div className="flex flex-col lg:grid lg:grid-cols-4 gap-6 h-auto lg:h-full">
-            <DndContext onDragEnd={handleDragEnd}>
+            <DndContext onDragStart={handleDragStart} onDragCancel={handleDragCancel} onDragEnd={handleDragEnd}>
             {columns.map((column, index) => (
               <div key={column._id} className="flex flex-col h-125 lg:h-full min-h-0">
                 <KanbanColumn 
@@ -145,9 +166,32 @@ const handleDragEnd = async (event: DragEndEvent) => {
                   badgeColor={BADGE_COLORS[index % BADGE_COLORS.length]} 
                   onAddTask={() => handleOpenTaskModal(column._id)}
                   refreshTrigger={refreshTrigger}
+                  activeCardId={activeCard?._id ?? null}
                 />
               </div>
             ))}
+            <DragOverlay>
+              {activeCard ? (
+                <div className="bg-[#1C1C1E] border border-[#2C2C2E] rounded-lg p-3 shadow-2xl cursor-grabbing w-40 opacity-95">
+                  <h4 className="text-gray-200 font-medium text-sm">{activeCard.title}</h4>
+                  {activeCard.description && (
+                    <p className="text-gray-400 text-xs mt-1 line-clamp-2">{activeCard.description}</p>
+                  )}
+                  {activeCard.priority && (
+                    <div className="mt-3 flex items-center gap-2">
+                      <span className={`text-[10px] uppercase font-bold px-1.5 py-0.5 rounded ${
+                        activeCard.priority === 'urgent' ? 'bg-red-500/10 text-red-500' :
+                        activeCard.priority === 'high' ? 'bg-amber-500/10 text-amber-500' :
+                        activeCard.priority === 'medium' ? 'bg-blue-500/10 text-blue-500' :
+                        'bg-slate-500/10 text-slate-400'
+                      }`}>
+                        {activeCard.priority}
+                      </span>
+                    </div>
+                  )}
+                </div>
+              ) : null}
+            </DragOverlay>
             </DndContext>
           </div>
         )}

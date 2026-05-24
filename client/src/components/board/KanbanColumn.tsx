@@ -10,9 +10,10 @@ interface KanbanColumnProps {
   badgeColor: string;
   onAddTask?: () => void;
   refreshTrigger?: number;
+  activeCardId?: string | null;
 }
 
-export const KanbanColumn: React.FC<KanbanColumnProps> = ({ id, title, badgeColor, onAddTask, refreshTrigger }) => {
+export const KanbanColumn: React.FC<KanbanColumnProps> = ({ id, title, badgeColor, onAddTask, refreshTrigger, activeCardId }) => {
   const { projectId } = useParams<{ projectId: string }>();
   const [cards, setCards] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
@@ -73,7 +74,7 @@ export const KanbanColumn: React.FC<KanbanColumnProps> = ({ id, title, badgeColo
         ) : cards.length > 0 ? (
           cards.map((card) => {
             const DraggableCard: React.FC<{ card: any }> = ({ card }) => {
-              const { attributes, listeners, setNodeRef: setDraggableNodeRef, transform, isDragging } = useDraggable({ id: card._id, data: { columnId: id } });
+              const { attributes, listeners, setNodeRef: setDraggableNodeRef, transform, isDragging } = useDraggable({ id: card._id, data: { columnId: id, card } });
               const style = transform ? { transform: `translate3d(${transform.x}px, ${transform.y}px, 0)` } : undefined;
 
               return (
@@ -83,7 +84,7 @@ export const KanbanColumn: React.FC<KanbanColumnProps> = ({ id, title, badgeColo
                   style={style}
                   {...listeners}
                   {...attributes}
-                  className={`bg-[#1C1C1E] border border-[#2C2C2E] hover:border-[#3C3C3E] transition-colors rounded-lg p-3 shadow-sm cursor-grab active:cursor-grabbing ${isDragging ? 'opacity-70' : ''}`}
+                  className={`bg-[#1C1C1E] border border-[#2C2C2E] hover:border-[#3C3C3E] transition-colors rounded-lg p-3 shadow-sm cursor-grab active:cursor-grabbing ${isDragging || activeCardId === card._id ? 'opacity-0' : ''}`}
                 >
                   <h4 className="text-gray-200 font-medium text-sm">{card.title}</h4>
                   {card.description && (
