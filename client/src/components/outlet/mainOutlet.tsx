@@ -1,4 +1,4 @@
-import { Outlet, NavLink } from "react-router-dom";
+import { Outlet, NavLink , useNavigate} from "react-router-dom";
 import { useState ,useEffect} from "react";
 import {
   FolderKanban, 
@@ -7,7 +7,8 @@ import {
   Settings, 
   Search,
   Menu,
-  X
+  X,
+  Trash2,
 } from "lucide-react";
 import { api } from "../../axios";
 const Modal = ({ isOpen, onClose, title, children }: any) => {
@@ -35,7 +36,7 @@ const MainOutlet = () => {
     const [projectModalOpen, setProjectModalOpen] = useState(false);
     const [userData,setUserData]=useState<{name:string,email:string,_id:string} | null>(null);
     const [workspaces, setWorkspaces] = useState<any[]>([]);
-
+    const navigate=useNavigate();
     const getWorkspace = async () => {
       try {
         const res = await api.get("/api/workspace/get-all");
@@ -79,6 +80,24 @@ const MainOutlet = () => {
     const [newWorkspaceName, setNewWorkspaceName] = useState("");
     const [newProjectName, setNewProjectName] = useState("");
     const [selectedWorkspaceId, setSelectedWorkspaceId] = useState("");
+    const [showDeleteProjectModal, setShowDeleteProjectModal] = useState(false);
+    const [projectToDelete, setProjectToDelete] = useState<any>(null);
+    const [deleteConfirmName, setDeleteConfirmName] = useState("");
+
+    const handleDeleteProject = async (e: React.FormEvent) => {
+      e.preventDefault();
+      if (!projectToDelete || deleteConfirmName !== projectToDelete.name) return;
+      try {
+        await api.delete(`/api/project/delete/${projectToDelete._id}`);
+        setShowDeleteProjectModal(false);
+        setProjectToDelete(null);
+        setDeleteConfirmName("");
+        getWorkspace(); // Refresh list after deletion
+        navigate("/"); 
+      } catch (err) {
+        console.error("Error deleting project:", err);
+      }
+    };
 
     const handleCreateWorkspace = async (e: React.FormEvent) => {
       e.preventDefault();
@@ -207,6 +226,22 @@ const MainOutlet = () => {
                                     >
                                       <span className="w-1.5 h-1.5 rounded-full bg-blue-400 shrink-0"></span>
                                       <span className="truncate">{project.name}</span>
+                                      {project.createdBy === userData?._id && (
+                                        <button 
+                                          className="ml-auto p-1 text-gray-400 hover:text-red-500 transition-colors" 
+                                          title="Delete Project"
+                                          onClick={(e) => {
+                                            e.preventDefault();
+                                            e.stopPropagation();
+                                            setProjectToDelete(project);
+                                            
+                                            setDeleteConfirmName("");
+                                            setShowDeleteProjectModal(true);
+                                          }}
+                                        >
+                                          <Trash2 size={12} className="text-gray-400 pointer-events-none" />
+                                        </button>
+                                      )}
                                     </NavLink>
                                   ))}
                                 </div>
@@ -308,6 +343,40 @@ const MainOutlet = () => {
                 <div className="flex justify-end gap-3 mt-6">
                   <button type="button" onClick={() => setProjectModalOpen(false)} className="px-4 py-2 text-sm font-medium text-gray-300 hover:text-white transition-colors">Cancel</button>
                   <button type="submit" className="px-4 py-2 text-sm font-medium text-white bg-indigo-600 rounded-lg hover:bg-indigo-700 transition-colors shadow-sm">Create Project</button>
+                </div>
+              </form>
+            </Modal>
+
+            <Modal isOpen={showDeleteProjectModal} onClose={() => setShowDeleteProjectModal(false)} title="Delete Project">
+              <form className="space-y-4" onSubmit={handleDeleteProject}>
+                <div>
+                  <p className="text-sm text-gray-400 mb-4">
+                    This action cannot be undone. This will permanently delete the 
+                    <span className="font-semibold text-white px-1">{projectToDelete?.name}</span> 
+                    project and all of its tasks.
+                  </p>
+                  <label className="block text-sm font-medium text-gray-300 mb-1">
+                    Type <span className="font-mono text-red-400 bg-red-400/10 px-1 py-0.5 rounded">{projectToDelete?.name}</span> to confirm
+                  </label>
+                  <input 
+                    type="text" 
+                    value={deleteConfirmName} 
+                    onChange={e => setDeleteConfirmName(e.target.value)} 
+                    className="w-full px-3 py-2 bg-[#2C2C2E] border border-[#3C3C3E] rounded-lg outline-none focus:border-red-500 focus:ring-1 focus:ring-red-500 text-white transition-all placeholder:text-gray-500" 
+                    placeholder="Project Name" 
+                    autoFocus 
+                    required 
+                  />
+                </div>
+                <div className="flex justify-end gap-3 mt-6">
+                  <button type="button" onClick={() => setShowDeleteProjectModal(false)} className="px-4 py-2 text-sm font-medium text-gray-300 hover:text-white transition-colors">Cancel</button>
+                  <button 
+                    type="submit" 
+                    disabled={deleteConfirmName !== projectToDelete?.name}
+                    className="px-4 py-2 text-sm font-medium text-white bg-red-600 rounded-lg hover:bg-red-700 transition-colors shadow-sm disabled:opacity-50 disabled:cursor-not-allowed"
+                  >
+                    Delete Project
+                  </button>
                 </div>
               </form>
             </Modal>

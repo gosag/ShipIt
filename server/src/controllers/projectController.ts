@@ -2,6 +2,7 @@ import type { Response, NextFunction } from "express";
 import type { AuthRequest } from "../middleware/auth.js";
 import { Project } from "../models/Project.js";
 import { Column } from "../models/Column.js";
+import { Card } from "../models/Card.js";
 import asyncHandler from "express-async-handler";
 interface customError extends Error {
     status?: number;
@@ -73,7 +74,7 @@ export const updateProject= asyncHandler(async(req:AuthRequest,res:Response,next
         error.status = 401;
         throw error;
     }
-    const projectId=req.params.projectId;
+    const projectId=req.params.id; 
     if(!projectId){
         const error = new Error("Project ID is required") as customError;
         error.status = 400;
@@ -101,7 +102,8 @@ export const deleteProject= asyncHandler(async(req:AuthRequest,res:Response,next
         error.status = 401;
         throw error;
     }
-    const projectId=req.params.projectId;
+    const projectId=req.params.id;
+    console.log("Deleting project with ID:", projectId);
     if(!projectId){
         const error = new Error("Project ID is required") as customError;
         error.status = 400;
@@ -114,5 +116,6 @@ export const deleteProject= asyncHandler(async(req:AuthRequest,res:Response,next
         throw error;
     }
     await Column.deleteMany({project:projectId});
+    await Card.deleteMany({project:projectId});
     res.status(200).json({message:"Project deleted successfully", project:deletedProject});
 });
