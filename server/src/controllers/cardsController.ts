@@ -43,6 +43,13 @@ export const createCard= asyncHandler(async(req:AuthRequest,res:Response,next:Ne
         error.status=400;
         throw error;
      }
+     let labelsArray:string[]=[];
+     if(labels && !Array.isArray(labels)){
+         labelsArray=labels.split(",").map((label:string) => label.trim());
+         console.log("Parsed labels array:", labelsArray);
+     } else if(Array.isArray(labels)){
+         labelsArray=labels;
+     }
      const columnId=req.params.columnId;
      const projectId=req.params.projectId;
      
@@ -71,12 +78,13 @@ export const createCard= asyncHandler(async(req:AuthRequest,res:Response,next:Ne
             order,
             assignee,
             priority,
-            labels
+            labels: labelsArray
         });
         await newCard.save();
         if(!newCard){
             throw new Error("Failed to save the card to the database");
         }
+        console.log("New card created:", newCard);
         res.status(201).json(newCard);
 })
 export const updateCard= asyncHandler(async(req:AuthRequest,res:Response,next:NextFunction)=>{
@@ -92,7 +100,15 @@ export const updateCard= asyncHandler(async(req:AuthRequest,res:Response,next:Ne
     if(dueDate) newFields.dueDate=dueDate;
     if(assignee) newFields.assignee=assignee;
     if(priority) newFields.priority=priority;
-    if(labels) newFields.labels=labels;
+    if(labels) {
+        let labelsArray:string[]=[];
+        if(labels && !Array.isArray(labels)){
+            labelsArray=labels.split(",").map((label:string) => label.trim());
+        } else if(Array.isArray(labels)){
+            labelsArray=labels;
+        }
+        newFields.labels=labelsArray;
+    }
     const cardId=req.params.cardId;
 
     const updatedCard= await Card.findByIdAndUpdate({ _id: cardId }, newFields, { new: true });

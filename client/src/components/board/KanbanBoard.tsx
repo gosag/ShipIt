@@ -59,12 +59,18 @@ export const KanbanBoard: React.FC = () => {
       await api.post(`/api/projects/${projectId}/columns/${selectedColumnId}/cards`, {
         title: taskTitle,
         description: taskDescription,
+        priority: taskPriority,
+        labels: taskLabels,
+        dueDate: taskDueDate,
         order: 0,
       });
       setTaskTitle("");
       setTaskDescription("");
+      setTaskPriority("medium");
+      setTaskLabels("");
+      setTaskDueDate("");
       setIsTaskModalOpen(false);
-      setRefreshTrigger(prev => prev + 1); // trigger reload
+      setRefreshTrigger(prev => prev + 1);
     } catch (error) {
       console.error("Failed to create task:", error);
     }
@@ -163,7 +169,7 @@ export const KanbanBoard: React.FC = () => {
               <div>
                 <label className="block text-sm font-medium text-gray-300 mb-1">Labels (comma separated)</label>
                 <input 
-                  type="text" 
+                  type="text"
                   value={taskLabels}
                   onChange={e => setTaskLabels(e.target.value)}
                   className="w-full px-3 py-2 bg-[#2C2C2E] border border-[#3C3C3E] rounded-lg outline-none focus:border-indigo-500 focus:ring-1 text-white"
