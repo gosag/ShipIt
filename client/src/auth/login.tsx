@@ -2,7 +2,7 @@ import { useForm } from "react-hook-form";
 import {  Link } from "react-router-dom";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod"; 
-import axios from "axios";
+import { api } from "../axios";
 
 const loginSchema = z.object({
     email: z.string().email("Invalid email address"),
@@ -21,7 +21,7 @@ const Login = () => {
         const controller = new AbortController();
         try {
             // Send the request to /api/auth/login
-            const res = await axios.post(`${import.meta.env.VITE_URL}/api/auth/login`, data, { signal: controller.signal })
+            const res = await api.post(`/api/auth/login`, data, { signal: controller.signal })
              const responseData = res.data;
             if (responseData.accessToken) {
                 localStorage.setItem("accessToken", responseData.accessToken);
