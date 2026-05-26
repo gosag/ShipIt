@@ -31,6 +31,9 @@ io.on("connection", (socket) => {
     socket.on("first-message",(info)=>{
         console.log(info)
     })
+    socket.on("disconnect", () => {
+        console.log(`User with socket ID: ${socket.id} disconnected`);
+    });
 });
 app.use(cors(corsOptions));
 app.use(morgan("dev"))

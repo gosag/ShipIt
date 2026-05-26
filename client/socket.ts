@@ -4,4 +4,9 @@ socket.on("connect",()=>{
     console.log("connected to the server with socket ID:",socket.id);
     socket.emit("first-message","Hello from the client!")
 })
+socket.on("disconnect",()=>{
+    console.log("disconnected from the server");
+});
+
+
 export default socket;
