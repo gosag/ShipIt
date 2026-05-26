@@ -172,9 +172,11 @@ const MainOutlet = () => {
                         >
                           <LayoutDashboard size={16} /> Dashboard
                         </NavLink>
+                        <NavLink to="/search">
                         <button className="flex w-full items-center gap-3 px-3 py-1.5 text-sm font-medium text-gray-400 rounded-lg transition-colors duration-150 hover:text-gray-100 hover:bg-[#2C2C2E]/50">
                           <Search size={16} /> Search
                         </button>
+                        </NavLink>
                         <button className="flex w-full items-center gap-3 px-3 py-1.5 text-sm font-medium text-gray-400 rounded-lg transition-colors duration-150 hover:text-gray-100 hover:bg-[#2C2C2E]/50">
                           <Settings size={16} /> Settings
                         </button>

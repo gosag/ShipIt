@@ -3,7 +3,7 @@ import Register from "./auth/register";
 import Login from "./auth/login";
 import MainOutlet from "./components/outlet/mainOutlet";
 import { KanbanBoard } from "./components/board/KanbanBoard";
-
+import Search from "./components/Search"
 const App=()=>{
   const savedToken=!!localStorage.getItem("accessToken")
   return(
@@ -18,6 +18,7 @@ const App=()=>{
       (<Route>
         <Route path="/" element={<MainOutlet />}>
           <Route path="projects/:projectId" element={<KanbanBoard />} />
+          <Route path="search" element={<Search/>}/>
           <Route path="*" element={<Navigate to="/" replace />} />
         </Route>
       </Route>)}
