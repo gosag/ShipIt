@@ -58,6 +58,30 @@ export const getAllWorkSpaces=async(req:AuthRequest,res:Response,next:NextFuncti
     }
     res.status(200).json(workspaces);
 }
+export const getWorkspaceBySlug=async(req:AuthRequest,res:Response,next:NextFunction)=>{
+    const slug=req.params.slug as string;
+    if(!slug){
+        const error = new Error("Workspace slug is required") as customError;
+        error.status = 400;
+        return next(error);
+    }
+    const workspace = await Workspace.findOne({slug:slug}).populate("owner");
+    const owner = workspace?.owner as any;
+   
+    if(!workspace){
+        const error = new Error("Workspace not found") as customError;
+        error.status = 404;
+        return next(error);
+    }
+     const workspaceData={
+        name: workspace?.name,
+        workspaceId: workspace?._id,
+        slug: workspace?.slug,
+        createdBy: owner?.name || "Unknown" 
+    };
+    console.log("Workspace data to return:", workspaceData);
+    res.status(200).json(workspaceData);
+}
 export const updateWorkspace=async(req:AuthRequest,res:Response,next:NextFunction)=>{
     if(!req.user || !req.user._id){
         const error=new Error("Unauthorized: User not authenticated") as customError;
