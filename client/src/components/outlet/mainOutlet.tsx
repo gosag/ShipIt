@@ -9,6 +9,7 @@ import {
   Menu,
   X,
   Trash2,
+  Bell
 } from "lucide-react";
 import { api } from "../../axios";
 const Modal = ({ isOpen, onClose, title, children }: any) => {
@@ -134,7 +135,21 @@ const MainOutlet = () => {
     const firstInitial = parts[0] ? parts[0][0] : "";
     const lastInitial = parts.length > 1 ? parts[parts.length - 1][0] : "";
     return (firstInitial + lastInitial).toUpperCase();
-   }
+   };
+   const [notifications, setNotifications] = useState<any[]>([]);
+   const [showNotifications, setShowNotifications] = useState(false);
+  useEffect(()=>{
+    const fetchNotifications = async () => {
+      try {
+        const res = await api.get("/api/notification");
+        setNotifications(res.data);
+      } catch (err) {
+        console.error("Error fetching notifications:", err);
+      }
+    };
+    fetchNotifications();
+  },[]);
+
     return (
         <div className="flex h-screen overflow-hidden bg-[#0e0e0f] text-[#f2f2f2] font-sans antialiased selection:bg-indigo-500/30">
             {/* Mobile Sidebar Overlay */}
@@ -153,9 +168,16 @@ const MainOutlet = () => {
             >
                 {/* Branding / Top Nav */}
                 <div className="flex items-center justify-between h-14 px-4 border-b border-[#2C2C2E]/50">
-                   <div className="flex items-center gap-2 font-semibold">
+                   <div className="flex  gap-2 font-semibold">
                       
                       <span className="text-white">Ship<span className="text-[hsl(263,99%,60%)]">It</span></span>
+                      
+                   </div>
+                   <div className="relative right-0">
+                      <button onClick={() => setShowNotifications(true)} className="relative" ><Bell size={18}/></button>
+                      <span className="absolute -top-1 -right-1 w-3 h-3 bg-red-500 text-white text-xs rounded-full flex items-center justify-center">
+                        { notifications?.length>0? notifications.length : 0}
+                      </span>
                    </div>
                    <button className="md:hidden p-1.5 text-gray-400 hover:text-white rounded-md hover:bg-white/5" onClick={toggleSidebar}>
                      <X size={18} />
@@ -382,6 +404,11 @@ const MainOutlet = () => {
                 </div>
               </form>
             </Modal>
+            {showNotifications &&(
+              <div className="inset-0 fixed z-50 flex items-center justify-center">
+                <div className="absolute inset-0 bg-black/60 backdrop-blur-sm" onClick={()=>setShowNotifications(false)}></div>
+              </div>
+            )}
         </div>
     );
 };

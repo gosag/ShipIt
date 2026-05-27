@@ -57,4 +57,20 @@ export const getNotifications= asyncHandler(async(req:AuthRequest,res:Response,n
         customError.status = 500;
         return next(customError);
     }
-})
+});
+export const geYourNotificationsStatus= asyncHandler(async(req:AuthRequest,res:Response,next:NextFunction)=>{
+    if(!req.user || !req.user._id){
+        const error = new Error("Unauthorized: User not authenticated") as customError;
+        error.status = 401;
+        return next(error);
+    }
+    try{
+        const notifications = await Notification.find({sender: req.user._id}).sort({createdAt: -1});
+        res.status(200).json(notifications);
+    }
+    catch (error: any) {
+        const customError = new Error("Internal server error") as customError;
+        customError.status = 500;
+        return next(customError);
+    }
+});

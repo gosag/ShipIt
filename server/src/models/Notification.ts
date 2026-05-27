@@ -8,6 +8,7 @@ export interface INotification extends Document {
   message: string;
   link: string;
   read: boolean;
+  status: string;
   createdAt: Date;
   updatedAt: Date;
 }
@@ -21,6 +22,7 @@ const notificationSchema = new Schema<INotification>(
     message: { type: String, required: true },
     link: { type: String, required: true },
     read: { type: Boolean, default: false },
+    status: { type: String, enum: ['pending', 'accepted', 'rejected'], default: 'pending' }
   },
   {
     timestamps: true,
