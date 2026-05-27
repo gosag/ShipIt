@@ -1,6 +1,7 @@
 import type { Response, NextFunction } from "express";
 import type { AuthRequest } from "../middleware/auth.js";
 import { Notification } from "../models/Notification.js";
+import { Workspace } from "../models/Workspace.js";
 import asyncHandler from "express-async-handler";
 interface customError extends Error {
     status?: number;
@@ -15,6 +16,17 @@ export const sendJoinRequest= asyncHandler(async(req:AuthRequest,res:Response,ne
         const {workspaceId,  workspaceOwnerId, workSpaceName} = req.body;
         if(!workspaceId || !req.user._id || !workspaceOwnerId || !workSpaceName){
             const error = new Error("workspaceId, userId, workspaceOwnerId and workSpaceName are required") as customError;
+            error.status = 400;
+            return next(error);
+        }
+        const workspace = await Workspace.findById(workspaceId);
+        if(!workspace){
+            const error = new Error("Workspace not found") as customError;
+            error.status = 404;
+            return next(error);
+        }
+        if(workspace.members.some(member => member.user.toString() === req.user!._id.toString())){
+            const error = new Error("You are already a member of the workspace") as customError;
             error.status = 400;
             return next(error);
         }

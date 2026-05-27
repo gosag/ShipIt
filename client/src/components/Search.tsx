@@ -39,6 +39,7 @@ const Search = () => {
             }
         } catch (error) {
             console.error("Error joining workspace:", error);
+            alert(error.response?.data?.error || "Failed to send join request. Please try again.");
         } finally {
             setJoinRequestLoading(false);
         }
