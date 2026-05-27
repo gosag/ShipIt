@@ -421,9 +421,64 @@ const joinRequestHandler = async (notificationId: string, workspaceId: string, u
                 </div>
               </form>
             </Modal>
-            {showNotifications &&(
+            {showNotifications && (
               <div className="inset-0 fixed z-50 flex items-center justify-center">
-                <div className="absolute inset-0 bg-black/60 backdrop-blur-sm" onClick={()=>setShowNotifications(false)}></div>
+                <div className="absolute inset-0 bg-black/60 backdrop-blur-sm" onClick={() => setShowNotifications(false)}></div>
+                <div className="relative z-10 w-full max-w-md max-h-[80vh] flex flex-col bg-[#1C1C1E] border border-[#2C2C2E] shadow-2xl rounded-xl">
+                  <div className="flex items-center justify-between p-4 border-b border-[#2C2C2E]/50">
+                    <h2 className="text-lg font-semibold text-white flex items-center gap-2">
+                       <Bell size={18} className="text-indigo-400" /> Notifications
+                    </h2>
+                    <button 
+                      onClick={() => setShowNotifications(false)}
+                      className="p-1 text-gray-400 hover:text-white hover:bg-white/10 rounded-md transition-colors"
+                    >
+                      <X size={18} />
+                    </button>
+                  </div>
+                  <div className="flex-1 overflow-y-auto p-4 custom-scrollbar">
+                    {notifications.length === 0 ? (
+                      <div className="flex flex-col items-center justify-center py-10 text-gray-400">
+                        <Bell size={32} className="mb-3 opacity-20" />
+                        <p className="text-sm">You have no new notifications.</p>
+                      </div>
+                    ) : (
+                      <div className="space-y-3">
+                        {notifications.map((notification) => (
+                          <div key={notification._id} className="p-3 bg-[#2C2C2E]/50 border border-[#3C3C3E]/50 rounded-lg flex flex-col gap-2 transition hover:bg-[#2C2C2E]">
+                            <p className="text-sm text-gray-200 leading-relaxed">{notification.message}</p>
+                            <span className="text-xs text-gray-500">
+                              {new Date(notification.createdAt).toLocaleDateString()} at {new Date(notification.createdAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                            </span>
+                            {notification.type === 'join_request' && notification.status === 'pending' && (
+                              <div className="flex gap-2 mt-2">
+                                <button
+                                  onClick={() => joinRequestHandler(notification._id, notification.workspace, notification.sender, 'accepted')}
+                                  className="flex-1 px-3 py-1.5 text-xs font-semibold text-white bg-indigo-600 rounded-lg hover:bg-indigo-700 transition-colors shadow-sm"
+                                >
+                                  Accept
+                                </button>
+                                <button
+                                  onClick={() => joinRequestHandler(notification._id, notification.workspace, notification.sender, 'rejected')}
+                                  className="flex-1 px-3 py-1.5 text-xs font-semibold text-gray-300 bg-[#2C2C2E] border border-[#3C3C3E] rounded-lg hover:bg-red-500/10 hover:border-red-500/20 hover:text-red-400 transition-all"
+                                >
+                                  Reject
+                                </button>
+                              </div>
+                            )}
+                            {notification.type === 'join_request' && notification.status !== 'pending' && (
+                               <div className="mt-1">
+                                 <span className={`inline-flex items-center px-2 py-0.5 rounded text-xs font-medium ${notification.status === 'accepted' ? 'bg-green-500/10 text-green-400' : 'bg-red-500/10 text-red-400'}`}>
+                                    {notification.status.charAt(0).toUpperCase() + notification.status.slice(1)}
+                                 </span>
+                               </div>
+                            )}
+                          </div>
+                        ))}
+                      </div>
+                    )}
+                  </div>
+                </div>
               </div>
             )}
         </div>

@@ -2,6 +2,7 @@ import mongoose, { Schema, Document } from 'mongoose';
 
 export interface INotification extends Document {
   sender: mongoose.Types.ObjectId;
+  senderName?: string;
   recipient: mongoose.Types.ObjectId;
   workspace: mongoose.Types.ObjectId;
   type: string;
@@ -16,6 +17,7 @@ export interface INotification extends Document {
 const notificationSchema = new Schema<INotification>(
   {
     sender: { type: Schema.Types.ObjectId, ref: 'User', required: true },
+    senderName: { type: String },
     recipient: { type: Schema.Types.ObjectId, ref: 'User', required: true, index: true },
     workspace: { type: Schema.Types.ObjectId, ref: 'Workspace', required: true },
     type: { type: String, required: true },

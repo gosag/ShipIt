@@ -2,6 +2,7 @@ import type { Response, NextFunction } from "express";
 import type { AuthRequest } from "../middleware/auth.js";
 import { Notification } from "../models/Notification.js";
 import { Workspace } from "../models/Workspace.js";
+import { User } from "../models/User.js";
 import asyncHandler from "express-async-handler";
 interface customError extends Error {
     status?: number;
@@ -11,6 +12,12 @@ export const sendJoinRequest= asyncHandler(async(req:AuthRequest,res:Response,ne
     if(!req.user || !req.user._id){
         const error = new Error("Unauthorized: User not authenticated") as customError;
         error.status = 401;
+        return next(error);
+    }
+    const userInfo = await User.findById(req.user._id);
+    if(!userInfo){
+        const error = new Error("User not found") as customError;
+        error.status = 404;
         return next(error);
     }
         const {workspaceId,  workspaceOwnerId, workSpaceName} = req.body;
@@ -35,6 +42,7 @@ export const sendJoinRequest= asyncHandler(async(req:AuthRequest,res:Response,ne
             const newNotification = new Notification({
                 type: "join_request",
                 sender: req.user._id,
+                senderName: userInfo.name,
                 recipient: workspaceOwnerId,
                 workspace: workspaceId,
                 message: `User ${req.user._id} has requested to join workspace ${workSpaceName}`,
