@@ -149,7 +149,24 @@ const MainOutlet = () => {
     };
     fetchNotifications();
   },[]);
-
+const joinRequestHandler = async (notificationId: string, workspaceId: string, userId: string, status: string) => {
+  let response: any;
+  try {
+       if(status==="accepted"){
+          response= await  api.put(`/api/workspace/join-request/${workspaceId}/accept`, { userId, notificationId });
+       }
+       if(status==="rejected"){
+        response =  await  api.put(`/api/workspace/join-request/${workspaceId}/reject`, { userId, notificationId });
+       }
+       if(response.status === 200){
+        setNotifications(prev => prev.filter(n => n._id !== notificationId));
+        alert(`Join request ${status} successfully`);
+       }
+   } catch (err) {
+    console.log(err.response?.data?.error || err);
+    alert(err.response?.data?.error || "An error occurred while processing the join request.");
+   }
+}
     return (
         <div className="flex h-screen overflow-hidden bg-[#0e0e0f] text-[#f2f2f2] font-sans antialiased selection:bg-indigo-500/30">
             {/* Mobile Sidebar Overlay */}

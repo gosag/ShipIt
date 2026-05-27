@@ -1,11 +1,13 @@
 import type { Response, NextFunction } from 'express';
 import type { AuthRequest } from '../middleware/auth.js';
 import { Workspace } from '../models/Workspace.js';
+import { Notification } from '../models/Notification.js';
+import asyncHandler from 'express-async-handler';
 interface customError extends Error {
     status?: number;
     statusCode?: number;
 }
-export const createWorkspace=async(req:AuthRequest,res:Response,next:NextFunction)=>{
+export const createWorkspace=asyncHandler(async(req:AuthRequest,res:Response,next:NextFunction)=>{
    if(!req.user || !req.user._id){
     const error = new Error("Unauthorized: User not authenticated") as customError;
     error.status = 401;
@@ -42,8 +44,8 @@ export const createWorkspace=async(req:AuthRequest,res:Response,next:NextFunctio
     }catch(err){
         next(err);
     }
-}
-export const getAllWorkSpaces=async(req:AuthRequest,res:Response,next:NextFunction)=>{
+})
+export const getAllWorkSpaces=asyncHandler(async(req:AuthRequest,res:Response,next:NextFunction)=>{
     if(!req.user || !req.user._id){
         const error=new Error("Unauthorized: User not authenticated") as customError;
         error.status= 401;
@@ -57,8 +59,8 @@ export const getAllWorkSpaces=async(req:AuthRequest,res:Response,next:NextFuncti
         return next(error);
     }
     res.status(200).json(workspaces);
-}
-export const getWorkspaceBySlug=async(req:AuthRequest,res:Response,next:NextFunction)=>{
+})
+export const getWorkspaceBySlug=asyncHandler(async(req:AuthRequest,res:Response,next:NextFunction)=>{
     const slug=req.params.slug as string;
     if(!req.user || !req.user._id){
         const error=new Error("Unauthorized: User not authenticated") as customError;
@@ -88,8 +90,8 @@ export const getWorkspaceBySlug=async(req:AuthRequest,res:Response,next:NextFunc
     };
     console.log("Workspace data to return:", workspaceData);
     res.status(200).json(workspaceData);
-}
-export const updateWorkspace=async(req:AuthRequest,res:Response,next:NextFunction)=>{
+})
+export const updateWorkspace=asyncHandler(async(req:AuthRequest,res:Response,next:NextFunction)=>{
     if(!req.user || !req.user._id){
         const error=new Error("Unauthorized: User not authenticated") as customError;
         error.status=401;
@@ -116,8 +118,63 @@ export const updateWorkspace=async(req:AuthRequest,res:Response,next:NextFunctio
     } catch (err) {
         next(err);
     }
-}
-export const deleteWorkspace=async(req:AuthRequest,res:Response,next:NextFunction)=>{
+})
+export const acceptJoinRequest=asyncHandler(async(req:AuthRequest,res:Response,next:NextFunction)=>{
+    if(!req.user || !req.user._id){
+        const error=new Error("Unauthorized: User not authenticated") as customError;
+        error.status=401;
+        throw error;}
+    const userId=req.user._id;
+    const workspaceId=req.params.workspaceId;
+    const notificationId=req.body.notificationId;
+    if(!workspaceId || !notificationId){
+        const error = new Error("Workspace ID and Notification ID are required") as customError;
+        error.status = 400;
+        throw error;
+    }
+  try{
+    const workspace = await Workspace.findById(workspaceId);
+    if(!workspace){
+        const error = new Error("Workspace not found") as customError;
+        error.status = 404;
+        throw error;
+    }
+    const updatedWorkspace = await Workspace.findByIdAndUpdate(
+        workspaceId,
+        {$push: {members: {user: userId, role: "member"}}},
+        {new: true}
+    );
+    if(!updatedWorkspace){
+        const error = new Error("Failed to update workspace with new member") as customError;
+        error.status = 500;
+        throw error;
+    }
+    await Notification.findByIdAndUpdate(notificationId, {status: "accepted"});
+    res.status(200).json({message: "Join request accepted and workspace updated"});
+  } catch (err) {
+    return next(err);
+  }
+})
+export const rejectJoinRequest= asyncHandler( async(req:AuthRequest,res:Response,next:NextFunction)=>{
+    if(!req.user || !req.user._id){
+        const error=new Error("Unauthorized: User not authenticated") as customError;
+        error.status=401;
+        throw error;}
+    const workspaceId=req.params.workspaceId;
+    const notificationId=req.body.notificationId;
+    if(!workspaceId || !notificationId){
+        const error = new Error("Workspace ID and Notification ID are required") as customError;
+        error.status = 400;
+        throw error;
+    }
+    try{
+        await Notification.findByIdAndUpdate(notificationId, {status: "rejected"});
+        res.status(200).json({message: "Join request rejected"});
+    } catch (err) {
+        return next(err);
+    }
+})
+export const deleteWorkspace=asyncHandler(async(req:AuthRequest,res:Response,next:NextFunction)=>{
     if(!req.user || !req.user._id){
         const error=new Error("Unauthorized: User not authenticated") as customError;
         error.status=401;
@@ -142,4 +199,4 @@ export const deleteWorkspace=async(req:AuthRequest,res:Response,next:NextFunctio
         res.status(200).json({message:"Workspace deleted successfully"});
     } catch (err) {
         next(err);
-    }}
+    }})
