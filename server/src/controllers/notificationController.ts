@@ -45,7 +45,7 @@ export const sendJoinRequest= asyncHandler(async(req:AuthRequest,res:Response,ne
                 senderName: userInfo.name,
                 recipient: workspaceOwnerId,
                 workspace: workspaceId,
-                message: `User ${req.user._id} has requested to join workspace ${workSpaceName}`,
+                message: `${userInfo.name} has requested to join workspace ${workSpaceName}`,
                 link: `/workspaces/${workspaceId}/join-requests`
             });
             await newNotification.save();

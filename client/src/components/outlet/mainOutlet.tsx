@@ -138,11 +138,15 @@ const MainOutlet = () => {
    };
    const [notifications, setNotifications] = useState<any[]>([]);
    const [showNotifications, setShowNotifications] = useState(false);
+   const [notificationsToProcess, setNotificationsToProcess] = useState<any>(null);
   useEffect(()=>{
     const fetchNotifications = async () => {
       try {
         const res = await api.get("/api/notification");
-        setNotifications(res.data);
+        const data = res.data;
+        const sortedNotifications = data.filter((n: any)=> n.status==="pending").sort((a: any, b: any) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
+        setNotificationsToProcess(sortedNotifications);
+        setNotifications(data);
       } catch (err) {
         console.error("Error fetching notifications:", err);
       }
@@ -193,7 +197,7 @@ const joinRequestHandler = async (notificationId: string, workspaceId: string, u
                    <div className="relative right-0">
                       <button onClick={() => setShowNotifications(true)} className="relative" ><Bell size={18}/></button>
                       <span className="absolute -top-1 -right-1 w-3 h-3 bg-red-500 text-white text-xs rounded-full flex items-center justify-center">
-                        { notifications?.length>0? notifications.length : 0}
+                        { notificationsToProcess?.length>0? notificationsToProcess.length : 0}
                       </span>
                    </div>
                    <button className="md:hidden p-1.5 text-gray-400 hover:text-white rounded-md hover:bg-white/5" onClick={toggleSidebar}>
