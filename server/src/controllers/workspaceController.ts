@@ -133,15 +133,29 @@ export const acceptJoinRequest=asyncHandler(async(req:AuthRequest,res:Response,n
         throw error;
     }
   try{
+    const notification = await Notification.findById(notificationId);
+    if(!notification){
+        const error = new Error("Notification not found") as customError;
+        error.status = 404;
+        throw error;
+    }
+
     const workspace = await Workspace.findById(workspaceId);
     if(!workspace){
         const error = new Error("Workspace not found") as customError;
         error.status = 404;
         throw error;
     }
+    const userToAddId = notification.sender;
+    if (workspace.members.some((member) => member?.user?.toString() === userToAddId?.toString())) {
+        await Notification.findByIdAndUpdate(notificationId, {status: "accepted"});
+        res.status(200).json({message: "Join request accepted. User is already a member"});
+        return;
+    }
+
     const updatedWorkspace = await Workspace.findByIdAndUpdate(
         workspaceId,
-        {$push: {members: {user: userId, role: "member"}}},
+        {$push: {members: {user: userToAddId, role: "member"}}},
         {new: true}
     );
     if(!updatedWorkspace){

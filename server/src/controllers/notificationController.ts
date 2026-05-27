@@ -32,7 +32,7 @@ export const sendJoinRequest= asyncHandler(async(req:AuthRequest,res:Response,ne
             error.status = 404;
             return next(error);
         }
-        if(workspace.members.some(member => member.user.toString() === req.user!._id.toString())){
+        if(workspace.members.some(member => member?.user?.toString() === req.user!._id.toString())){
             const error = new Error("You are already a member of the workspace") as customError;
             error.status = 400;
             return next(error);
@@ -43,7 +43,7 @@ export const sendJoinRequest= asyncHandler(async(req:AuthRequest,res:Response,ne
                 type: "join_request",
                 sender: req.user._id,
                 senderName: userInfo.name,
-                recipient: workspaceOwnerId,
+                recipient: workspace.owner,
                 workspace: workspaceId,
                 message: `${userInfo.name} has requested to join workspace ${workSpaceName}`,
                 link: `/workspaces/${workspaceId}/join-requests`
