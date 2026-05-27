@@ -60,6 +60,11 @@ export const getAllWorkSpaces=async(req:AuthRequest,res:Response,next:NextFuncti
 }
 export const getWorkspaceBySlug=async(req:AuthRequest,res:Response,next:NextFunction)=>{
     const slug=req.params.slug as string;
+    if(!req.user || !req.user._id){
+        const error=new Error("Unauthorized: User not authenticated") as customError;
+        error.status= 401;
+        throw error;
+    }
     if(!slug){
         const error = new Error("Workspace slug is required") as customError;
         error.status = 400;
@@ -74,9 +79,11 @@ export const getWorkspaceBySlug=async(req:AuthRequest,res:Response,next:NextFunc
         return next(error);
     }
      const workspaceData={
+        userId: req.user._id,
         name: workspace?.name,
         workspaceId: workspace?._id,
         slug: workspace?.slug,
+        creatorId: owner?._id || "Unknown",
         createdBy: owner?.name || "Unknown" 
     };
     console.log("Workspace data to return:", workspaceData);
