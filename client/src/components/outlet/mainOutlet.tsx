@@ -152,7 +152,7 @@ const MainOutlet = () => {
       }
     };
     fetchNotifications();
-  },[]);
+  },[showNotifications]);
 const joinRequestHandler = async (notificationId: string, workspaceId: string, userId: string, status: string) => {
   let response: any;
   try {
