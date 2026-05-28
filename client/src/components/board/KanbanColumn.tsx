@@ -34,6 +34,27 @@ export const KanbanColumn: React.FC<KanbanColumnProps> = ({ id, title, badgeColo
     };
     fetchCards();
   }, [projectId, id, refreshTrigger]);
+
+  useEffect(() => {
+    const handleCardMoved = (e: CustomEvent) => {
+      const { cardId, sourceColumnId, destinationColumnId, cardData } = e.detail;
+      
+      if (id === sourceColumnId) {
+        // Remove from source column immediately
+        setCards(prev => prev.filter(c => c._id !== cardId));
+      } else if (id === destinationColumnId) {
+        // Add to destination column immediately
+        setCards(prev => {
+          if (prev.some(c => c._id === cardId)) return prev;
+          return [...prev, cardData];
+        });
+      }
+    };
+
+    window.addEventListener('cardMoved', handleCardMoved as EventListener);
+    return () => window.removeEventListener('cardMoved', handleCardMoved as EventListener);
+  }, [id]);
+
   const cardInfoHandler=(cardId:string)=>{
     const card = cards.find((c) => c._id === cardId);
     setCardInfo(card);

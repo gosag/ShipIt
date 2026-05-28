@@ -14,7 +14,7 @@ import columnRouter from './src/routes/columnRoutes.js';
 import errorMiddleware from './src/middleware/errror.js';
 import DbConnect from './config/db.js'; 
 import notificationRouter from './src/routes/notificationRotes.js';
-import {initializeSockets} from './src/sockets/socketHadker.js';    
+import {initializeSockets} from './src/sockets/socketHadler.js';    
 dotenv.config()
 const app=express()
 const PORT= process.env.PORT || 8000;

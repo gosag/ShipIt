@@ -117,18 +117,24 @@ const handleDragEnd = async (event: DragEndEvent) => {
   // @ts-ignore
   const sourceColumnId = active?.data?.current?.columnId as string | undefined;
 
+  // @ts-ignore
+  const cardData = active?.data?.current?.card;
+
   if (!cardId || !destinationColumnId || sourceColumnId === undefined) return;
   if (sourceColumnId === destinationColumnId) return;
+
+  window.dispatchEvent(new CustomEvent('cardMoved', {
+    detail: { cardId, sourceColumnId, destinationColumnId, cardData }
+  }));
 
   try {
     await api.put(`/api/columns/${sourceColumnId}/cards/${cardId}/move`, {
       newColumnId: destinationColumnId,
       newOrder: 0,
     });
-  
-    setRefreshTrigger(prev => prev + 1);
   } catch (error) {
     console.error('Failed to move card:', error);
+    setRefreshTrigger(prev => prev + 1); // fallback refresh on fail
   }
 };
   return (
