@@ -5,10 +5,12 @@ import { Filter, Search, Loader } from 'lucide-react';
 import { api } from '../../axios';
 import { DndContext, DragOverlay, type DragCancelEvent, type DragStartEvent } from '@dnd-kit/core';
 import type { DragEndEvent } from '@dnd-kit/core';
+import  socket  from '../../../socket';
 interface ColumnType {
   _id: string;
   title: string;
 }
+
 
 interface ActiveCardData {
   _id: string;
@@ -94,6 +96,16 @@ export const KanbanBoard: React.FC = () => {
   const handleDragCancel = (_event: DragCancelEvent) => {
     setActiveCard(null);
   };
+  // You can add useEffect here to listen for real-time updates via WebSocket if needed
+  useEffect(() => {
+    socket.emit("project-id", projectId);
+    socket.on("user-connected", (message) => {
+      console.log(message);
+    });
+    return () => {
+      socket.off("user-connected");
+    };
+  }, [projectId]);
 
 const handleDragEnd = async (event: DragEndEvent) => {
   const { active, over } = event;
@@ -113,6 +125,7 @@ const handleDragEnd = async (event: DragEndEvent) => {
       newColumnId: destinationColumnId,
       newOrder: 0,
     });
+  
     setRefreshTrigger(prev => prev + 1);
   } catch (error) {
     console.error('Failed to move card:', error);

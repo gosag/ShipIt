@@ -14,6 +14,7 @@ import columnRouter from './src/routes/columnRoutes.js';
 import errorMiddleware from './src/middleware/errror.js';
 import DbConnect from './config/db.js'; 
 import notificationRouter from './src/routes/notificationRotes.js';
+import {initializeSockets} from './src/sockets/socketHadker.js';    
 dotenv.config()
 const app=express()
 const PORT= process.env.PORT || 8000;
@@ -27,15 +28,7 @@ const corsOptions={
 const io = new Server(httpServer, {
     cors: corsOptions
 });
-io.on("connection", (socket) => {
-    console.log(`User connected with socket ID: ${socket.id}`);
-    socket.on("first-message",(info)=>{
-        console.log(info)
-    })
-    socket.on("disconnect", () => {
-        console.log(`User with socket ID: ${socket.id} disconnected`);
-    });
-});
+initializeSockets(io);
 app.use(cors(corsOptions));
 app.use(morgan("dev"))
 app.use(express.json());
