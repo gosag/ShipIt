@@ -113,11 +113,8 @@ const handleDragEnd = async (event: DragEndEvent) => {
   if (!over) return;
   const cardId = String(active.id);
   const destinationColumnId = String(over.id);
-  // source column id should be attached to the draggable's data
-  // @ts-ignore
+ 
   const sourceColumnId = active?.data?.current?.columnId as string | undefined;
-
-  // @ts-ignore
   const cardData = active?.data?.current?.card;
 
   if (!cardId || !destinationColumnId || sourceColumnId === undefined) return;
@@ -132,6 +129,7 @@ const handleDragEnd = async (event: DragEndEvent) => {
       newColumnId: destinationColumnId,
       newOrder: 0,
     });
+    socket.emit("card-moved", { cardId, sourceColumnId, destinationColumnId, projectId, cardData });
   } catch (error) {
     console.error('Failed to move card:', error);
     setRefreshTrigger(prev => prev + 1); // fallback refresh on fail

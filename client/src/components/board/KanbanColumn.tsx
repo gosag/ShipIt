@@ -4,6 +4,7 @@ import { useParams } from 'react-router-dom';
 import { api } from '../../axios';
 import {X} from 'lucide-react';
 import { useDraggable, useDroppable } from '@dnd-kit/core';
+import socket from '../../../socket';
 interface KanbanColumnProps {
   id: string;
   title: string;
@@ -45,7 +46,8 @@ export const KanbanColumn: React.FC<KanbanColumnProps> = ({ id, title, badgeColo
       } else if (id === destinationColumnId) {
         // Add to destination column immediately
         setCards(prev => {
-          if (prev.some(c => c._id === cardId)) return prev;
+          if (prev.some(c => c?._id === cardId)) return prev;
+          if (!cardData) return prev; // Safety check
           return [...prev, cardData];
         });
       }
@@ -63,6 +65,25 @@ export const KanbanColumn: React.FC<KanbanColumnProps> = ({ id, title, badgeColo
   }
   const { isOver, setNodeRef: setDroppableNodeRef } = useDroppable({ id });
  
+   useEffect(() => {
+    const handleSocketCardMoved = (data: any) => {
+      const { cardId, sourceColumnId, destinationColumnId, cardData } = data;
+      if (id === sourceColumnId) {
+        setCards(prev => prev.filter(c => c._id !== cardId));
+      } else if (id === destinationColumnId) {
+        setCards(prev => {
+          if (prev.some(c => c?._id === cardId)) return prev;
+          if (!cardData) return prev; // Safety check
+          return [...prev, cardData];
+        });
+      }
+    };
+
+    socket.on("cardMoved", handleSocketCardMoved);
+    return () => {
+      socket.off("cardMoved", handleSocketCardMoved);
+    };
+   }, [id]);
   return (
     <div className="flex flex-col w-full h-full">
       {/* Column Header */}
@@ -94,6 +115,7 @@ export const KanbanColumn: React.FC<KanbanColumnProps> = ({ id, title, badgeColo
           </div>
         ) : cards.length > 0 ? (
           cards.map((card) => {
+            if (!card) return null; // Safe guard
             const DraggableCard: React.FC<{ card: any }> = ({ card }) => {
               const { attributes, listeners, setNodeRef: setDraggableNodeRef, transform, isDragging } = useDraggable({ id: card._id, data: { columnId: id, card } });
               const style = transform ? { transform: `translate3d(${transform.x}px, ${transform.y}px, 0)` } : undefined;

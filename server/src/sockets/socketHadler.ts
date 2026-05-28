@@ -7,11 +7,18 @@ export const initializeSockets = (io: Server) => {
         socket.on("first-message", (info) => {
             console.log(info);
         });
-
-        socket.on("project-id", (projectId) => {
-            console.log("Project ID received:", projectId);
+        let projectId;
+        socket.on("project-id", (pId) => {
+            console.log("Project ID received:", pId);
+            projectId=pId;
             socket.join(projectId);
             socket.to(projectId).emit("user-connected", `A new user has joined project ${projectId}`);
+        });
+
+        socket.on("card-moved", (data) => {
+            const { cardId, sourceColumnId, destinationColumnId, cardData, projectId } = data;
+            console.log(`Card moved: ${cardId} from ${sourceColumnId} to ${destinationColumnId} in project ${projectId}`);
+            socket.to(projectId).emit("cardMoved", { cardId, sourceColumnId, destinationColumnId, cardData });
         });
 
         socket.on("disconnect", () => {
