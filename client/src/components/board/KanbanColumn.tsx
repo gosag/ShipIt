@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { MoreVertical, Plus, Loader } from 'lucide-react';
+import {  Plus, Loader, Calendar, Tag, AlertCircle, Edit2, Trash2 } from 'lucide-react';
 import { useParams } from 'react-router-dom';
 import { api } from '../../axios';
 import {X} from 'lucide-react';
@@ -18,8 +18,11 @@ export const KanbanColumn: React.FC<KanbanColumnProps> = ({ id, title, badgeColo
   const { projectId } = useParams<{ projectId: string }>();
   const [cards, setCards] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
-  const [cardInfo, setCardInfo] = useState(null);
+  const [cardInfo, setCardInfo] = useState<any>(null);
   const [showCardInfo, setShowCardInfo] = useState(false);
+  const [isEditing, setIsEditing] = useState(false);
+  const [editForm, setEditForm] = useState<any>({});
+  const [actionLoading, setActionLoading] = useState(false);
   useEffect(() => {
     const fetchCards = async () => {
       if (!projectId || !id) return;
@@ -84,6 +87,57 @@ export const KanbanColumn: React.FC<KanbanColumnProps> = ({ id, title, badgeColo
       socket.off("cardMoved", handleSocketCardMoved);
     };
    }, [id]);
+
+  const handleDeleteCard = async () => {
+    if (!cardInfo) return;
+    if (!window.confirm("Are you sure you want to delete this card?")) return;
+    setActionLoading(true);
+    try {
+      await api.delete(`/api/columns/${id}/cards/${cardInfo._id}`);
+      setCards(prev => prev.filter(c => c._id !== cardInfo._id));
+      setShowCardInfo(false);
+      setCardInfo(null);
+    } catch (error) {
+      console.error("Failed to delete card:", error);
+      alert("Failed to delete card");
+    } finally {
+      setActionLoading(false);
+    }
+  };
+
+  const handleUpdateCard = async () => {
+    if (!cardInfo || !editForm.title?.trim()) {
+      alert("Title is required");
+      return;
+    }
+    setActionLoading(true);
+    try {
+      // Ensure labels is formatted nicely if it's a string from input
+      const dataToSubmit = { ...editForm };
+      
+      const res = await api.put(`/api/columns/${id}/cards/${cardInfo._id}`, dataToSubmit);
+      setCards(prev => prev.map(c => c._id === res.data._id ? res.data : c));
+      setCardInfo(res.data);
+      setIsEditing(false);
+    } catch (error) {
+      console.error("Failed to update card:", error);
+      alert("Failed to update card");
+    } finally {
+      setActionLoading(false);
+    }
+  };
+
+  const startEditing = () => {
+    setEditForm({
+      title: cardInfo.title || '',
+      description: cardInfo.description || '',
+      dueDate: cardInfo.dueDate ? cardInfo.dueDate.split('T')[0] : '',
+      priority: cardInfo.priority || 'medium',
+      labels: cardInfo.labels ? cardInfo.labels.join(', ') : ''
+    });
+    setIsEditing(true);
+  };
+
   return (
     <div className="flex flex-col w-full h-full">
       {/* Column Header */}
@@ -101,9 +155,7 @@ export const KanbanColumn: React.FC<KanbanColumnProps> = ({ id, title, badgeColo
           >
             {cards.length!==0 ? <Plus size={16} /> : null}
           </button>
-          <button className="p-1.5 text-gray-400 hover:text-gray-200 hover:bg-[#2C2C2E] rounded-md transition-colors">
-            <MoreVertical size={16} />
-          </button>
+          
         </div>
       </div>
 
@@ -145,6 +197,7 @@ export const KanbanColumn: React.FC<KanbanColumnProps> = ({ id, title, badgeColo
                       </span>
                     </div>
                   )}
+                  
                 </div>
               );
             };
@@ -166,46 +219,186 @@ export const KanbanColumn: React.FC<KanbanColumnProps> = ({ id, title, badgeColo
         )}
       </div>
       {/* Card Info Modal */}
-      {showCardInfo && (
-        <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center gap-2 z-50 p-4">
+      {showCardInfo && cardInfo && (
+        <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center gap-2 z-100 p-4">
+          <div className="bg-[#1C1C1E] relative border border-[#2C2C2E] shadow-2xl rounded-xl w-full max-w-lg overflow-hidden flex flex-col max-h-[90vh]">
             
-          <div className="bg-[#1C1C1E] relative border border-[#2C2C2E] rounded-xl w-full max-w-md p-6">
-            <button onClick={()=>setShowCardInfo(false)} className="absolute top-4 right-4 p-1.5 text-gray-400 hover:text-gray-200 hover:bg-[#2C2C2E] rounded-md transition-colors">
-                <X size={18} />
-            </button>
-            <h2 className="text-xl font-bold text-white mb-4">{cardInfo.title}</h2>
-            {cardInfo.description &&
-            <div className=" flex flex-wrap gap-2">
-               <p className="text-md font-semibold text-gray-200">Description:</p>
-               <p className="text-gray-400">{cardInfo.description}</p>
+            {/* Header */}
+            <div className="flex items-center justify-between p-5 border-b border-[#2C2C2E] bg-[#141415]">
+              <h2 className="text-lg font-bold text-white truncate pr-4">
+                {isEditing ? 'Edit Card' : cardInfo.title}
+              </h2>
+              <button 
+                onClick={() => { setShowCardInfo(false); setIsEditing(false); }} 
+                className="p-1.5 text-gray-400 hover:text-white hover:bg-[#2C2C2E] rounded-md transition-colors"
+              >
+                <X size={20} />
+              </button>
             </div>
-            }
 
-            <p className="text-gray-200 mt-4 text-sm">Due Date: <span className='text-gray-400'>{cardInfo.dueDate ? new Date(cardInfo.dueDate).toLocaleDateString() : 'No due date'}</span></p>
-            <div className="mt-4 flex flex-wrap gap-2">
-              <h3 className="text-sm font-semibold text-gray-200 mb-2">Labels:</h3>
-              <div className="flex flex-wrap gap-2">
-                {cardInfo.labels && cardInfo.labels.length > 0 ? (
-                  cardInfo.labels.map((label: string, index: number) => (
-                    <span key={index} className="text-xs bg-gray-600 text-gray-300 px-2 py-1 rounded">
-                      {label}
-                    </span>
-                  ))
-                ) : (
-                  <p className="text-gray-500 text-sm">No labels</p>
-                )}
-              </div>
+            {/* Content */}
+            <div className="p-6 overflow-y-auto custom-scrollbar flex-1">
+              {isEditing ? (
+                <div className="space-y-4">
+                  <div>
+                    <label className="block text-sm font-medium text-gray-300 mb-1">Title <span className="text-red-500">*</span></label>
+                    <input 
+                      type="text" 
+                      value={editForm.title} 
+                      onChange={(e) => setEditForm({...editForm, title: e.target.value})}
+                      className="w-full bg-[#141415] border border-[#2C2C2E] rounded-lg px-3 py-2 text-white placeholder-gray-500 focus:outline-none focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 transition-colors"
+                      placeholder="Card Title"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium text-gray-300 mb-1">Description</label>
+                    <textarea 
+                      value={editForm.description} 
+                      onChange={(e) => setEditForm({...editForm, description: e.target.value})}
+                      className="w-full bg-[#141415] border border-[#2C2C2E] rounded-lg px-3 py-2 text-white placeholder-gray-500 focus:outline-none focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 transition-colors min-h-25 resize-y"
+                      placeholder="Add a more detailed description..."
+                    />
+                  </div>
+                  <div className="grid grid-cols-2 gap-4">
+                    <div>
+                      <label className="block text-sm font-medium text-gray-300 mb-1">Due Date</label>
+                      <input 
+                        type="date" 
+                        value={editForm.dueDate} 
+                        onChange={(e) => setEditForm({...editForm, dueDate: e.target.value})}
+                        className="w-full bg-[#141415] border border-[#2C2C2E] rounded-lg px-3 py-2 text-white focus:outline-none focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 transition-colors"
+                        style={{ colorScheme: 'dark' }}
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-sm font-medium text-gray-300 mb-1">Priority</label>
+                      <select 
+                        value={editForm.priority} 
+                        onChange={(e) => setEditForm({...editForm, priority: e.target.value})}
+                        className="w-full bg-[#141415] border border-[#2C2C2E] rounded-lg px-3 py-2 text-white focus:outline-none focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 transition-colors"
+                      >
+                        <option value="low">Low</option>
+                        <option value="medium">Medium</option>
+                        <option value="high">High</option>
+                        <option value="urgent">Urgent</option>
+                      </select>
+                    </div>
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium text-gray-300 mb-1">Labels (comma separated)</label>
+                    <input 
+                      type="text" 
+                      value={editForm.labels} 
+                      onChange={(e) => setEditForm({...editForm, labels: e.target.value})}
+                      className="w-full bg-[#141415] border border-[#2C2C2E] rounded-lg px-3 py-2 text-white placeholder-gray-500 focus:outline-none focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 transition-colors"
+                      placeholder="Frontend, Bug, Feature"
+                    />
+                  </div>
+                </div>
+              ) : (
+                <div className="space-y-6">
+                  {cardInfo.description && (
+                    <div className="bg-[#141415] rounded-lg p-4 border border-[#2C2C2E]">
+                      <h3 className="text-sm font-medium text-gray-400 mb-2">Description</h3>
+                      <p className="text-gray-200 whitespace-pre-wrap text-sm leading-relaxed">{cardInfo.description}</p>
+                    </div>
+                  )}
+
+                  <div className="grid grid-cols-2 gap-4">
+                    <div className="bg-[#141415] rounded-lg p-3 border border-[#2C2C2E] flex items-center gap-3">
+                      <div className="w-8 h-8 rounded-full bg-blue-500/10 flex items-center justify-center text-blue-500">
+                        <Calendar size={16} />
+                      </div>
+                      <div>
+                        <p className="text-xs text-gray-500 font-medium">Due Date</p>
+                        <p className="text-sm text-gray-200 font-semibold mt-0.5">
+                          {cardInfo.dueDate ? new Date(cardInfo.dueDate).toLocaleDateString(undefined, { month: 'short', day: 'numeric', year: 'numeric' }) : 'No due date'}
+                        </p>
+                      </div>
+                    </div>
+                    
+                    <div className="bg-[#141415] rounded-lg p-3 border border-[#2C2C2E] flex items-center gap-3">
+                      <div className={`w-8 h-8 rounded-full flex items-center justify-center ${
+                        cardInfo.priority === 'urgent' ? 'bg-red-500/10 text-red-500' : 
+                        cardInfo.priority === 'high' ? 'bg-amber-500/10 text-amber-500' :
+                        cardInfo.priority === 'medium' ? 'bg-blue-500/10 text-blue-500' :
+                        'bg-slate-500/10 text-slate-400'
+                      }`}>
+                        <AlertCircle size={16} />
+                      </div>
+                      <div>
+                        <p className="text-xs text-gray-500 font-medium">Priority</p>
+                        <p className="text-sm font-semibold mt-0.5 capitalize" style={{
+                          color: cardInfo.priority === 'urgent' ? '#ef4444' : 
+                                 cardInfo.priority === 'high' ? '#f59e0b' :
+                                 cardInfo.priority === 'medium' ? '#3b82f6' : '#94a3b8'
+                        }}>
+                          {cardInfo.priority || 'None'}
+                        </p>
+                      </div>
+                    </div>
+                  </div>
+
+                  {cardInfo.labels && cardInfo.labels.length > 0 && (
+                    <div>
+                      <h3 className="text-sm font-medium text-gray-400 mb-3 flex items-center gap-1.5">
+                        <Tag size={14} /> Labels
+                      </h3>
+                      <div className="flex flex-wrap gap-2">
+                        {cardInfo.labels.map((label: string, index: number) => (
+                          <span key={index} className="text-xs font-medium px-2.5 py-1 rounded bg-[#2C2C2E] text-gray-300 border border-[#3C3C3E]">
+                            {label}
+                          </span>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+                </div>
+              )}
             </div>
-            <div className="flex items-center justify-between mt-2">
-              <span className={`text-xs font-medium px-2 py-1 rounded-full border ${
-                cardInfo.priority === 'urgent' ? 'bg-red-500/10 text-red-500' : 
-                cardInfo.priority === 'high' ? 'bg-amber-500/10 text-amber-500' :
-                cardInfo.priority === 'medium' ? 'bg-blue-500/10 text-blue-500' :
-                'bg-slate-500/10 text-slate-400'
-              }`}>
-                {cardInfo.priority}
-              </span>
+
+            {/* Footer / Actions */}
+            <div className="p-4 border-t border-[#2C2C2E] bg-[#141415] flex justify-end gap-3">
+              {isEditing ? (
+                <>
+                  <button 
+                    onClick={() => setIsEditing(false)}
+                    disabled={actionLoading}
+                    className="px-4 py-2 rounded-lg text-sm font-medium text-gray-300 hover:text-white hover:bg-[#2C2C2E] transition-colors disabled:opacity-50"
+                  >
+                    Cancel
+                  </button>
+                  <button 
+                    onClick={handleUpdateCard}
+                    disabled={actionLoading}
+                    className="px-4 py-2 bg-indigo-500 hover:bg-indigo-600 text-white text-sm font-medium rounded-lg transition-colors flex items-center gap-2 disabled:opacity-50"
+                  >
+                    {actionLoading && <Loader size={14} className="animate-spin" />}
+                    Save Changes
+                  </button>
+                </>
+              ) : (
+                <div className="flex items-center justify-between w-full">
+                  <button 
+                    onClick={handleDeleteCard}
+                    disabled={actionLoading}
+                    className="p-2 text-gray-400 hover:text-red-500 hover:bg-red-500/10 rounded-lg transition-colors flex items-center gap-1.5 text-sm font-medium disabled:opacity-50"
+                  >
+                    {actionLoading ? <Loader size={16} className="animate-spin" /> : <Trash2 size={16} />}
+                    <span className="hidden sm:inline">Delete</span>
+                  </button>
+                  
+                  <button 
+                    onClick={startEditing}
+                    className="px-4 py-2 bg-indigo-500 hover:bg-indigo-600 text-white text-sm font-medium rounded-lg transition-colors flex items-center gap-2"
+                  >
+                    <Edit2 size={16} />
+                    Edit Card
+                  </button>
+                </div>
+              )}
             </div>
+            
           </div>
         </div>
       )}
