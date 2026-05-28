@@ -3,7 +3,7 @@ import { useParams } from 'react-router-dom';
 import { KanbanColumn } from './KanbanColumn';
 import { Filter, Search, Loader } from 'lucide-react';
 import { api } from '../../axios';
-import { DndContext, DragOverlay, type DragCancelEvent, type DragStartEvent } from '@dnd-kit/core';
+import { DndContext, DragOverlay, useSensor, useSensors, PointerSensor, type DragCancelEvent, type DragStartEvent } from '@dnd-kit/core';
 import type { DragEndEvent } from '@dnd-kit/core';
 import  socket  from '../../../socket';
 interface ColumnType {
@@ -33,6 +33,14 @@ export const KanbanBoard: React.FC = () => {
   const [columns, setColumns] = useState<ColumnType[]>([]);
   const [loading, setLoading] = useState(true);
   const [activeCard, setActiveCard] = useState<ActiveCardData | null>(null);
+
+  const sensors = useSensors(
+    useSensor(PointerSensor, {
+      activationConstraint: {
+        distance: 5,
+      },
+    })
+  );
 
   // New state for task modal
   const [isTaskModalOpen, setIsTaskModalOpen] = useState(false);
@@ -168,7 +176,7 @@ const handleDragEnd = async (event: DragEndEvent) => {
           </div>
         ) : (
           <div className="flex flex-col lg:grid lg:grid-cols-4 gap-6 h-auto lg:h-full">
-            <DndContext onDragStart={handleDragStart} onDragCancel={handleDragCancel} onDragEnd={handleDragEnd}>
+            <DndContext sensors={sensors} onDragStart={handleDragStart} onDragCancel={handleDragCancel} onDragEnd={handleDragEnd}>
             {columns.map((column, index) => (
               <div key={column._id} className="flex flex-col h-125 lg:h-full min-h-0">
                 <KanbanColumn 
