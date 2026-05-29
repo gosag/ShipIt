@@ -190,12 +190,12 @@ const joinRequestHandler = async (notificationId: string, workspaceId: string, u
                 {/* Branding / Top Nav */}
                 <div className="flex items-center justify-between h-14 px-4 border-b border-[#2C2C2E]/50">
                    <div className="flex  gap-2 font-semibold">
-                      
                       <span className="text-white">Ship<span className="text-[hsl(263,99%,60%)]">It</span></span>
-                      
-                   </div>
-                   <div className="relative right-0">
-                      <button onClick={() => setShowNotifications(true)} className="relative" ><Bell size={18}/></button>
+                   </div> 
+                   <div className=" flex justify-end items-center gap-4">
+                   <div className="relative ">
+                      <button onClick={() => setShowNotifications(true)} className="relative" >
+                        <Bell size={18}/></button>
                       <span className="absolute -top-1 -right-1 w-3 h-3 bg-red-500 text-white text-xs rounded-full flex items-center justify-center">
                         { notificationsToProcess?.length>0? notificationsToProcess.length : 0}
                       </span>
@@ -203,6 +203,7 @@ const joinRequestHandler = async (notificationId: string, workspaceId: string, u
                    <button className="md:hidden p-1.5 text-gray-400 hover:text-white rounded-md hover:bg-white/5" onClick={toggleSidebar}>
                      <X size={18} />
                    </button>
+                   </div>
                 </div>
 
                 <div className="flex-1 px-3 py-4 space-y-6 ">
