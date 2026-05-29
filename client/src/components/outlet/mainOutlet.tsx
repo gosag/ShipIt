@@ -36,14 +36,13 @@ const MainOutlet = () => {
     const [workspaceModalOpen, setWorkspaceModalOpen] = useState(false);
     const [projectModalOpen, setProjectModalOpen] = useState(false);
     const [userData,setUserData]=useState<{name:string,email:string,_id:string} | null>(null);
-    const [workspaces, setWorkspaces] = useState<any[]>([]);
+    const [workspaces, setWorkspaces] = useState<{_id:string, name:string, slug:string,owner:string, members:any[]}[]>([]);
     const navigate=useNavigate();
     const getWorkspace = async () => {
       try {
         const res = await api.get("/api/workspace/get-all");
         const workspacesData = res.data;
-        
-        // Fetch projects for each workspace in parallel
+        console.log(workspacesData)
         const workspacesWithProjects = await Promise.all(
           workspacesData.map(async (ws: any) => {
             try {
@@ -77,6 +76,11 @@ const MainOutlet = () => {
     }
 
   },[])
+  useEffect(()=>{
+    if(workspaces.length>0){
+      localStorage.setItem("workspaces", JSON.stringify(workspaces));
+    }
+  },[workspaces])
   //create new WorkSpace
     const [newWorkspaceName, setNewWorkspaceName] = useState("");
     const [newProjectName, setNewProjectName] = useState("");
@@ -171,6 +175,7 @@ const joinRequestHandler = async (notificationId: string, workspaceId: string, u
     alert(err.response?.data?.error || "An error occurred while processing the join request.");
    }
 }
+ 
     return (
         <div className="flex h-screen overflow-hidden bg-[#0e0e0f] text-[#f2f2f2] font-sans antialiased selection:bg-indigo-500/30">
             {/* Mobile Sidebar Overlay */}

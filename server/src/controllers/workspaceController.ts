@@ -52,7 +52,7 @@ export const getAllWorkSpaces=asyncHandler(async(req:AuthRequest,res:Response,ne
         throw error;
     }
     const userId=req.user._id;
-    const workspaces = await Workspace.find({members:{$elemMatch:{user:userId}}});
+    const workspaces = await Workspace.find({members:{$elemMatch:{user:userId}}}).populate("members.user","name email");
     if(!workspaces){
         const error = new Error("No workspaces found for the user") as customError;
         error.status = 404;
@@ -72,7 +72,7 @@ export const getWorkspaceBySlug=asyncHandler(async(req:AuthRequest,res:Response,
         error.status = 400;
         return next(error);
     }
-    const workspace = await Workspace.findOne({slug:slug}).populate("owner");
+    const workspace = await Workspace.findOne({slug:slug}).populate("owner"); 
     const owner = workspace?.owner as any;
    
     if(!workspace){

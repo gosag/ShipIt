@@ -114,13 +114,13 @@ export const KanbanColumn: React.FC<KanbanColumnProps> = ({ id, title, badgeColo
         });
       }
     };
-
+    const workspacesData = JSON.parse(localStorage.getItem("workspaces") || "[]");
     socket.on("cardMoved", handleSocketCardMoved);
     return () => {
       socket.off("cardMoved", handleSocketCardMoved);
     };
    }, [id]);
-
+   
   const handleDeleteCard = async () => {
     if (!cardInfo) return;
     if (!window.confirm("Are you sure you want to delete this card?")) return;
@@ -166,11 +166,12 @@ export const KanbanColumn: React.FC<KanbanColumnProps> = ({ id, title, badgeColo
       description: cardInfo.description || '',
       dueDate: cardInfo.dueDate ? cardInfo.dueDate.split('T')[0] : '',
       priority: cardInfo.priority || 'medium',
-      labels: cardInfo.labels ? cardInfo.labels.join(', ') : ''
+      labels: cardInfo.labels ? cardInfo.labels.join(', ') : '',
+      assignee: cardInfo.assignee || ''
+
     });
     setIsEditing(true);
   };
-
   return (
     <div className="flex flex-col w-full h-full">
       {/* Column Header */}
@@ -188,7 +189,6 @@ export const KanbanColumn: React.FC<KanbanColumnProps> = ({ id, title, badgeColo
           >
             {cards.length!==0 ? <Plus size={16} /> : null}
           </button>
-          
         </div>
       </div>
 
@@ -292,6 +292,23 @@ export const KanbanColumn: React.FC<KanbanColumnProps> = ({ id, title, badgeColo
                       </select>
                     </div>
                   </div>
+               {/* make the creator choose assignee based on available users */}
+                  {/* <div>
+                    <label className="block text-sm font-medium text-gray-300 mb-1">Assignee</label>
+                    <select
+                      value={editForm.assignee}
+                      onChange={(e) => setEditForm({ ...editForm, assignee: e.target.value })}
+                      className="w-full bg-[#141415] border border-[#2C2C2E] rounded-lg px-3 py-2 text-white focus:outline-none focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 transition-colors"
+                    >
+                      <option value="">Select an assignee</option>
+                      {usersInWorkspace.map((user) => (
+                        <option key={user.email} value={user.email}>
+                          {user.name}
+                        </option>
+                      ))}
+                    </select>
+
+                  </div> */}
                   <div>
                     <label className="block text-sm font-medium text-gray-300 mb-1">Labels (comma separated)</label>
                     <input 
