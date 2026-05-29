@@ -14,6 +14,39 @@ interface KanbanColumnProps {
   activeCardId?: string | null;
 }
 
+const DraggableCard: React.FC<{ card: any; columnId: string; activeCardId?: string | null; onClick: () => void }> = ({ card, columnId, activeCardId, onClick }) => {
+  const { attributes, listeners, setNodeRef: setDraggableNodeRef, transform, isDragging } = useDraggable({ id: card._id, data: { columnId, card } });
+  const style = transform ? { transform: `translate3d(${transform.x}px, ${transform.y}px, 0)` } : undefined;
+
+  return (
+    <div
+      ref={setDraggableNodeRef}
+      onClick={onClick}
+      style={style}
+      {...listeners}
+      {...attributes}
+      className={`bg-[#1C1C1E] border border-[#2C2C2E] hover:border-[#3C3C3E] transition-colors rounded-lg p-3 shadow-sm cursor-grab active:cursor-grabbing ${isDragging || activeCardId === card._id ? 'opacity-0' : ''}`}
+    >
+      <h4 className="text-gray-200 font-medium text-sm">{card.title}</h4>
+      {card.description && (
+        <p className="text-gray-400 text-xs mt-1 line-clamp-2">{card.description}</p>
+      )}
+      {card.priority && (
+        <div className="mt-3 flex items-center gap-2">
+          <span className={`text-[10px] uppercase font-bold px-1.5 py-0.5 rounded ${
+            card.priority === 'urgent' ? 'bg-red-500/10 text-red-500' : 
+            card.priority === 'high' ? 'bg-amber-500/10 text-amber-500' :
+            card.priority === 'medium' ? 'bg-blue-500/10 text-blue-500' :
+            'bg-slate-500/10 text-slate-400'
+          }`}>
+            {card.priority}
+          </span>
+        </div>
+      )}
+    </div>
+  );
+};
+
 export const KanbanColumn: React.FC<KanbanColumnProps> = ({ id, title, badgeColor, onAddTask, refreshTrigger, activeCardId }) => {
   const { projectId } = useParams<{ projectId: string }>();
   const [cards, setCards] = useState<any[]>([]);
@@ -168,41 +201,16 @@ export const KanbanColumn: React.FC<KanbanColumnProps> = ({ id, title, badgeColo
         ) : cards.length > 0 ? (
           cards.map((card) => {
             if (!card) return null; // Safe guard
-            const DraggableCard: React.FC<{ card: any }> = ({ card }) => {
-              const { attributes, listeners, setNodeRef: setDraggableNodeRef, transform, isDragging } = useDraggable({ id: card._id, data: { columnId: id, card } });
-              const style = transform ? { transform: `translate3d(${transform.x}px, ${transform.y}px, 0)` } : undefined;
-
-              return (
-                <div
-                  ref={setDraggableNodeRef}
-                  onClick={() => cardInfoHandler(card._id)}
-                  style={style}
-                  {...listeners}
-                  {...attributes}
-                  className={`bg-[#1C1C1E] border border-[#2C2C2E] hover:border-[#3C3C3E] transition-colors rounded-lg p-3 shadow-sm cursor-grab active:cursor-grabbing ${isDragging || activeCardId === card._id ? 'opacity-0' : ''}`}
-                >
-                  <h4 className="text-gray-200 font-medium text-sm">{card.title}</h4>
-                  {card.description && (
-                    <p className="text-gray-400 text-xs mt-1 line-clamp-2">{card.description}</p>
-                  )}
-                  {card.priority && (
-                    <div className="mt-3 flex items-center gap-2">
-                      <span className={`text-[10px] uppercase font-bold px-1.5 py-0.5 rounded ${
-                        card.priority === 'urgent' ? 'bg-red-500/10 text-red-500' : 
-                        card.priority === 'high' ? 'bg-amber-500/10 text-amber-500' :
-                        card.priority === 'medium' ? 'bg-blue-500/10 text-blue-500' :
-                        'bg-slate-500/10 text-slate-400'
-                      }`}>
-                        {card.priority}
-                      </span>
-                    </div>
-                  )}
-                  
-                </div>
-              );
-            };
-
-            return <DraggableCard key={card._id} card={card} />;
+            
+            return (
+              <DraggableCard 
+                key={card._id} 
+                card={card} 
+                columnId={id}
+                activeCardId={activeCardId}
+                onClick={() => cardInfoHandler(card._id)}
+              />
+            );
           })
         ) : (
           <div 
