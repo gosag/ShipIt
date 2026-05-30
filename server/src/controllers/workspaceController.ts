@@ -14,8 +14,8 @@ export const createWorkspace=asyncHandler(async(req:AuthRequest,res:Response,nex
     return next(error);
    }
     const userId=req.user._id;
-
-   const {name, slug, owner, members} = req.body;
+   let slug=req.body.slug;
+   const {name, members} = req.body;
     if(!name || !slug){
         const error = new Error("Name and slug are required to create a workspace") as customError;
         error.status = 400;
@@ -24,9 +24,8 @@ export const createWorkspace=asyncHandler(async(req:AuthRequest,res:Response,nex
     try{
         const existingWorkspace = await Workspace.findOne({slug});
         if(existingWorkspace){
-            const error = new Error("A workspace with this slug already exists") as customError;
-            error.status = 400;
-            return next(error);
+            const randomNumber = Math.floor(Math.random() * 999) +10;
+            slug = `${slug}${randomNumber}`;
         }
         const newWorkspace= new Workspace({
             name,
