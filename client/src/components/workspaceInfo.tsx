@@ -27,6 +27,7 @@ const WorkspaceInfo = ()=>{
                     <p className="text-gray-200">Slug: {workspace.slug}</p>
                     <p className="text-gray-200">Workspace ID: {workspace._id}</p>
                     <p className="text-gray-200">Created At: {new Date(workspace.createdAt).toLocaleString()}</p>
+                    <p className="text-gray-200">Owner: {workspace.owner?.name} ({workspace.owner?.email || ""})</p>
                     {/*users in the workspace */}
                     <p className="text-gray-200">Members:</p>
                     <ul className="list-disc list-inside text-gray-200">
