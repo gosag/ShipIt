@@ -91,6 +91,23 @@ export const getWorkspaceBySlug=asyncHandler(async(req:AuthRequest,res:Response,
     console.log("Workspace data to return:", workspaceData);
     res.status(200).json(workspaceData);
 })
+export const getWorkspaceById=asyncHandler(async(req:AuthRequest, res:Response, next: NextFunction)=>{
+    if(!req.user || !req.user._id){
+        const error= new Error("Unauthorized: User is not authenticated") as customError;
+        error.status=401;
+        throw error;
+    }
+    const workspaceId= req.params.workspaceId;
+    const workspace= await Workspace.findById(workspaceId);
+    console.log("hey i reached here baby!")
+    if(!workspace){
+        const error= new Error("Workspace is not Found") as customError;
+        error.status=404;
+        throw error
+    } 
+    console.log(`Workspace found by ${workspaceId} is `,workspace);
+    res.json(workspace)
+})
 export const updateWorkspace=asyncHandler(async(req:AuthRequest,res:Response,next:NextFunction)=>{
     if(!req.user || !req.user._id){
         const error=new Error("Unauthorized: User not authenticated") as customError;
