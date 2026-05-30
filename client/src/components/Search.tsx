@@ -14,7 +14,11 @@ const Search = () => {
         try {
             setIsSearching(true);
             setHasRequested(false);
-            const response = await api.get(`/api/workspace/get-slug/${searchTerm}`);
+            let slug = searchTerm.trim();
+            if (slug.startsWith("/")) {
+                slug = slug.slice(1);
+            }
+            const response = await api.get(`/api/workspace/get-slug/${slug}`);
             setSearchResults(response.data);
         } catch (error) {
             console.error("Error searching workspaces:", error);

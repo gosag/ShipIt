@@ -3,6 +3,7 @@ import type { AuthRequest } from '../middleware/auth.js';
 import { Workspace } from '../models/Workspace.js';
 import { Notification } from '../models/Notification.js';
 import asyncHandler from 'express-async-handler';
+import type { listenerCount } from 'cluster';
 interface customError extends Error {
     status?: number;
     statusCode?: number;
@@ -60,7 +61,7 @@ export const getAllWorkSpaces=asyncHandler(async(req:AuthRequest,res:Response,ne
     res.status(200).json(workspaces);
 })
 export const getWorkspaceBySlug=asyncHandler(async(req:AuthRequest,res:Response,next:NextFunction)=>{
-    const slug=req.params.slug as string;
+    const slug=req.params.slug as string ;
     if(!req.user || !req.user._id){
         const error=new Error("Unauthorized: User not authenticated") as customError;
         error.status= 401;
