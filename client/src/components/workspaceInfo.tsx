@@ -11,7 +11,7 @@ const WorkspaceInfo = ()=>{
             try {
                 const response = await api.get(`/api/workspace/${workspaceId}`);
                 setWorkspace(response.data);
-                console.log("Fetched workspace:", response.data);
+                console.log("members in workspace:", response.data.members);
             } catch (error) {
                 console.error("Error fetching workspace:", error);
             }
@@ -26,6 +26,20 @@ const WorkspaceInfo = ()=>{
                     <p className="text-gray-200">Name: {workspace.name}</p>
                     <p className="text-gray-200">Slug: {workspace.slug}</p>
                     <p className="text-gray-200">Workspace ID: {workspace._id}</p>
+                    <p className="text-gray-200">Created At: {new Date(workspace.createdAt).toLocaleString()}</p>
+                    {/*users in the workspace */}
+                    <p className="text-gray-200">Members:</p>
+                    <ul className="list-disc list-inside text-gray-200">
+                        {workspace.members.map((member: any) => {
+                            if(!member) return null ;
+                            return (
+                                <li key={member.user._id}>
+                                    {member.user.name} ({member.user.email}) - Role: {member.role}
+                                </li>
+                            );
+                        })}
+                    </ul>
+
                 </div>
             ) : (
                 <p className="text-gray-600">Loading workspace details...</p>

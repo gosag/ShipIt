@@ -98,9 +98,8 @@ export const getWorkspaceById=asyncHandler(async(req:AuthRequest, res:Response, 
         throw error;
     }
     const workspaceId= req.params.workspaceId;
-    console.log("Received request for workspace with ID:", workspaceId);
-    const workspace= await Workspace.findById(workspaceId);
-    console.log("hey i reached here baby!")
+    const workspace= await Workspace.findById(workspaceId).populate("members.user","name email");
+    console.log("Workspace found:", workspace);
     if(!workspace){
         const error= new Error("Workspace is not Found") as customError;
         error.status=404;
