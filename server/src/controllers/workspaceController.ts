@@ -98,6 +98,7 @@ export const getWorkspaceById=asyncHandler(async(req:AuthRequest, res:Response, 
         throw error;
     }
     const workspaceId= req.params.workspaceId;
+    console.log("Received request for workspace with ID:", workspaceId);
     const workspace= await Workspace.findById(workspaceId);
     console.log("hey i reached here baby!")
     if(!workspace){
