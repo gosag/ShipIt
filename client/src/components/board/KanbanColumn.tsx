@@ -100,7 +100,11 @@ export const KanbanColumn: React.FC<KanbanColumnProps> = ({ id, title, badgeColo
     setShowCardInfo(true);
   }
   const { isOver, setNodeRef: setDroppableNodeRef } = useDroppable({ id });
- 
+
+  const workspacesData = JSON.parse(localStorage.getItem("workspaces") || "[]");
+  const currentWorkspace = workspacesData.find((ws: any) => ws.projects?.some((p: any) => p._id === projectId));
+  const currentMembers = currentWorkspace?.members ? currentWorkspace.members.map((m: any) => m?.user).filter(Boolean) : [];
+
    useEffect(() => {
     const handleSocketCardMoved = (data: any) => {
       const { cardId, sourceColumnId, destinationColumnId, cardData } = data;
@@ -112,9 +116,8 @@ export const KanbanColumn: React.FC<KanbanColumnProps> = ({ id, title, badgeColo
           if (!cardData) return prev; // Safety check
           return [...prev, cardData];
         });
-      }
+      } 
     };
-    const workspacesData = JSON.parse(localStorage.getItem("workspaces") || "[]");
     socket.on("cardMoved", handleSocketCardMoved);
     return () => {
       socket.off("cardMoved", handleSocketCardMoved);
@@ -167,7 +170,7 @@ export const KanbanColumn: React.FC<KanbanColumnProps> = ({ id, title, badgeColo
       dueDate: cardInfo.dueDate ? cardInfo.dueDate.split('T')[0] : '',
       priority: cardInfo.priority || 'medium',
       labels: cardInfo.labels ? cardInfo.labels.join(', ') : '',
-      assignee: cardInfo.assignee || ''
+      assignees: cardInfo.assignees || []
 
     });
     setIsEditing(true);
@@ -292,23 +295,32 @@ export const KanbanColumn: React.FC<KanbanColumnProps> = ({ id, title, badgeColo
                       </select>
                     </div>
                   </div>
-               {/* make the creator choose assignee based on available users */}
-                  {/* <div>
-                    <label className="block text-sm font-medium text-gray-300 mb-1">Assignee</label>
-                    <select
-                      value={editForm.assignee}
-                      onChange={(e) => setEditForm({ ...editForm, assignee: e.target.value })}
-                      className="w-full bg-[#141415] border border-[#2C2C2E] rounded-lg px-3 py-2 text-white focus:outline-none focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 transition-colors"
-                    >
-                      <option value="">Select an assignee</option>
-                      {usersInWorkspace.map((user) => (
-                        <option key={user.email} value={user.email}>
-                          {user.name}
-                        </option>
-                      ))}
-                    </select>
-
-                  </div> */}
+               {/* make the creator choose assignees based on available users */}
+                  {<div>
+                    <label className="block text-sm font-medium text-gray-300 mb-2">Assignees</label>
+                    <div className="space-y-2 max-h-32 overflow-y-auto custom-scrollbar p-2 bg-[#141415] border border-[#3C3C3E] rounded-lg">
+                      {currentMembers.length === 0 ? (
+                        <p className="text-sm text-gray-500">No members found</p>
+                      ) : (
+                        currentMembers.map((member: any) => (
+                          <label key={member._id} className="flex items-center gap-2 cursor-pointer group">
+                            <input 
+                              type="checkbox"
+                              value={member._id}
+                              checked={(editForm.assignees || []).includes(member._id)}
+                              onChange={(e) => {
+                                const currentAssignees = editForm.assignees || [];
+                                if (e.target.checked) setEditForm({ ...editForm, assignees: [...currentAssignees, member._id] });
+                                else setEditForm({ ...editForm, assignees: currentAssignees.filter((id: string) => id !== member._id) });
+                              }}
+                              className="w-4 h-4 rounded border-[#3C3C3E] bg-[#2C2C2E] text-indigo-500 focus:ring-indigo-500 focus:ring-offset-0"
+                            />
+                            <span className="text-sm text-gray-300 group-hover:text-white transition-colors">{member.name}</span>
+                          </label>
+                        ))
+                      )}
+                    </div>
+                  </div>}
                   <div>
                     <label className="block text-sm font-medium text-gray-300 mb-1">Labels (comma separated)</label>
                     <input 

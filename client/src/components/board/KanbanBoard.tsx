@@ -50,7 +50,13 @@ export const KanbanBoard: React.FC = () => {
   const [taskLabels, setTaskLabels] = useState("");
   const [selectedColumnId, setSelectedColumnId] = useState("");
   const [taskDueDate, setTaskDueDate] = useState("");
+  const [taskAssignees, setTaskAssignees] = useState<string[]>([]);
   const [refreshTrigger, setRefreshTrigger] = useState(0);
+
+  const workspacesData = JSON.parse(localStorage.getItem("workspaces") || "[]");
+  const currentWorkspace = workspacesData.find((ws: any) => ws.projects?.some((p: any) => p._id === projectId));
+  const currentMembers = currentWorkspace?.members ? currentWorkspace.members.map((m: any) => m?.user).filter(Boolean) : [];
+
   useEffect(() => {
     const fetchColumns = async () => {
       try {
@@ -82,6 +88,7 @@ export const KanbanBoard: React.FC = () => {
         priority: taskPriority,
         labels: taskLabels,
         dueDate: taskDueDate,
+        assignees: taskAssignees,
         order: 0,
       });
       setTaskTitle("");
@@ -89,6 +96,7 @@ export const KanbanBoard: React.FC = () => {
       setTaskPriority("medium");
       setTaskLabels("");
       setTaskDueDate("");
+      setTaskAssignees([]);
       setIsTaskModalOpen(false);
       setRefreshTrigger(prev => prev + 1);
     } catch (error) {
@@ -281,6 +289,30 @@ const handleDragEnd = async (event: DragEndEvent) => {
                     <option key={c._id} value={c._id}>{c.title}</option>
                   ))}
                 </select>
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-300 mb-2">Assignees</label>
+                <div className="space-y-2 max-h-32 overflow-y-auto custom-scrollbar p-2 bg-[#141415] border border-[#3C3C3E] rounded-lg">
+                  {currentMembers.length === 0 ? (
+                    <p className="text-sm text-gray-500">No members found</p>
+                  ) : (
+                    currentMembers.map((member: any) => (
+                      <label key={member._id} className="flex items-center gap-2 cursor-pointer group">
+                        <input 
+                          type="checkbox"
+                          value={member._id}
+                          checked={taskAssignees.includes(member._id)}
+                          onChange={(e) => {
+                            if (e.target.checked) setTaskAssignees([...taskAssignees, member._id]);
+                            else setTaskAssignees(taskAssignees.filter(id => id !== member._id));
+                          }}
+                          className="w-4 h-4 rounded border-[#3C3C3E] bg-[#2C2C2E] text-indigo-500 focus:ring-indigo-500 focus:ring-offset-0"
+                        />
+                        <span className="text-sm text-gray-300 group-hover:text-white transition-colors">{member.name}</span>
+                      </label>
+                    ))
+                  )}
+                </div>
               </div>
               <div className="flex items-center justify-end gap-3 mt-6 pt-4 border-t border-[#2C2C2E]">
                 <button 

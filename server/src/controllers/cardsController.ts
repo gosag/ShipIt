@@ -37,7 +37,7 @@ export const createCard= asyncHandler(async(req:AuthRequest,res:Response,next:Ne
         error.status=401;
         throw error;
     }
-     const {title,description,dueDate,order,assignee,priority,labels}=req.body;
+     const {title,description,dueDate,order,assignees,priority,labels}=req.body;
      if(!title){
         const error= new Error("Title is required") as customError;
         error.status=400;
@@ -76,7 +76,7 @@ export const createCard= asyncHandler(async(req:AuthRequest,res:Response,next:Ne
             createdBy: req.user._id,
             dueDate,
             order,
-            assignee,
+            assignees,
             priority,
             labels: labelsArray
         });
@@ -93,12 +93,12 @@ export const updateCard= asyncHandler(async(req:AuthRequest,res:Response,next:Ne
         error.status=401;
         throw error;
     }
-    const {title,description,dueDate,assignee,priority,labels}=req.body;
+    const {title,description,dueDate,assignees,priority,labels}=req.body;
     const newFields:any={};
     if(title) newFields.title=title;
     if(description) newFields.description=description;
     if(dueDate) newFields.dueDate=dueDate;
-    if(assignee) newFields.assignee=assignee;
+    if(assignees) newFields.assignees=assignees;
     if(priority) newFields.priority=priority;
     if(labels) {
         let labelsArray:string[]=[];
