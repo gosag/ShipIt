@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import {  Plus, Loader, Calendar, Tag, AlertCircle, Edit2, Trash2 } from 'lucide-react';
+import {  Plus, Loader, Calendar, Tag, AlertCircle, Edit2, Trash2, User } from 'lucide-react';
 import { useParams } from 'react-router-dom';
 import { api } from '../../axios';
 import {X} from 'lucide-react';
@@ -399,6 +399,16 @@ export const KanbanColumn: React.FC<KanbanColumnProps> = ({ id, title, badgeColo
                       </div>
                     </div>
                   </div>
+
+                  {cardInfo.createdBy && (
+                    <div className="flex items-center gap-2 mt-4 text-sm text-gray-400 bg-[#1C1C1E] border border-[#2C2C2E] p-2.5 rounded-lg w-max">
+                      <User size={16} className="text-indigo-400" />
+                      <span>Created by:</span>
+                      <span className="text-gray-200 font-medium">
+                        {currentMembers.find(m => m._id === cardInfo.createdBy)?.name || 'Unknown'}
+                      </span>
+                    </div>
+                  )}
 
                   {cardInfo.assignees && cardInfo.assignees.length > 0 && (
                     <div>
