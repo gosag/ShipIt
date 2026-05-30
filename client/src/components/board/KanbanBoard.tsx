@@ -234,7 +234,7 @@ const handleDragEnd = async (event: DragEndEvent) => {
                           )}
                           {isAssignedToMe && (
                             <span className="text-[10px] uppercase font-bold px-1.5 py-0.5 rounded bg-indigo-500/10 text-indigo-400">
-                              Assigned to you
+                              For you
                             </span>
                           )}
                         </div>
