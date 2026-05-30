@@ -53,9 +53,18 @@ export const KanbanBoard: React.FC = () => {
   const [taskAssignees, setTaskAssignees] = useState<string[]>([]);
   const [refreshTrigger, setRefreshTrigger] = useState(0);
 
-  const workspacesData = JSON.parse(localStorage.getItem("workspaces") || "[]");
-  const currentWorkspace = workspacesData.find((ws: any) => ws.projects?.some((p: any) => p._id === projectId));
-  const currentMembers = currentWorkspace?.members ? currentWorkspace.members.map((m: any) => m?.user).filter(Boolean) : [];
+  let currentMembers: any[] = [];
+  try {
+    const workspacesData = JSON.parse(localStorage.getItem("workspaces") || "[]");
+    if (Array.isArray(workspacesData)) {
+      const currentWorkspace = workspacesData.find((ws: any) => ws && ws.projects && ws.projects.some((p: any) => p && p._id === projectId));
+      if (currentWorkspace && Array.isArray(currentWorkspace.members)) {
+        currentMembers = currentWorkspace.members.map((m: any) => m && m.user ? m.user : null).filter(Boolean);
+      }
+    }
+  } catch (e) {
+    console.error("Error parsing workspaces from local storage", e);
+  }
 
   useEffect(() => {
     const fetchColumns = async () => {
@@ -198,26 +207,41 @@ const handleDragEnd = async (event: DragEndEvent) => {
               </div>
             ))}
             <DragOverlay>
-              {activeCard ? (
-                <div className="bg-[#1C1C1E] border border-[#2C2C2E] rounded-lg p-3 shadow-2xl cursor-grabbing w-40 opacity-95">
-                  <h4 className="text-gray-200 font-medium text-sm">{activeCard.title}</h4>
-                  {activeCard.description && (
-                    <p className="text-gray-400 text-xs mt-1 line-clamp-2">{activeCard.description}</p>
-                  )}
-                  {activeCard.priority && (
-                    <div className="mt-3 flex items-center gap-2">
-                      <span className={`text-[10px] uppercase font-bold px-1.5 py-0.5 rounded ${
-                        activeCard.priority === 'urgent' ? 'bg-red-500/10 text-red-500' :
-                        activeCard.priority === 'high' ? 'bg-amber-500/10 text-amber-500' :
-                        activeCard.priority === 'medium' ? 'bg-blue-500/10 text-blue-500' :
-                        'bg-slate-500/10 text-slate-400'
-                      }`}>
-                        {activeCard.priority}
-                      </span>
+              {activeCard ? (() => {
+                  let currentUserId;
+                  try {
+                    currentUserId = JSON.parse(localStorage.getItem("userData") || "{}")?._id;
+                  } catch (e) {}
+                  
+                  const isAssignedToMe = currentUserId && (activeCard as any).assignees && (activeCard as any).assignees.includes(currentUserId);
+                  return (
+                    <div className="bg-[#1C1C1E] border border-[#2C2C2E] rounded-lg p-3 shadow-2xl cursor-grabbing w-40 opacity-95">
+                      <h4 className="text-gray-200 font-medium text-sm">{activeCard.title}</h4>
+                      {activeCard.description && (
+                        <p className="text-gray-400 text-xs mt-1 line-clamp-2">{activeCard.description}</p>
+                      )}
+                      {(activeCard.priority || isAssignedToMe) && (
+                        <div className="mt-3 flex flex-wrap items-center gap-2">
+                          {activeCard.priority && (
+                            <span className={`text-[10px] uppercase font-bold px-1.5 py-0.5 rounded ${
+                              activeCard.priority === 'urgent' ? 'bg-red-500/10 text-red-500' :
+                              activeCard.priority === 'high' ? 'bg-amber-500/10 text-amber-500' :
+                              activeCard.priority === 'medium' ? 'bg-blue-500/10 text-blue-500' :
+                              'bg-slate-500/10 text-slate-400'
+                            }`}>
+                              {activeCard.priority}
+                            </span>
+                          )}
+                          {isAssignedToMe && (
+                            <span className="text-[10px] uppercase font-bold px-1.5 py-0.5 rounded bg-indigo-500/10 text-indigo-400">
+                              Assigned to you
+                            </span>
+                          )}
+                        </div>
+                      )}
                     </div>
-                  )}
-                </div>
-              ) : null}
+                  );
+              })() : null}
             </DragOverlay>
             </DndContext>
           </div>

@@ -65,9 +65,10 @@ const MainOutlet = () => {
       try{
       const fetchData=async()=>{
         const res= await api.get("/api/auth/user-info")
-        const returnedData=res.data;
+        const returnedData = res.data;
         console.log(returnedData);
-        setUserData(returnedData)
+        setUserData(returnedData);
+        localStorage.setItem("userData", JSON.stringify(returnedData));
       }
       fetchData()
       getWorkspace()

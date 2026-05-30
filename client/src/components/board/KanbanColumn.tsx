@@ -14,9 +14,11 @@ interface KanbanColumnProps {
   activeCardId?: string | null;
 }
 
-const DraggableCard: React.FC<{ card: any; columnId: string; activeCardId?: string | null; onClick: () => void }> = ({ card, columnId, activeCardId, onClick }) => {
+const DraggableCard: React.FC<{ card: any; columnId: string; activeCardId?: string | null; onClick: () => void; currentUserId?: string }> = ({ card, columnId, activeCardId, onClick, currentUserId }) => {
   const { attributes, listeners, setNodeRef: setDraggableNodeRef, transform, isDragging } = useDraggable({ id: card._id, data: { columnId, card } });
   const style = transform ? { transform: `translate3d(${transform.x}px, ${transform.y}px, 0)` } : undefined;
+
+  const isAssignedToMe = currentUserId && card.assignees && card.assignees.includes(currentUserId);
 
   return (
     <div
@@ -31,16 +33,23 @@ const DraggableCard: React.FC<{ card: any; columnId: string; activeCardId?: stri
       {card.description && (
         <p className="text-gray-400 text-xs mt-1 line-clamp-2">{card.description}</p>
       )}
-      {card.priority && (
-        <div className="mt-3 flex items-center gap-2">
-          <span className={`text-[10px] uppercase font-bold px-1.5 py-0.5 rounded ${
-            card.priority === 'urgent' ? 'bg-red-500/10 text-red-500' : 
-            card.priority === 'high' ? 'bg-amber-500/10 text-amber-500' :
-            card.priority === 'medium' ? 'bg-blue-500/10 text-blue-500' :
-            'bg-slate-500/10 text-slate-400'
-          }`}>
-            {card.priority}
-          </span>
+      {(card.priority || isAssignedToMe) && (
+        <div className="mt-3 flex  items-center gap-2">
+          {card.priority && (
+            <span className={`text-[10px] uppercase font-bold px-1.5 py-0.5 rounded ${
+              card.priority === 'urgent' ? 'bg-red-500/10 text-red-500' : 
+              card.priority === 'high' ? 'bg-amber-500/10 text-amber-500' :
+              card.priority === 'medium' ? 'bg-blue-500/10 text-blue-500' :
+              'bg-slate-500/10 text-slate-400'
+            }`}>
+              {card.priority}
+            </span>
+          )}
+          {isAssignedToMe && (
+            <span className="text-[10px] uppercase font-bold px-1.5 py-0.5 rounded bg-indigo-500/10 text-indigo-400">
+              For you
+            </span>
+          )}
         </div>
       )}
     </div>
@@ -101,9 +110,18 @@ export const KanbanColumn: React.FC<KanbanColumnProps> = ({ id, title, badgeColo
   }
   const { isOver, setNodeRef: setDroppableNodeRef } = useDroppable({ id });
 
-  const workspacesData = JSON.parse(localStorage.getItem("workspaces") || "[]");
-  const currentWorkspace = workspacesData.find((ws: any) => ws.projects?.some((p: any) => p._id === projectId));
-  const currentMembers = currentWorkspace?.members ? currentWorkspace.members.map((m: any) => m?.user).filter(Boolean) : [];
+  let currentMembers: any[] = [];
+  try {
+    const workspacesData = JSON.parse(localStorage.getItem("workspaces") || "[]");
+    if (Array.isArray(workspacesData)) {
+      const currentWorkspace = workspacesData.find((ws: any) => ws && ws.projects && ws.projects.some((p: any) => p && p._id === projectId));
+      if (currentWorkspace && Array.isArray(currentWorkspace.members)) {
+        currentMembers = currentWorkspace.members.map((m: any) => m && m.user ? m.user : null).filter(Boolean);
+      }
+    }
+  } catch (e) {
+    console.error("Error parsing workspaces from local storage", e);
+  }
 
    useEffect(() => {
     const handleSocketCardMoved = (data: any) => {
@@ -205,12 +223,18 @@ export const KanbanColumn: React.FC<KanbanColumnProps> = ({ id, title, badgeColo
           cards.map((card) => {
             if (!card) return null; // Safe guard
             
+            let currentUserId;
+            try {
+              currentUserId = JSON.parse(localStorage.getItem("userData") || "{}")?._id;
+            } catch (e) {}
+
             return (
               <DraggableCard 
                 key={card._id} 
                 card={card} 
                 columnId={id}
                 activeCardId={activeCardId}
+                currentUserId={currentUserId}
                 onClick={() => cardInfoHandler(card._id)}
               />
             );
@@ -375,6 +399,24 @@ export const KanbanColumn: React.FC<KanbanColumnProps> = ({ id, title, badgeColo
                       </div>
                     </div>
                   </div>
+
+                  {cardInfo.assignees && cardInfo.assignees.length > 0 && (
+                    <div>
+                      <h3 className="text-sm font-medium text-gray-400 mb-2 flex items-center gap-1.5">
+                        Assignees
+                      </h3>
+                      <div className="flex flex-wrap gap-2">
+                        {cardInfo.assignees.map((assigneeId: string) => {
+                          const user = currentMembers.find(m => m._id === assigneeId);
+                          return (
+                            <span key={assigneeId} className="text-xs font-medium px-2.5 py-1 rounded bg-indigo-500/10 text-indigo-400 border border-indigo-500/20">
+                              {user ? user.name : 'Unknown User'}
+                            </span>
+                          );
+                        })}
+                      </div>
+                    </div>
+                  )}
 
                   {cardInfo.labels && cardInfo.labels.length > 0 && (
                     <div>
