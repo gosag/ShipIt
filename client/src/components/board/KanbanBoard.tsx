@@ -160,6 +160,7 @@ const handleDragEnd = async (event: DragEndEvent) => {
     setRefreshTrigger(prev => prev + 1); // fallback refresh on fail
   }
 };
+const [searchTerm, setSearchTerm] = useState("");
   return (
     <div className="flex flex-col h-full w-full">
       {/* Board Header */}
@@ -173,11 +174,13 @@ const handleDragEnd = async (event: DragEndEvent) => {
             <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-500 group-focus-within:text-indigo-400 transition-colors" size={16} />
             <input 
               type="text" 
-              placeholder="Search tasks..." 
+              placeholder="Search tasks..."
+              value={searchTerm} 
+              onChange={(e) => setSearchTerm(e.target.value)}
               className="py-2 pl-9 pr-4 bg-[#141415] border border-[#2C2C2E] rounded-lg text-sm text-gray-200 focus:outline-none focus:border-indigo-500/50 focus:ring-1 focus:ring-indigo-500/50 transition-all w-64"
             />
           </div>
-          <button className="flex items-center gap-2 px-3 py-2 bg-[#141415] border border-[#2C2C2E] text-gray-300 rounded-lg hover:bg-[#2C2C2E]/50 transition-colors text-sm font-medium">
+          <button   className="flex items-center gap-2 px-3 py-2 bg-[#141415] border border-[#2C2C2E] text-gray-300 rounded-lg hover:bg-[#2C2C2E]/50 transition-colors text-sm font-medium">
             <Filter size={16} />
             <span className="hidden sm:inline">Filter</span>
           </button>
