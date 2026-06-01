@@ -12,6 +12,9 @@ interface KanbanColumnProps {
   onAddTask?: () => void;
   refreshTrigger?: number;
   activeCardId?: string | null;
+  searchTerm?: string;
+  priorityFilter?: string;
+  assigneeFilter?: string;
 }
 
 const DraggableCard: React.FC<{ card: any; columnId: string; activeCardId?: string | null; onClick: () => void; currentUserId?: string }> = ({ card, columnId, activeCardId, onClick, currentUserId }) => {
@@ -56,7 +59,7 @@ const DraggableCard: React.FC<{ card: any; columnId: string; activeCardId?: stri
   );
 };
 
-export const KanbanColumn: React.FC<KanbanColumnProps> = ({ id, title, badgeColor, onAddTask, refreshTrigger, activeCardId }) => {
+export const KanbanColumn: React.FC<KanbanColumnProps> = ({ id, title, badgeColor, onAddTask, refreshTrigger, activeCardId, searchTerm = "", priorityFilter = "all", assigneeFilter = "all" }) => {
   const { projectId } = useParams<{ projectId: string }>();
   const [cards, setCards] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
@@ -219,38 +222,71 @@ export const KanbanColumn: React.FC<KanbanColumnProps> = ({ id, title, badgeColo
           <div className="flex-1 flex items-center justify-center">
             <Loader className="animate-spin text-gray-500" size={24} />
           </div>
-        ) : cards.length > 0 ? (
-          cards.map((card) => {
-            if (!card) return null; // Safe guard
-            
-            let currentUserId;
-            try {
-              currentUserId = JSON.parse(localStorage.getItem("userData") || "{}")?._id;
-            } catch (e) {}
-
-            return (
-              <DraggableCard 
-                key={card._id} 
-                card={card} 
-                columnId={id}
-                activeCardId={activeCardId}
-                currentUserId={currentUserId}
-                onClick={() => cardInfoHandler(card._id)}
-              />
-            );
-          })
         ) : (
-          <div 
-            onClick={onAddTask}
-            className="flex-1 flex flex-col items-center justify-center border-2 border-dashed border-[#2C2C2E] hover:border-[#3C3C3E] rounded-lg transition-colors duration-200 py-8 group cursor-pointer"
-          >
-            <div className="w-10 h-10 rounded-full bg-[#1C1C1E] flex items-center justify-center mb-3 group-hover:scale-110 transition-transform">
-              <Plus size={20} className="text-gray-500 group-hover:text-indigo-400 transition-colors" />
-            </div>
-            <span className="text-sm font-medium text-gray-500 text-center px-4 group-hover:text-gray-400 transition-colors">
-              Drag cards here or click to add a new task
-            </span>
-          </div>
+          (() => {
+            const filteredCards = cards.filter(card => {
+              if (!card) return false;
+              
+              if (searchTerm && !card.title.toLowerCase().includes(searchTerm.toLowerCase()) && !(card.description && card.description.toLowerCase().includes(searchTerm.toLowerCase()))) {
+                return false;
+              }
+              
+              if (priorityFilter && priorityFilter !== 'all' && card.priority !== priorityFilter) {
+                return false;
+              }
+              
+              if (assigneeFilter === 'me') {
+                let currentUserId;
+                try {
+                  currentUserId = JSON.parse(localStorage.getItem("userData") || "{}")?._id;
+                } catch (e) {}
+                
+                if (!currentUserId || !card.assignees || !card.assignees.includes(currentUserId)) {
+                  return false;
+                }
+              }
+              
+              return true;
+            });
+
+            return filteredCards.length > 0 ? (
+              filteredCards.map((card) => {
+                let currentUserId;
+                try {
+                  currentUserId = JSON.parse(localStorage.getItem("userData") || "{}")?._id;
+                } catch (e) {}
+
+                return (
+                  <DraggableCard 
+                    key={card._id} 
+                    card={card} 
+                    columnId={id}
+                    activeCardId={activeCardId}
+                    currentUserId={currentUserId}
+                    onClick={() => cardInfoHandler(card._id)}
+                  />
+                );
+              })
+            ) : cards.length > 0 ? (
+              <div className="flex-1 flex items-center justify-center py-8">
+                <span className="text-sm font-medium text-gray-500 text-center px-4">
+                  No tasks match your filters
+                </span>
+              </div>
+            ) : (
+              <div 
+                onClick={onAddTask}
+                className="flex-1 flex flex-col items-center justify-center border-2 border-dashed border-[#2C2C2E] hover:border-[#3C3C3E] rounded-lg transition-colors duration-200 py-8 group cursor-pointer"
+              >
+                <div className="w-10 h-10 rounded-full bg-[#1C1C1E] flex items-center justify-center mb-3 group-hover:scale-110 transition-transform">
+                  <Plus size={20} className="text-gray-500 group-hover:text-indigo-400 transition-colors" />
+                </div>
+                <span className="text-sm font-medium text-gray-500 text-center px-4 group-hover:text-gray-400 transition-colors">
+                  Drag cards here or click to add a new task
+                </span>
+              </div>
+            );
+          })()
         )}
       </div>
       {/* Card Info Modal */}

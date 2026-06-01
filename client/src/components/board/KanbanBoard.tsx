@@ -160,7 +160,10 @@ const handleDragEnd = async (event: DragEndEvent) => {
     setRefreshTrigger(prev => prev + 1); // fallback refresh on fail
   }
 };
-const [searchTerm, setSearchTerm] = useState("");
+  const [searchTerm, setSearchTerm] = useState("");
+  const [showFilters, setShowFilters] = useState(false);
+  const [priorityFilter, setPriorityFilter] = useState("all");
+  const [assigneeFilter, setAssigneeFilter] = useState("all");
   return (
     <div className="flex flex-col h-full w-full">
       {/* Board Header */}
@@ -180,10 +183,62 @@ const [searchTerm, setSearchTerm] = useState("");
               className="py-2 pl-9 pr-4 bg-[#141415] border border-[#2C2C2E] rounded-lg text-sm text-gray-200 focus:outline-none focus:border-indigo-500/50 focus:ring-1 focus:ring-indigo-500/50 transition-all w-64"
             />
           </div>
-          <button   className="flex items-center gap-2 px-3 py-2 bg-[#141415] border border-[#2C2C2E] text-gray-300 rounded-lg hover:bg-[#2C2C2E]/50 transition-colors text-sm font-medium">
-            <Filter size={16} />
-            <span className="hidden sm:inline">Filter</span>
-          </button>
+          <div className="relative">
+            <button 
+              onClick={() => setShowFilters(!showFilters)}
+              className={`flex items-center gap-2 px-3 py-2 border rounded-lg transition-colors text-sm font-medium ${
+                showFilters || priorityFilter !== 'all' || assigneeFilter !== 'all' 
+                  ? 'bg-indigo-500/10 border-indigo-500/30 text-indigo-400' 
+                  : 'bg-[#141415] border-[#2C2C2E] text-gray-300 hover:bg-[#2C2C2E]/50'
+              }`}
+            >
+              <Filter size={16} />
+              <span className="hidden sm:inline">Filter</span>
+            </button>
+            
+            {showFilters && (
+              <div className="absolute right-0 mt-2 w-56 bg-[#1C1C1E] border border-[#2C2C2E] rounded-lg shadow-xl z-10 p-3">
+                <div className="space-y-4">
+                  <div>
+                    <label className="block text-xs font-medium text-gray-400 mb-1.5 uppercase tracking-wider">Priority</label>
+                    <select 
+                      value={priorityFilter}
+                      onChange={(e) => setPriorityFilter(e.target.value)}
+                      className="w-full bg-[#141415] border border-[#2C2C2E] text-gray-300 rounded text-sm px-2 py-1.5 outline-none focus:border-indigo-500/50"
+                    >
+                      <option value="all">All Priorities</option>
+                      <option value="urgent">Urgent</option>
+                      <option value="high">High</option>
+                      <option value="medium">Medium</option>
+                      <option value="low">Low</option>
+                    </select>
+                  </div>
+                  <div>
+                    <label className="block text-xs font-medium text-gray-400 mb-1.5 uppercase tracking-wider">Assignee</label>
+                    <select 
+                      value={assigneeFilter}
+                      onChange={(e) => setAssigneeFilter(e.target.value)}
+                      className="w-full bg-[#141415] border border-[#2C2C2E] text-gray-300 rounded text-sm px-2 py-1.5 outline-none focus:border-indigo-500/50"
+                    >
+                      <option value="all">Anyone</option>
+                      <option value="me">Assigned to Me</option>
+                    </select>
+                  </div>
+                  {(priorityFilter !== 'all' || assigneeFilter !== 'all') && (
+                    <button 
+                      onClick={() => {
+                        setPriorityFilter('all');
+                        setAssigneeFilter('all');
+                      }}
+                      className="w-full text-xs text-center text-gray-400 hover:text-white py-1 transition-colors"
+                    >
+                      Clear Filters
+                    </button>
+                  )}
+                </div>
+              </div>
+            )}
+          </div>
          
         </div>
       </div>
@@ -206,6 +261,9 @@ const [searchTerm, setSearchTerm] = useState("");
                   onAddTask={() => handleOpenTaskModal(column._id)}
                   refreshTrigger={refreshTrigger}
                   activeCardId={activeCard?._id ?? null}
+                  searchTerm={searchTerm}
+                  priorityFilter={priorityFilter}
+                  assigneeFilter={assigneeFilter}
                 />
               </div>
             ))}
