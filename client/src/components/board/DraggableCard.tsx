@@ -8,8 +8,8 @@ export interface DraggableCardProps {
   onClick: () => void;
   currentUserId?: string;
 }
-
-import { api } from '../../axios';
+import {api} from '../../axios';
+import socket from '../../../socket';
 import { MessageSquare , User, X} from 'lucide-react';
 export const DraggableCard: React.FC<DraggableCardProps> = ({ card, columnId, activeCardId, onClick, currentUserId, workspaceId }) => {
   const { attributes, listeners, setNodeRef: setDraggableNodeRef, transform, isDragging } = useDraggable({ id: card._id, data: { columnId, card } });
@@ -28,7 +28,7 @@ export const DraggableCard: React.FC<DraggableCardProps> = ({ card, columnId, ac
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
  };
- 
+ let mssgInfo:{ content: string; author: { name: string; email: string } } | null = null;
   const messageSendHandler=async()=>{
     const res= await  api.post(`/api/messages/send-message/${card._id}`, { 
       content: messageInput,
@@ -41,6 +41,8 @@ export const DraggableCard: React.FC<DraggableCardProps> = ({ card, columnId, ac
       setMessages(prev => [...prev, res.data]);
       scrollToBottom()
       setMessageInput("");
+      mssgInfo = { content: res.data.content, author: { name: res.data.author.name, email: res.data.author.email } };
+      socket.emit("message-group", `card-${card._id}`, mssgInfo);
     } else {
       alert("Failed to send message.");
     }
@@ -49,14 +51,32 @@ export const DraggableCard: React.FC<DraggableCardProps> = ({ card, columnId, ac
     try{
       const res= await api.get(`/api/messages/get-messages/${cardId}`);
       if(res.status === 200){
-        console.log("Messages for card", cardId, res.data);
-        setMessages(res.data.reverse());
-        console.log(res.data)
+        setMessages(res.data);
+        socket.emit("message-group", `card-${cardId}`, `User has opened messages for card ${cardId}`);
       }
+
     }catch(err){
       console.error("Failed to fetch messages for card", cardId, err);
     }
 }
+useEffect(()=>{
+  if(!showMessages){
+    return;
+  }
+  socket.on("groupMessageOnCard", (message)=>{
+    console.log("Received group message on card:", message);
+    if(typeof message === "string"){
+      console.log("System message received, ignoring:", message);
+      return;
+    }
+    console.log("Message info:", message);
+    setMessages(prev => [...prev, message]);
+    scrollToBottom();
+  });
+  return ()=>{
+    socket.off("groupMessageOnCard");
+  };
+},[showMessages]);
 useEffect(()=>{
   setCurrentUser(JSON.parse(localStorage.getItem("userData") || "{}"));},
 []);
@@ -65,7 +85,6 @@ useEffect(() => {
     scrollToBottom();
   }
 }, [messages, showMessages]);
-
   return (
     <div
       ref={setDraggableNodeRef}
@@ -146,7 +165,7 @@ useEffect(() => {
                         <User size={14} className="text-indigo-400" />
                       </div>
                       <div className="flex flex-col max-w-[85%]">
-                        <span className="text-xs text-gray-400 font-medium mb-1 ml-1">{currentUser && currentUser?.email===msg.author?.email?  'You' : msg.author.name}</span>
+                        <span className="text-xs text-gray-400 font-medium mb-1 ml-1">{currentUser && currentUser?.email===msg.author?.email?  'You' : msg.author?.name}</span>
                         <div className="bg-[#2C2C2E] px-4 py-2.5 rounded-2xl rounded-tl-sm text-sm text-gray-200 shadow-sm border border-[#3C3C3E]">
                           {msg.content}
                         </div>

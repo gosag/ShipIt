@@ -20,7 +20,12 @@ export const initializeSockets = (io: Server) => {
             console.log(`Card moved: ${cardId} from ${sourceColumnId} to ${destinationColumnId} in project ${projectId}`);
             socket.to(projectId).emit("cardMoved", { cardId, sourceColumnId, destinationColumnId, cardData });
         });
-
+        socket.on("message-group", (groupId, message) => {
+            console.log(`Message to group ${groupId}: ${message}`);
+            socket.join(groupId);
+            console.log(message);
+            socket.to(groupId).emit("groupMessageOnCard", message);
+        });
         socket.on("disconnect", () => {
             console.log(`User with socket ID: ${socket.id} disconnected`);
         });
