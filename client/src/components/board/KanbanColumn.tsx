@@ -26,6 +26,10 @@ export const KanbanColumn: React.FC<KanbanColumnProps> = ({ id, title, badgeColo
   const [loading, setLoading] = useState(true);
   const [cardInfo, setCardInfo] = useState<any>(null);
   const [showCardInfo, setShowCardInfo] = useState(false);
+  let workspaceId;
+  if(cards.length > 0) {
+    workspaceId = cards[0].workspace;
+  }
   useEffect(() => {
     const fetchCards = async () => {
       if (!projectId || !id) return;
@@ -62,7 +66,7 @@ export const KanbanColumn: React.FC<KanbanColumnProps> = ({ id, title, badgeColo
     window.addEventListener('cardMoved', handleCardMoved as EventListener);
     return () => window.removeEventListener('cardMoved', handleCardMoved as EventListener);
   }, [id]);
-
+  
   const cardInfoHandler=(cardId:string)=>{
     const card = cards.find((c) => c._id === cardId);
     setCardInfo(card);
@@ -172,6 +176,7 @@ export const KanbanColumn: React.FC<KanbanColumnProps> = ({ id, title, badgeColo
                     columnId={id}
                     activeCardId={activeCardId}
                     currentUserId={currentUserId}
+                    workspaceId={workspaceId || null}
                     onClick={() => cardInfoHandler(card._id)}
                   />
                 );

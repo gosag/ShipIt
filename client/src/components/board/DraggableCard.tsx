@@ -1,23 +1,26 @@
 import React from 'react';
 import { useDraggable } from '@dnd-kit/core';
-
+import { useState } from 'react';
 export interface DraggableCardProps {
   card: any;
   columnId: string;
   activeCardId?: string | null;
+  workspaceId?: string | null;
   onClick: () => void;
   currentUserId?: string;
 }
-import { MessageSquare } from 'lucide-react';
-export const DraggableCard: React.FC<DraggableCardProps> = ({ card, columnId, activeCardId, onClick, currentUserId }) => {
+
+import { MessageSquare , X} from 'lucide-react';
+export const DraggableCard: React.FC<DraggableCardProps> = ({ card, columnId, activeCardId, onClick, currentUserId, workspaceId }) => {
   const { attributes, listeners, setNodeRef: setDraggableNodeRef, transform, isDragging } = useDraggable({ id: card._id, data: { columnId, card } });
   const style = transform ? { transform: `translate3d(${transform.x}px, ${transform.y}px, 0)` } : undefined;
 
   const isAssignedToMe = currentUserId && card.assignees && card.assignees.includes(currentUserId);
-const handleMessageClick = (e: React.MouseEvent) => {
-  e.stopPropagation();
-  alert("Messaging feature coming soon!");
-}
+  const [showMessages, setShowMessages] = useState(false);
+  const handleMessageClick = (e: React.MouseEvent | React.PointerEvent) => {
+    e.stopPropagation();
+    setShowMessages(true);
+  };
   return (
     <div
       ref={setDraggableNodeRef}
@@ -29,7 +32,11 @@ const handleMessageClick = (e: React.MouseEvent) => {
     >
       <div className='flex justify-between items-start'>
        <h4 className="text-gray-200 font-medium text-sm">{card.title}</h4> 
-        <button onClick={handleMessageClick} className="p-1 rounded hover:bg-[#2C2C2E] transition-colors">
+        <button 
+          onClick={handleMessageClick} 
+          onPointerDown={(e) => e.stopPropagation()}
+          className="p-1 rounded hover:bg-[#2C2C2E] transition-colors"
+        >
           <MessageSquare size={16} />
         </button>
       </div>
@@ -56,6 +63,22 @@ const handleMessageClick = (e: React.MouseEvent) => {
           )}
         </div>
       )}
-    </div>
+        {showMessages && (
+          <div 
+            onClick={(e) => e.stopPropagation()}
+            onPointerDown={(e) => e.stopPropagation()}
+            className="mt-2 p-2 bg-[#2C2C2E]/90 fixed rounded inset-0 backdrop-blur-md w-screen h-screen flex flex-col items-center justify-center z-100"
+          >
+            <p className="text-gray-200 text-lg">Messaging feature coming soon!</p>
+            <button 
+              onClick={(e)=>{e.stopPropagation(); setShowMessages(false)}} 
+              onPointerDown={(e) => e.stopPropagation()}
+              className="absolute top-4 right-4 p-2 rounded hover:bg-[#3C3C3E] transition-colors"
+            >
+              <X size={24} className="text-gray-400 hover:text-gray-200 transition-colors" />
+            </button>
+          </div>
+        )}
+      </div>
   );
 };
