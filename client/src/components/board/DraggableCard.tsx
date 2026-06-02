@@ -31,9 +31,9 @@ export const DraggableCard: React.FC<DraggableCardProps> = ({ card, columnId, ac
       card: card._id,
     });
     if(res.status === 201){
-      setMessages(prev => [messageInput, ...prev]);
+      console.log(res.data)
+      setMessages(prev => [...prev, res.data]);
       setMessageInput("");
-      alert("Message sent successfully!");
     } else {
       alert("Failed to send message.");
     }
@@ -44,6 +44,7 @@ export const DraggableCard: React.FC<DraggableCardProps> = ({ card, columnId, ac
       if(res.status === 200){
         console.log("Messages for card", cardId, res.data);
         setMessages(res.data);
+        console.log(res.data)
       }
     }catch(err){
       console.error("Failed to fetch messages for card", cardId, err);
@@ -97,46 +98,77 @@ export const DraggableCard: React.FC<DraggableCardProps> = ({ card, columnId, ac
       )}
         {showMessages && (
           <div 
-            onClick={(e) => e.stopPropagation()}
+            onClick={(e) => {
+              e.stopPropagation();
+              setShowMessages(false);
+            }}
             onPointerDown={(e) => e.stopPropagation()}
-            className="mt-2 p-2 bg-[#2C2C2E]/90 fixed rounded inset-0 backdrop-blur-md w-screen h-screen flex flex-col items-center justify-center z-100"
+            className="fixed inset-0 bg-black/60 backdrop-blur-sm z-[100] flex items-center justify-center p-4"
           >
-            {
-              messages.length > 0 ? (
-                <div className='bg-[#1C1C1E] p-4 rounded w-full max-w-md max-h-[70vh] overflow-y-auto'>
-                  {messages.map((msg) => (
-                    <div key={msg._id} className='mb-3'>
-                      <div className='flex items-center gap-2 mb-1'>
-                        <User size={16} />
-                        
-                      </div>
-                      <p className='text-gray-300 text-sm'>{msg.content}</p>
-                    </div>
-                  ))}
-                </div>
-            ) : (
-              <div className='bg-[#1C1C1E] p-4 rounded w-full max-w-md flex items-center justify-center h-24'>
-                <p className='text-gray-500'>No messages yet. Be the first to comment!</p>
-              </div>
-            )}
-            <button 
-              onClick={(e)=>{e.stopPropagation(); setShowMessages(false)}} 
-              onPointerDown={(e) => e.stopPropagation()}
-              className="absolute top-4 right-4 p-2 rounded hover:bg-[#3C3C3E] transition-colors"
+            <div 
+              onClick={(e) => e.stopPropagation()}
+              className="w-full max-w-md bg-[#1C1C1E] rounded-xl shadow-2xl border border-[#3C3C3E] flex flex-col overflow-hidden"
             >
-              <X size={24} className="text-gray-400 hover:text-gray-200 transition-colors" />
-            </button>
-            <div className='flex items-end gap-2 mt-4'>
-              <input
-                type="text"
-                placeholder="Type a message..."
-                value={messageInput}
-                onChange={(e) => setMessageInput(e.target.value)}
-                className="bg-[#2C2C2E] text-gray-400 placeholder:text-gray-500 border border-[#3C3C3E] focus:outline-none focus:ring-2 focus:ring-blue-500"
-              />
-              <button onClick={messageSendHandler} disabled={!messageInput.trim()} className="bg-blue-500 text-white px-3 py-1 rounded hover:bg-blue-600 transition-colors">
-                Send
-              </button>
+              <div className="px-4 py-3 border-b border-[#3C3C3E] bg-[#2C2C2E]/50 flex justify-between items-center">
+                <h3 className="font-semibold text-gray-200 flex items-center gap-2">
+                  <MessageSquare size={16} className="text-blue-400" />
+                  Comments
+                </h3>
+                <button 
+                  onClick={() => setShowMessages(false)}
+                  className="p-1.5 rounded-md text-gray-400 hover:text-gray-200 hover:bg-[#3C3C3E] transition-colors"
+                >
+                  <X size={18} />
+                </button>
+              </div>
+
+              <div className="flex-1 overflow-y-auto p-4 space-y-4 max-h-[60vh] min-h-[300px]">
+                {messages.length > 0 ? (
+                  messages.map((msg: any) => (
+                    <div key={msg._id} className="flex gap-3 items-start">
+                      <div className="w-8 h-8 rounded-full bg-indigo-500/20 flex items-center justify-center shrink-0 border border-indigo-500/30">
+                        <User size={14} className="text-indigo-400" />
+                      </div>
+                      <div className="flex flex-col max-w-[85%]">
+                        <span className="text-xs text-gray-400 font-medium mb-1 ml-1">{msg.author?.name || 'User'}</span>
+                        <div className="bg-[#2C2C2E] px-4 py-2.5 rounded-2xl rounded-tl-sm text-sm text-gray-200 shadow-sm border border-[#3C3C3E]">
+                          {msg.content}
+                        </div>
+                      </div>
+                    </div>
+                  ))
+                ) : (
+                  <div className="h-full flex flex-col items-center justify-center text-center opacity-50 py-12">
+                    <MessageSquare size={48} className="text-gray-500 mb-3" />
+                    <p className="text-gray-400 font-medium">No comments yet</p>
+                    <p className="text-gray-500 text-sm mt-1">Be the first to share your thoughts!</p>
+                  </div>
+                )}
+              </div>
+
+              <div className="p-3 border-t border-[#3C3C3E] bg-[#2C2C2E]/30">
+                <div className="flex items-center gap-2">
+                  <input
+                    type="text"
+                    placeholder="Write a comment..."
+                    value={messageInput}
+                    onChange={(e) => setMessageInput(e.target.value)}
+                    onKeyDown={(e) => {
+                      if (e.key === 'Enter' && messageInput.trim()) {
+                        messageSendHandler();
+                      }
+                    }}
+                    className="flex-1 bg-[#1C1C1E] px-4 py-2 rounded-full border border-[#3C3C3E] text-sm text-gray-200 focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500 transition-all placeholder:text-gray-500"
+                  />
+                  <button 
+                    onClick={messageSendHandler} 
+                    disabled={!messageInput.trim()} 
+                    className="bg-blue-600 hover:bg-blue-500 disabled:bg-blue-600/50 disabled:cursor-not-allowed text-white px-5 py-2 rounded-full text-sm font-medium transition-colors shadow-sm"
+                  >
+                    Send
+                  </button>
+                </div>
+              </div>
             </div>
           </div>
         )}

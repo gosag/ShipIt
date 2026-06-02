@@ -18,7 +18,7 @@ export const getComments = AsyncHandler(async (req: AuthRequest, res: Response, 
             error.status = 400;
             throw error;
         }
-        const comments = await Comment.find({ card: cardId }).populate('author', 'username');
+        const comments = await Comment.find({ card: cardId }).populate('author', 'name');
         res.json(comments);
 
     }catch(error){
