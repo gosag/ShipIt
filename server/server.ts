@@ -11,6 +11,7 @@ import workspaceRouter from './src/routes/workSpaceRoutes.js';
 import projectRouter from './src/routes/projectRoutes.js'; 
 import cardsRouter from './src/routes/cardsRoutes.js';
 import columnRouter from './src/routes/columnRoutes.js';
+import messagesRouter from './src/routes/messagesRoutes.js';
 import errorMiddleware from './src/middleware/errror.js';
 import DbConnect from './config/db.js'; 
 import notificationRouter from './src/routes/notificationRotes.js';
@@ -44,6 +45,7 @@ app.use('/api/project', projectRouter);
 app.use('/api/column', columnRouter);
 app.use('/api', cardsRouter);
 app.use('/api/notification', notificationRouter);
+app.use('/api/messages', messagesRouter);
 app.get("/",(req,res)=>{
     res.json({message:"Hello from the ShipIt Server!"})
     console.log("nodemon activated")
