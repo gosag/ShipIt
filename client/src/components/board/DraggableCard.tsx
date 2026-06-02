@@ -9,8 +9,9 @@ export interface DraggableCardProps {
   onClick: () => void;
   currentUserId?: string;
 }
+
 import { api } from '../../axios';
-import { MessageSquare , X} from 'lucide-react';
+import { MessageSquare , User, X} from 'lucide-react';
 export const DraggableCard: React.FC<DraggableCardProps> = ({ card, columnId, activeCardId, onClick, currentUserId, workspaceId }) => {
   const { attributes, listeners, setNodeRef: setDraggableNodeRef, transform, isDragging } = useDraggable({ id: card._id, data: { columnId, card } });
   const style = transform ? { transform: `translate3d(${transform.x}px, ${transform.y}px, 0)` } : undefined;
@@ -18,6 +19,7 @@ export const DraggableCard: React.FC<DraggableCardProps> = ({ card, columnId, ac
   const isAssignedToMe = currentUserId && card.assignees && card.assignees.includes(currentUserId);
   const [showMessages, setShowMessages] = useState(false);
   const [messageInput, setMessageInput] = useState("");
+  const [messages, setMessages] = useState([]);
   const handleMessageClick = (e: React.MouseEvent | React.PointerEvent) => {
     e.stopPropagation();
     setShowMessages(true);
@@ -29,12 +31,24 @@ export const DraggableCard: React.FC<DraggableCardProps> = ({ card, columnId, ac
       card: card._id,
     });
     if(res.status === 201){
+      setMessages(prev => [messageInput, ...prev]);
       setMessageInput("");
       alert("Message sent successfully!");
     } else {
       alert("Failed to send message.");
     }
   }
+  const getMessagesHandler=async (cardId)=>{
+    try{
+      const res= await api.get(`/api/messages/get-messages/${cardId}`);
+      if(res.status === 200){
+        console.log("Messages for card", cardId, res.data);
+        setMessages(res.data);
+      }
+    }catch(err){
+      console.error("Failed to fetch messages for card", cardId, err);
+    }
+}
   return (
     <div
       ref={setDraggableNodeRef}
@@ -47,7 +61,11 @@ export const DraggableCard: React.FC<DraggableCardProps> = ({ card, columnId, ac
       <div className='flex justify-between items-start'>
        <h4 className="text-gray-200 font-medium text-sm">{card.title}</h4> 
         <button 
-          onClick={handleMessageClick} 
+          onClick={(e)=>{
+             handleMessageClick(e);
+             getMessagesHandler(card._id);
+          }}
+           
           onPointerDown={(e) => e.stopPropagation()}
           className="p-1 rounded hover:bg-[#2C2C2E] transition-colors"
         >
@@ -83,7 +101,24 @@ export const DraggableCard: React.FC<DraggableCardProps> = ({ card, columnId, ac
             onPointerDown={(e) => e.stopPropagation()}
             className="mt-2 p-2 bg-[#2C2C2E]/90 fixed rounded inset-0 backdrop-blur-md w-screen h-screen flex flex-col items-center justify-center z-100"
           >
-            <p className="text-gray-200 text-lg">Messaging feature coming soon!</p>
+            {
+              messages.length > 0 ? (
+                <div className='bg-[#1C1C1E] p-4 rounded w-full max-w-md max-h-[70vh] overflow-y-auto'>
+                  {messages.map((msg) => (
+                    <div key={msg._id} className='mb-3'>
+                      <div className='flex items-center gap-2 mb-1'>
+                        <User size={16} />
+                        
+                      </div>
+                      <p className='text-gray-300 text-sm'>{msg.content}</p>
+                    </div>
+                  ))}
+                </div>
+            ) : (
+              <div className='bg-[#1C1C1E] p-4 rounded w-full max-w-md flex items-center justify-center h-24'>
+                <p className='text-gray-500'>No messages yet. Be the first to comment!</p>
+              </div>
+            )}
             <button 
               onClick={(e)=>{e.stopPropagation(); setShowMessages(false)}} 
               onPointerDown={(e) => e.stopPropagation()}

@@ -12,6 +12,14 @@ export const getComments = AsyncHandler(async (req: AuthRequest, res: Response, 
         throw error;
     }
     try {
+        const cardId = req.params.cardId;
+        if(!cardId){
+            const error= new Error('Card ID is required') as customError;
+            error.status = 400;
+            throw error;
+        }
+        const comments = await Comment.find({ card: cardId }).populate('author', 'username');
+        res.json(comments);
 
     }catch(error){
         next(error);
