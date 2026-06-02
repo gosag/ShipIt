@@ -55,6 +55,11 @@ export const sendComment = AsyncHandler(async (req: AuthRequest, res: Response, 
         throw error;
     }
     const populatedComment = await savedComment.populate('author', 'name email');
+    if(!populatedComment){
+        const error= new Error('Failed to populate comment') as customError;
+        error.status = 500;
+        throw error;
+    }
     res.status(201).json(populatedComment);
     }catch(error){
         next(error);

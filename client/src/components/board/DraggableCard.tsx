@@ -19,6 +19,7 @@ export const DraggableCard: React.FC<DraggableCardProps> = ({ card, columnId, ac
   const [showMessages, setShowMessages] = useState(false);
   const [messageInput, setMessageInput] = useState("");
   const [messages, setMessages] = useState([]);
+  const [currentUser, setCurrentUser] = useState(null);
   const handleMessageClick = (e: React.MouseEvent | React.PointerEvent) => {
     e.stopPropagation();
     setShowMessages(true);
@@ -56,9 +57,8 @@ export const DraggableCard: React.FC<DraggableCardProps> = ({ card, columnId, ac
       console.error("Failed to fetch messages for card", cardId, err);
     }
 }
-let currentUser: any = null;
 useEffect(()=>{
-  currentUser = JSON.parse(localStorage.getItem("userData") || "{}");},
+  setCurrentUser(JSON.parse(localStorage.getItem("userData") || "{}"));},
 []);
 useEffect(() => {
   if (showMessages) {
