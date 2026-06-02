@@ -133,7 +133,7 @@ export const KanbanColumn: React.FC<KanbanColumnProps> = ({ id, title, badgeColo
           (() => {
             const filteredCards = cards.filter(card => {
               if (!card) return false;
-              
+               
               if (searchTerm && !card.title.toLowerCase().includes(searchTerm.toLowerCase()) && !(card.description && card.description.toLowerCase().includes(searchTerm.toLowerCase()))) {
                 return false;
               }
@@ -146,7 +146,9 @@ export const KanbanColumn: React.FC<KanbanColumnProps> = ({ id, title, badgeColo
                 let currentUserId;
                 try {
                   currentUserId = JSON.parse(localStorage.getItem("userData") || "{}")?._id;
-                } catch (e) {}
+                } catch (e) {
+                  console.log("Error parsing user data from local storage", e);
+                }
                 
                 if (!currentUserId || !card.assignees || !card.assignees.includes(currentUserId)) {
                   return false;
