@@ -14,7 +14,10 @@ export const DraggableCard: React.FC<DraggableCardProps> = ({ card, columnId, ac
   const style = transform ? { transform: `translate3d(${transform.x}px, ${transform.y}px, 0)` } : undefined;
 
   const isAssignedToMe = currentUserId && card.assignees && card.assignees.includes(currentUserId);
-
+const handleMessageClick = (e: React.MouseEvent) => {
+  e.stopPropagation();
+  alert("Messaging feature coming soon!");
+}
   return (
     <div
       ref={setDraggableNodeRef}
@@ -26,7 +29,7 @@ export const DraggableCard: React.FC<DraggableCardProps> = ({ card, columnId, ac
     >
       <div className='flex justify-between items-start'>
        <h4 className="text-gray-200 font-medium text-sm">{card.title}</h4> 
-        <button onClick={(e)=>{e.stopPropagation(); }} className="p-1 rounded hover:bg-[#2C2C2E] transition-colors">
+        <button onClick={handleMessageClick} className="p-1 rounded hover:bg-[#2C2C2E] transition-colors">
           <MessageSquare size={16} />
         </button>
       </div>
