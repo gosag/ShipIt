@@ -34,7 +34,7 @@ export const DraggableCard: React.FC<DraggableCardProps> = ({ card, columnId, ac
       workspace: workspaceId,
       card: card._id,
     });
-
+ 
     if(res.status === 201){
       console.log(res.data)
       setMessages(prev => [...prev, res.data]);

@@ -54,7 +54,8 @@ export const sendComment = AsyncHandler(async (req: AuthRequest, res: Response, 
         error.status = 500;
         throw error;
     }
-    res.status(201).json(savedComment);
+    const populatedComment = await savedComment.populate('author', 'name email');
+    res.status(201).json(populatedComment);
     }catch(error){
         next(error);
     }
