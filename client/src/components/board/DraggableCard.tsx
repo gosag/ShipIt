@@ -1,6 +1,5 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { useDraggable } from '@dnd-kit/core';
-import { useState } from 'react';
 export interface DraggableCardProps {
   card: any;
   columnId: string;
@@ -24,15 +23,22 @@ export const DraggableCard: React.FC<DraggableCardProps> = ({ card, columnId, ac
     e.stopPropagation();
     setShowMessages(true);
   };
+  const messagesEndRef = useRef<HTMLDivElement>(null);
+  const scrollToBottom = () => {
+    messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
+ };
+ 
   const messageSendHandler=async()=>{
     const res= await  api.post(`/api/messages/send-message/${card._id}`, { 
       content: messageInput,
       workspace: workspaceId,
       card: card._id,
     });
+
     if(res.status === 201){
       console.log(res.data)
       setMessages(prev => [...prev, res.data]);
+      scrollToBottom()
       setMessageInput("");
     } else {
       alert("Failed to send message.");
@@ -43,7 +49,7 @@ export const DraggableCard: React.FC<DraggableCardProps> = ({ card, columnId, ac
       const res= await api.get(`/api/messages/get-messages/${cardId}`);
       if(res.status === 200){
         console.log("Messages for card", cardId, res.data);
-        setMessages(res.data);
+        setMessages(res.data.reverse());
         console.log(res.data)
       }
     }catch(err){
@@ -54,6 +60,11 @@ let currentUser: any = null;
 useEffect(()=>{
   currentUser = JSON.parse(localStorage.getItem("userData") || "{}");},
 []);
+useEffect(() => {
+  if (showMessages) {
+    scrollToBottom();
+  }
+}, [messages, showMessages]);
 
   return (
     <div
@@ -127,7 +138,7 @@ useEffect(()=>{
                 </button>
               </div>
 
-              <div className="flex-1 overflow-y-auto p-4 space-y-4 max-h-[60vh] min-h-75">
+              <div  className="flex-1 overflow-y-auto custom-scrollbar p-4 space-y-4 max-h-[60vh] min-h-75">
                 {messages.length > 0 ? (
                   messages.map((msg: any) => (
                     <div key={msg._id} className="flex gap-3 items-start">
@@ -140,7 +151,9 @@ useEffect(()=>{
                           {msg.content}
                         </div>
                       </div>
+                      <div ref={messagesEndRef} />
                     </div>
+                    
                   ))
                 ) : (
                   <div className="h-full flex flex-col items-center justify-center text-center opacity-50 py-12">
@@ -149,8 +162,9 @@ useEffect(()=>{
                     <p className="text-gray-500 text-sm mt-1">Be the first to share your thoughts!</p>
                   </div>
                 )}
+                
               </div>
-
+              
               <div className="p-3 border-t border-[#3C3C3E] bg-[#2C2C2E]/30">
                 <div className="flex items-center gap-2">
                   <input
