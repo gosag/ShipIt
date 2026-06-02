@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { useDraggable } from '@dnd-kit/core';
 import { useState } from 'react';
 export interface DraggableCardProps {
@@ -50,6 +50,11 @@ export const DraggableCard: React.FC<DraggableCardProps> = ({ card, columnId, ac
       console.error("Failed to fetch messages for card", cardId, err);
     }
 }
+let currentUser: any = null;
+useEffect(()=>{
+  currentUser = JSON.parse(localStorage.getItem("userData") || "{}");},
+[]);
+
   return (
     <div
       ref={setDraggableNodeRef}
@@ -103,7 +108,7 @@ export const DraggableCard: React.FC<DraggableCardProps> = ({ card, columnId, ac
               setShowMessages(false);
             }}
             onPointerDown={(e) => e.stopPropagation()}
-            className="fixed inset-0 bg-black/60 backdrop-blur-sm z-[100] flex items-center justify-center p-4"
+            className="fixed inset-0 bg-black/60 backdrop-blur-sm z-100 flex items-center justify-center p-4"
           >
             <div 
               onClick={(e) => e.stopPropagation()}
@@ -122,7 +127,7 @@ export const DraggableCard: React.FC<DraggableCardProps> = ({ card, columnId, ac
                 </button>
               </div>
 
-              <div className="flex-1 overflow-y-auto p-4 space-y-4 max-h-[60vh] min-h-[300px]">
+              <div className="flex-1 overflow-y-auto p-4 space-y-4 max-h-[60vh] min-h-75">
                 {messages.length > 0 ? (
                   messages.map((msg: any) => (
                     <div key={msg._id} className="flex gap-3 items-start">
@@ -130,7 +135,7 @@ export const DraggableCard: React.FC<DraggableCardProps> = ({ card, columnId, ac
                         <User size={14} className="text-indigo-400" />
                       </div>
                       <div className="flex flex-col max-w-[85%]">
-                        <span className="text-xs text-gray-400 font-medium mb-1 ml-1">{msg.author?.name || 'User'}</span>
+                        <span className="text-xs text-gray-400 font-medium mb-1 ml-1">{currentUser && currentUser?.email===msg.author?.email?  'You' : msg.author.name}</span>
                         <div className="bg-[#2C2C2E] px-4 py-2.5 rounded-2xl rounded-tl-sm text-sm text-gray-200 shadow-sm border border-[#3C3C3E]">
                           {msg.content}
                         </div>
