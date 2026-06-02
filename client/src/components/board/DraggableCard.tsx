@@ -8,7 +8,7 @@ export interface DraggableCardProps {
   onClick: () => void;
   currentUserId?: string;
 }
-
+import { MessageSquare } from 'lucide-react';
 export const DraggableCard: React.FC<DraggableCardProps> = ({ card, columnId, activeCardId, onClick, currentUserId }) => {
   const { attributes, listeners, setNodeRef: setDraggableNodeRef, transform, isDragging } = useDraggable({ id: card._id, data: { columnId, card } });
   const style = transform ? { transform: `translate3d(${transform.x}px, ${transform.y}px, 0)` } : undefined;
@@ -24,7 +24,13 @@ export const DraggableCard: React.FC<DraggableCardProps> = ({ card, columnId, ac
       {...attributes}
       className={`bg-[#1C1C1E] border border-[#2C2C2E] hover:border-[#3C3C3E] transition-colors rounded-lg p-3 shadow-sm cursor-grab active:cursor-grabbing ${isDragging || activeCardId === card._id ? 'opacity-0' : ''}`}
     >
-      <h4 className="text-gray-200 font-medium text-sm">{card.title}</h4>
+      <div className='flex justify-between items-start'>
+       <h4 className="text-gray-200 font-medium text-sm">{card.title}</h4> 
+        <button onClick={(e)=>{e.stopPropagation(); }} className="p-1 rounded hover:bg-[#2C2C2E] transition-colors">
+          <MessageSquare size={16} />
+        </button>
+      </div>
+      
       {card.description && (
         <p className="text-gray-400 text-xs mt-1 line-clamp-2">{card.description}</p>
       )}
