@@ -26,9 +26,9 @@ export const sendComment = AsyncHandler(async (req: AuthRequest, res: Response, 
     }
 
     try{
-        const { workspace, author, content, mentions} = req.body;
+        const { workspace, content, mentions} = req.body;
         const cardId= req.params.cardId;
-        if(!cardId || !workspace || !author || !content){
+        if(!cardId || !workspace || !content){
             const error= new Error('Missing required fields') as customError;
             error.status = 400;
             throw error;
@@ -36,7 +36,7 @@ export const sendComment = AsyncHandler(async (req: AuthRequest, res: Response, 
     const newComment = new Comment({
         card: cardId,
         workspace,
-        author,
+        author: req.user._id,
         content,
         mentions
     })

@@ -9,7 +9,7 @@ export interface DraggableCardProps {
   onClick: () => void;
   currentUserId?: string;
 }
-
+import { api } from '../../axios';
 import { MessageSquare , X} from 'lucide-react';
 export const DraggableCard: React.FC<DraggableCardProps> = ({ card, columnId, activeCardId, onClick, currentUserId, workspaceId }) => {
   const { attributes, listeners, setNodeRef: setDraggableNodeRef, transform, isDragging } = useDraggable({ id: card._id, data: { columnId, card } });
@@ -17,10 +17,24 @@ export const DraggableCard: React.FC<DraggableCardProps> = ({ card, columnId, ac
 
   const isAssignedToMe = currentUserId && card.assignees && card.assignees.includes(currentUserId);
   const [showMessages, setShowMessages] = useState(false);
+  const [messageInput, setMessageInput] = useState("");
   const handleMessageClick = (e: React.MouseEvent | React.PointerEvent) => {
     e.stopPropagation();
     setShowMessages(true);
   };
+  const messageSendHandler=async()=>{
+    const res= await  api.post(`/api/messages/send-message/${card._id}`, { 
+      content: messageInput,
+      workspace: workspaceId,
+      card: card._id,
+    });
+    if(res.status === 201){
+      setMessageInput("");
+      alert("Message sent successfully!");
+    } else {
+      alert("Failed to send message.");
+    }
+  }
   return (
     <div
       ref={setDraggableNodeRef}
@@ -77,6 +91,18 @@ export const DraggableCard: React.FC<DraggableCardProps> = ({ card, columnId, ac
             >
               <X size={24} className="text-gray-400 hover:text-gray-200 transition-colors" />
             </button>
+            <div className='flex items-end gap-2 mt-4'>
+              <input
+                type="text"
+                placeholder="Type a message..."
+                value={messageInput}
+                onChange={(e) => setMessageInput(e.target.value)}
+                className="bg-[#2C2C2E] text-gray-400 placeholder:text-gray-500 border border-[#3C3C3E] focus:outline-none focus:ring-2 focus:ring-blue-500"
+              />
+              <button onClick={messageSendHandler} disabled={!messageInput.trim()} className="bg-blue-500 text-white px-3 py-1 rounded hover:bg-blue-600 transition-colors">
+                Send
+              </button>
+            </div>
           </div>
         )}
       </div>
