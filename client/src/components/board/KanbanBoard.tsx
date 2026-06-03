@@ -166,7 +166,16 @@ const handleDragEnd = async (event: DragEndEvent) => {
   const [assigneeFilter, setAssigneeFilter] = useState("all");
   const [activityLog, setActivityLog] = useState<any[]>([]);
   const [showActivityLog, setShowActivityLog] = useState(false);
-
+  const getActivityLogs=async ()=>{
+    try{
+      const res= await api.get(`/api/project/${projectId}/activity-log`)
+      setActivityLog(res.data)
+      console.log("I was activated")
+      console.log(res.data)
+    }catch(err){
+      console.log(err)
+    }
+  }
   return (
     <div className="flex flex-col h-full w-full">
       {/* Board Header */}
@@ -176,7 +185,7 @@ const handleDragEnd = async (event: DragEndEvent) => {
           <p className="text-sm text-gray-400 mt-1">Manage tasks and track project progress</p>
         </div>
         <div className="flex items-center gap-3">
-          <button className='' onClick={() => setShowActivityLog(true)}>
+          <button className='' onClick={() => {setShowActivityLog(true); getActivityLogs()}} title='Activity Log'>
               <ScrollText size={26} className="hover:text-indigo-400 hover:scale-105 transition-all duration-200" />
             </button>
           <div className="relative group hidden sm:block">
@@ -442,11 +451,7 @@ const handleDragEnd = async (event: DragEndEvent) => {
               {activityLog.length === 0 ? (
                 <p className="text-sm text-gray-500">No activity logged.</p>
               ) : (
-                activityLog.map((log, index) => (
-                  <div key={index} className="text-sm text-gray-300 mb-2">
-                    {log}
-                  </div>
-                ))
+                <div>Howdy?</div>
               )}
             </div>
           </div>

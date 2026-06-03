@@ -125,7 +125,11 @@ export const getActivityLogs= asyncHandler(async(req:AuthRequest, res:Response, 
         error.status = 401;
         throw error
     }
-    const projectId= req.params.projectId;
-    console.log(projectId)
-    res.json(200).json({message:"request for activity logs has reached me succsefully."})
+    const projectId=req.params.projectId;
+    if(!projectId){
+        const error = new Error("Project ID is required") as customError;
+        error.status = 400;
+        throw error;
+    }
+    res.status(200).json({message:"request for activity logs has reached me succsefully."})
 })
