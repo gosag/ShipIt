@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { useParams } from 'react-router-dom';
 import { KanbanColumn } from './KanbanColumn';
-import { Filter, Search, Loader } from 'lucide-react';
+import { Filter, Search, Loader, X } from 'lucide-react';
 import { api } from '../../axios';
 import { DndContext, DragOverlay, useSensor, useSensors, PointerSensor, type DragCancelEvent, type DragStartEvent } from '@dnd-kit/core';
 import type { DragEndEvent } from '@dnd-kit/core';
@@ -164,6 +164,9 @@ const handleDragEnd = async (event: DragEndEvent) => {
   const [showFilters, setShowFilters] = useState(false);
   const [priorityFilter, setPriorityFilter] = useState("all");
   const [assigneeFilter, setAssigneeFilter] = useState("all");
+  const [activityLog, setActivityLog] = useState<any[]>([]);
+  const [showActivityLog, setShowActivityLog] = useState(false);
+
   return (
     <div className="flex flex-col h-full w-full">
       {/* Board Header */}
@@ -173,7 +176,7 @@ const handleDragEnd = async (event: DragEndEvent) => {
           <p className="text-sm text-gray-400 mt-1">Manage tasks and track project progress</p>
         </div>
         <div className="flex items-center gap-3">
-          <button className=''>
+          <button className='' onClick={() => setShowActivityLog(true)}>
               <ScrollText size={26} className="hover:text-indigo-400 hover:scale-105 transition-all duration-200" />
             </button>
           <div className="relative group hidden sm:block">
@@ -423,7 +426,32 @@ const handleDragEnd = async (event: DragEndEvent) => {
           </div>
         </div>
       )}
-
+      {showActivityLog && (
+        <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center gap-2 z-100 p-4">
+          <div className="bg-[#1C1C1E] relative border border-[#2C2C2E] shadow-2xl rounded-xl w-full max-w-lg overflow-hidden flex flex-col max-h-[90vh]">
+            <div className="flex items-center justify-between p-5 border-b border-[#2C2C2E] bg-[#141415]">
+              <h2 className="text-lg font-bold text-white">Activity Log</h2>
+              <button 
+                onClick={() => setShowActivityLog(false)}
+                className="p-1.5 text-gray-400 hover:text-white hover:bg-[#2C2C2E] rounded-md transition-colors"
+              >
+                <X size={20} />
+              </button>
+            </div>
+            <div className="p-6 overflow-y-auto custom-scrollbar flex-1">
+              {activityLog.length === 0 ? (
+                <p className="text-sm text-gray-500">No activity logged.</p>
+              ) : (
+                activityLog.map((log, index) => (
+                  <div key={index} className="text-sm text-gray-300 mb-2">
+                    {log}
+                  </div>
+                ))
+              )}
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };

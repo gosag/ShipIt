@@ -119,3 +119,13 @@ export const deleteProject= asyncHandler(async(req:AuthRequest,res:Response,next
     await Card.deleteMany({project:projectId});
     res.status(200).json({message:"Project deleted successfully", project:deletedProject});
 });
+export const getActivityLogs= asyncHandler(async(req:AuthRequest, res:Response, next:NextFunction)=>{
+    if(!req.user || !req.user._id){
+        const error = new Error("Not authenticated, (no token)") as customError;
+        error.status = 401;
+        throw error
+    }
+    const projectId= req.params.projectId;
+    console.log(projectId)
+    res.json(200).json({message:"request for activity logs has reached me succsefully."})
+})
