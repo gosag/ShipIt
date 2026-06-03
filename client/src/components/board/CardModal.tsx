@@ -3,7 +3,7 @@ import { X, Calendar, Tag, AlertCircle, Edit2, Trash2, User, Loader } from 'luci
 import { api } from '../../axios';
 
 interface CardModalProps {
-  card: any;
+  card: any; 
   columnId: string;
   currentMembers: any[];
   onClose: () => void;

@@ -10,7 +10,7 @@ interface ColumnType {
   _id: string;
   title: string;
 }
-
+import { ScrollText} from "lucide-react"; 
 
 interface ActiveCardData {
   _id: string;
@@ -157,7 +157,7 @@ const handleDragEnd = async (event: DragEndEvent) => {
     socket.emit("card-moved", { cardId, sourceColumnId, destinationColumnId, projectId, cardData });
   } catch (error) {
     console.error('Failed to move card:', error);
-    setRefreshTrigger(prev => prev + 1); // fallback refresh on fail
+    setRefreshTrigger(prev => prev + 1);
   }
 };
   const [searchTerm, setSearchTerm] = useState("");
@@ -173,6 +173,9 @@ const handleDragEnd = async (event: DragEndEvent) => {
           <p className="text-sm text-gray-400 mt-1">Manage tasks and track project progress</p>
         </div>
         <div className="flex items-center gap-3">
+          <button className=''>
+              <ScrollText size={26} className="hover:text-indigo-400 hover:scale-105 transition-all duration-200" />
+            </button>
           <div className="relative group hidden sm:block">
             <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-500 group-focus-within:text-indigo-400 transition-colors" size={16} />
             <input 
@@ -195,6 +198,7 @@ const handleDragEnd = async (event: DragEndEvent) => {
               <Filter size={16} />
               <span className="hidden sm:inline">Filter</span>
             </button>
+            
             
             {showFilters && (
               <div className="absolute right-0 mt-2 w-56 bg-[#1C1C1E] border border-[#2C2C2E] rounded-lg shadow-xl z-10 p-3">
@@ -239,7 +243,7 @@ const handleDragEnd = async (event: DragEndEvent) => {
               </div>
             )}
           </div>
-         
+          
         </div>
       </div>
 
