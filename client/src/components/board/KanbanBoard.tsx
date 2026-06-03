@@ -451,7 +451,7 @@ const handleDragEnd = async (event: DragEndEvent) => {
               {activityLog.length === 0 || !Array.isArray(activityLog) ? (
                 <p className="text-sm text-gray-500">No activity logged.</p>
               ) : (
-                activityLog.map((activity, index) => (
+                activityLog.map((activity:{ action: string }, index) => (
                     <div key={index} className="text-sm text-gray-300 mb-2">
                       {activity.action}
                     </div>

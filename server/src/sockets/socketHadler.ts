@@ -26,6 +26,11 @@ export const initializeSockets = (io: Server) => {
             console.log(message);
             socket.to(groupId).emit("groupMessageOnCard", message);
         });
+        socket.on("Activity-log", (projectId, activity) => {
+            console.log(`Activity in project ${projectId}: ${activity}`);
+            socket.join(projectId);
+            socket.to(projectId).emit("newActivityLog", activity);
+        });
         socket.on("disconnect", () => {
             console.log(`User with socket ID: ${socket.id} disconnected`);
         });
