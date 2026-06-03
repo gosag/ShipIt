@@ -1,6 +1,7 @@
 import type { Response, NextFunction } from "express";
 import type { AuthRequest } from "../middleware/auth.js";
 import { Project } from "../models/Project.js";
+import { Activity } from "../models/Activity.js";
 import { Column } from "../models/Column.js";
 import { Card } from "../models/Card.js";
 import asyncHandler from "express-async-handler";
@@ -131,5 +132,11 @@ export const getActivityLogs= asyncHandler(async(req:AuthRequest, res:Response, 
         error.status = 400;
         throw error;
     }
-    res.status(200).json({message:"request for activity logs has reached me succsefully."})
+    const activities = await Activity.find({project:projectId}).sort({createdAt:-1}).populate("user", "name email");
+    if(!activities){
+        const error = new Error("No activities found for the project") as customError;
+        error.status = 404;
+        throw error;
+    }
+    res.status(200).json(activities)
 })

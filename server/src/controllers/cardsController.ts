@@ -4,6 +4,7 @@ import asyncHandler from "express-async-handler";
 import type { AuthRequest } from "../middleware/auth.js";
 import { Workspace } from "../models/Workspace.js";
 import { Project } from "../models/Project.js";
+import { Activity } from "../models/Activity.js";
 interface customError extends Error {
     status?: number;
 }
@@ -140,8 +141,24 @@ export const moveCard= asyncHandler(async(req:AuthRequest,res:Response,next:Next
     if(!updatedCard){
           throw new Error("Was unable to update the card") as customError;
     }
-    res.json(updatedCard)
+        const activity = new Activity({
+            action: `Card ${updatedCard.title} moved to column ${newColumnId} with order ${newOrder}`,
+            card: updatedCard._id,
+            project: updatedCard.project,
+            workspace: updatedCard.workspace,
+            user: req.user._id
+        });
+
+       const newActivity = await activity.save();
+
+       if(!newActivity){
+           throw new Error("Failed to save activity log") as customError;
+       };
+
+    res.json({updatedCard, newActivity});
+
 })
+
 export const deleteCard= asyncHandler(async(req:AuthRequest,res:Response)=>{
     if(!req.user || !req.user._id){
         const error= new Error("Not authenticated or no token!") as customError;

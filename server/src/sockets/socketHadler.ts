@@ -7,10 +7,12 @@ export const initializeSockets = (io: Server) => {
         socket.on("first-message", (info) => {
             console.log(info);
         });
-        let projectId;
+
+        let projectId: string;
+
         socket.on("project-id", (pId) => {
             console.log("Project ID received:", pId);
-            projectId=pId;
+            projectId = pId;
             socket.join(projectId);
             socket.to(projectId).emit("user-connected", `A new user has joined project ${projectId}`);
         });
@@ -20,17 +22,18 @@ export const initializeSockets = (io: Server) => {
             console.log(`Card moved: ${cardId} from ${sourceColumnId} to ${destinationColumnId} in project ${projectId}`);
             socket.to(projectId).emit("cardMoved", { cardId, sourceColumnId, destinationColumnId, cardData });
         });
+
         socket.on("message-group", (groupId, message) => {
             console.log(`Message to group ${groupId}: ${message}`);
             socket.join(groupId);
             console.log(message);
             socket.to(groupId).emit("groupMessageOnCard", message);
         });
+
         socket.on("Activity-log", (projectId, activity) => {
-            console.log(`Activity in project ${projectId}: ${activity}`);
-            socket.join(projectId);
-            socket.to(projectId).emit("newActivityLog", activity);
+            io.to(projectId).emit("newActivityLog", activity);
         });
+
         socket.on("disconnect", () => {
             console.log(`User with socket ID: ${socket.id} disconnected`);
         });

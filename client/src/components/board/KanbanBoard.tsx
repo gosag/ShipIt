@@ -150,11 +150,13 @@ const handleDragEnd = async (event: DragEndEvent) => {
   }));
 
   try {
-    await api.put(`/api/columns/${sourceColumnId}/cards/${cardId}/move`, {
+    const response = await api.put(`/api/columns/${sourceColumnId}/cards/${cardId}/move`, {
       newColumnId: destinationColumnId,
       newOrder: 0,
     });
+    const newActivity = response.data.newActivity;
     socket.emit("card-moved", { cardId, sourceColumnId, destinationColumnId, projectId, cardData });
+    socket.emit("Activity-log", projectId, newActivity);
   } catch (error) {
     console.error('Failed to move card:', error);
     setRefreshTrigger(prev => prev + 1);
@@ -176,6 +178,17 @@ const handleDragEnd = async (event: DragEndEvent) => {
       console.log(err)
     }
   }
+ useEffect(()=>{
+    socket.on("newActivityLog", (newActivity)=>{
+      console.log("Received new activity log:", newActivity);
+      setActivityLog(prev =>prev.length===0 ? [newActivity] : [...prev, newActivity]);
+    });
+    return ()=>{
+      socket.off("newActivityLog");
+    }
+
+ }, [])
+
   return (
     <div className="flex flex-col h-full w-full">
       {/* Board Header */}
@@ -185,7 +198,7 @@ const handleDragEnd = async (event: DragEndEvent) => {
           <p className="text-sm text-gray-400 mt-1">Manage tasks and track project progress</p>
         </div>
         <div className="flex items-center gap-3">
-          <button className='' onClick={() => {setShowActivityLog(true); getActivityLogs()}} title='Activity Log'>
+          <button className='' onClick={() => {setShowActivityLog(true); getActivityLogs() }} title='Activity Log'>
               <ScrollText size={26} className="hover:text-indigo-400 hover:scale-105 transition-all duration-200" />
             </button>
           <div className="relative group hidden sm:block">
