@@ -448,10 +448,14 @@ const handleDragEnd = async (event: DragEndEvent) => {
               </button>
             </div>
             <div className="p-6 overflow-y-auto custom-scrollbar flex-1">
-              {activityLog.length === 0 ? (
+              {activityLog.length === 0 || !Array.isArray(activityLog) ? (
                 <p className="text-sm text-gray-500">No activity logged.</p>
               ) : (
-                <div>Howdy?</div>
+                activityLog.map((activity, index) => (
+                    <div key={index} className="text-sm text-gray-300 mb-2">
+                      {activity.action}
+                    </div>
+                ))
               )}
             </div>
           </div>
