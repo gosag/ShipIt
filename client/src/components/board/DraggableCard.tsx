@@ -98,22 +98,12 @@ useEffect(() => {
     >
       <div className='flex justify-between items-start'>
        <h4 className="text-gray-200 font-medium text-sm">{card.title}</h4> 
-        <button 
-          onClick={(e)=>{
-             handleMessageClick(e);
-             getMessagesHandler(card._id);
-          }}
-           
-          onPointerDown={(e) => e.stopPropagation()}
-          className="p-1 rounded hover:bg-[#2C2C2E] transition-colors"
-        >
-          <MessageSquare size={16} />
-        </button>
       </div>
       
       {card.description && (
         <p className="text-gray-400 text-xs mt-1 line-clamp-2">{card.description}</p>
       )}
+      
       {(card.priority || isAssignedToMe) && (
         <div className="mt-3 flex  items-center gap-2">
           {card.priority && (
@@ -133,6 +123,20 @@ useEffect(() => {
           )}
         </div>
       )}
+      <div className='flex justify-end'>
+       <button 
+          onClick={(e)=>{
+             handleMessageClick(e);
+             getMessagesHandler(card._id);
+          }}
+           
+          onPointerDown={(e) => e.stopPropagation()}
+          className="p-1 rounded relative  hover:bg-[#2C2C2E] transition-colors"
+        >
+          <MessageSquare size={16} />
+        </button>
+        </div>
+      
         {showMessages && (
           <div 
             onClick={(e) => {

@@ -11,7 +11,6 @@ interface ColumnType {
   title: string;
 }
 import { ScrollText} from "lucide-react"; 
-
 interface ActiveCardData {
   _id: string;
   title: string;
@@ -74,7 +73,7 @@ export const KanbanBoard: React.FC = () => {
   const [taskDueDate, setTaskDueDate] = useState("");
   const [taskAssignees, setTaskAssignees] = useState<string[]>([]);
   const [refreshTrigger, setRefreshTrigger] = useState(0);
-
+  const [newActivityLog, setNewActivityLog] = useState<string | null>(null);
   let currentMembers: any[] = [];
   try {
     const workspacesData = JSON.parse(localStorage.getItem("workspaces") || "[]");
@@ -204,7 +203,9 @@ const handleDragEnd = async (event: DragEndEvent) => {
     socket.on("newActivityLog", (newActivity)=>{
       console.log("Received new activity log:", newActivity);
       setActivityLog(prev =>prev.length===0 ? [newActivity] : [newActivity, ...prev]);
-    });
+      setNewActivityLog(newActivity.action);
+      console.log("New activity log content:", newActivity.action);
+      setTimeout(() => {setNewActivityLog(null);}, 5000);});
     return ()=>{
       socket.off("newActivityLog");
     }
@@ -214,12 +215,12 @@ const handleDragEnd = async (event: DragEndEvent) => {
   return (
     <div className="flex flex-col h-full w-full">
       {/* Board Header */}
-      <div className="mb-6 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+      <div className="mb-6 flex flex-col sm:flex-row sm:items-center justify-between gap-4 relative">
         <div>
           <h1 className="text-2xl font-bold text-white">Project Board</h1>
           <p className="text-sm text-gray-400 mt-1">Manage tasks and track project progress</p>
         </div>
-        <div className="flex items-center gap-3">
+        <div className="flex items-center gap-3 relative">
           <button className='' onClick={() => {setShowActivityLog(true); getActivityLogs() }} title='Activity Log'>
               <ScrollText size={26} className="hover:text-indigo-400 hover:scale-105 transition-all duration-200" />
             </button>
@@ -292,6 +293,11 @@ const handleDragEnd = async (event: DragEndEvent) => {
           </div>
           
         </div>
+        {newActivityLog && (
+          <div className={`absolute ${showFilters ? '-top-4' : 'top-12'} right-0 bg-zinc-800 rounded-md px-0.5 text-blue-500 font-semibold border border-zinc-700 animate-fade-in pointer-events-none text-xs py-0.5 transition-all duration-200`}>
+            {newActivityLog}
+          </div>
+        )}
       </div>
 
       {/* Board Area */}
