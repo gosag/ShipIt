@@ -27,7 +27,29 @@ const BADGE_COLORS = [
   'bg-amber-500/10 text-amber-400 border-amber-500/20',
   'bg-emerald-500/10 text-emerald-400 border-emerald-500/20'
 ];
+export function formatActivityTime(createdAt?: string): string {
+  if (!createdAt) return 'Now';
 
+  const created = new Date(createdAt);
+  const now = new Date();
+
+  const diffMs = now.getTime() - created.getTime();
+  const diffHours = diffMs / (1000 * 60 * 60);
+
+  if (diffHours >= 24) {
+    return created.toLocaleDateString(undefined, {
+      month: 'short',
+      day: 'numeric',
+      year: created.getFullYear() !== now.getFullYear() ? 'numeric' : undefined,
+    });
+  }
+
+  return created.toLocaleTimeString(undefined, {
+    hour: '2-digit',
+    minute: '2-digit',
+    hour12: true,
+  });
+}
 export const KanbanBoard: React.FC = () => {
   const { projectId } = useParams<{ projectId: string }>();
   const [columns, setColumns] = useState<ColumnType[]>([]);
@@ -476,7 +498,7 @@ const handleDragEnd = async (event: DragEndEvent) => {
                         <div className="flex items-center gap-2 flex-wrap">
                           <span className="text-sm font-medium text-white">{activity.user?.name ?? 'Unknown User'}</span>
                           <span className="text-xs text-gray-500">
-                            {activity.createdAt ? new Date(activity.createdAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) : 'Now'}
+                            {activity.createdAt ? formatActivityTime(activity.createdAt) : 'Now'}
                           </span>
                         </div>
                         <p className="text-sm text-gray-400 mt-0.5 leading-snug">{activity.action}</p>
