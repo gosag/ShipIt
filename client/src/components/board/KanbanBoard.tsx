@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { useParams } from 'react-router-dom';
 import { KanbanColumn } from './KanbanColumn';
-import { Filter, Search, Loader, X} from 'lucide-react';
+import { Filter, Search, Loader, X, MessageSquare} from 'lucide-react';
 import { api } from '../../axios';
 import { DndContext, DragOverlay, useSensor, useSensors, PointerSensor, type DragCancelEvent, type DragStartEvent } from '@dnd-kit/core';
 import type { DragEndEvent } from '@dnd-kit/core';
@@ -357,6 +357,13 @@ const handleDragEnd = async (event: DragEndEvent) => {
                           )}
                         </div>
                       )}
+                      <div className='flex justify-end'>
+                        <button 
+                            className="p-1 rounded relative  hover:bg-[#2C2C2E] transition-colors"
+                          >
+                            <MessageSquare size={16} />
+                          </button>
+                          </div>
                     </div>
                   );
               })() : null}
