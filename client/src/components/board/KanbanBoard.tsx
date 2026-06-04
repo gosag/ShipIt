@@ -221,7 +221,7 @@ useEffect(() => {
   };
 }, []);
   return (
-    <div className="flex flex-col h-full w-full">
+    <div onClick={()=>{showFilters?setShowFilters(false):""}} className="flex flex-col h-full w-full">
       {/* Board Header */}
       <div className="mb-6 flex flex-col sm:flex-row sm:items-center justify-between gap-4 relative">
         <div>
@@ -257,7 +257,7 @@ useEffect(() => {
             
             
             {showFilters && (
-              <div className="absolute right-0 mt-2 w-56 bg-[#1C1C1E] border border-[#2C2C2E] rounded-lg shadow-xl z-10 p-3">
+              <div onClick={(e)=>{e.stopPropagation()}} className="absolute sm:right-0  mt-2 w-56 bg-[#1C1C1E] border border-[#2C2C2E] rounded-lg shadow-xl z-10 p-3">
                 <div className="space-y-4">
                   <div>
                     <label className="block text-xs font-medium text-gray-400 mb-1.5 uppercase tracking-wider">Priority</label>
