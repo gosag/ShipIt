@@ -20,6 +20,7 @@ export const DraggableCard: React.FC<DraggableCardProps> = ({ card, columnId, ac
   const [messageInput, setMessageInput] = useState("");
   const [messages, setMessages] = useState([]);
   const [currentUser, setCurrentUser] = useState(null);
+
   const handleMessageClick = (e: React.MouseEvent | React.PointerEvent) => {
     e.stopPropagation();
     setShowMessages(true);
@@ -47,6 +48,7 @@ export const DraggableCard: React.FC<DraggableCardProps> = ({ card, columnId, ac
       alert("Failed to send message.");
     }
   }
+
   const getMessagesHandler=async (cardId)=>{
     try{
       const res= await api.get(`/api/messages/get-messages/${cardId}`);
@@ -165,7 +167,7 @@ useEffect(() => {
                         <User size={14} className="text-indigo-400" />
                       </div>
                       <div className="flex flex-col max-w-[85%]">
-                        <span className="text-xs text-gray-400 font-medium mb-1 ml-1">{currentUser && currentUser?.email===msg.author?.email?  'You' : msg.author?.name}</span>
+                        <span className="text-xs text-gray-400 font-medium mb-1 ml-1">{currentUser && currentUser?.email===msg.author?.email?  <span className="font-bold text-blue-400">You</span> : msg.author?.name}</span>
                         <div className="bg-[#2C2C2E] px-4 py-2.5 rounded-2xl rounded-tl-sm text-sm text-gray-200 shadow-sm border border-[#3C3C3E]">
                           {msg.content}
                         </div>
