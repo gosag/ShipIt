@@ -131,12 +131,22 @@ export const moveCard= asyncHandler(async(req:AuthRequest,res:Response,next:Next
         throw error;
     }
     const cardId=req.params.cardId;
+    let oldCardColumnTitle="";
+    const oldCardInfo= await Card.findById(cardId).populate("column", "title");
+    if(!oldCardInfo){
+        const error= new Error("Card not found") as customError;
+        error.status=404;
+        throw error;
+    }
+   oldCardColumnTitle= oldCardInfo.column ? (oldCardInfo.column as any).title : "Unknown Column";
+    
     const newField:{column?:string, order?:string}={}
     if(newColumnId) newField.column=newColumnId;
     if(cardId) newField.order=newOrder
     const updatedCard= await Card.findByIdAndUpdate({ _id: cardId }, newField , { new: true });
     if(!updatedCard){
           throw new Error("Was unable to update the card") as customError;
+          
     }
     const column = await Column.findById(newColumnId);
     if(!column){
@@ -146,21 +156,20 @@ export const moveCard= asyncHandler(async(req:AuthRequest,res:Response,next:Next
     }
     const columnTitle = column.title;
         const activity = new Activity({
-            action: `Card titled:(${updatedCard.title}) moved to column ${columnTitle}`,
+            action: `Card titled:(${updatedCard.title}) moved from (${oldCardColumnTitle}) to (${columnTitle})`,
             card: updatedCard._id,
             project: updatedCard.project,
             workspace: updatedCard.workspace,
             user: req.user._id
         });
 
-       const newActivity = await activity.save();
-
+       const nA = await activity.save();
+       const newActivity = await nA.populate("user", "name email");
        if(!newActivity){
            throw new Error("Failed to save activity log") as customError;
        };
-
+       console.log("New activity log created:", newActivity);
     res.json({updatedCard, newActivity});
-
 })
 
 export const deleteCard= asyncHandler(async(req:AuthRequest,res:Response)=>{

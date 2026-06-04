@@ -203,7 +203,7 @@ const handleDragEnd = async (event: DragEndEvent) => {
  useEffect(()=>{
     socket.on("newActivityLog", (newActivity)=>{
       console.log("Received new activity log:", newActivity);
-      setActivityLog(prev =>prev.length===0 ? [newActivity] : [...prev, newActivity]);
+      setActivityLog(prev =>prev.length===0 ? [newActivity] : [newActivity, ...prev]);
     });
     return ()=>{
       socket.off("newActivityLog");
