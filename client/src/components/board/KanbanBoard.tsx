@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { useParams } from 'react-router-dom';
 import { KanbanColumn } from './KanbanColumn';
-import { Filter, Search, Loader, X } from 'lucide-react';
+import { Filter, Search, Loader, X} from 'lucide-react';
 import { api } from '../../axios';
 import { DndContext, DragOverlay, useSensor, useSensors, PointerSensor, type DragCancelEvent, type DragStartEvent } from '@dnd-kit/core';
 import type { DragEndEvent } from '@dnd-kit/core';
@@ -448,6 +448,7 @@ const handleDragEnd = async (event: DragEndEvent) => {
           </div>
         </div>
       )}
+       {/* Activity Log Modal */}
       {showActivityLog && (
         <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center gap-2 z-100 p-4">
           <div className="bg-[#1C1C1E] relative border border-[#2C2C2E] shadow-2xl rounded-xl w-full max-w-lg overflow-hidden flex flex-col max-h-[90vh]">
@@ -464,11 +465,24 @@ const handleDragEnd = async (event: DragEndEvent) => {
               {activityLog.length === 0 || !Array.isArray(activityLog) ? (
                 <p className="text-sm text-gray-500">No activity logged.</p>
               ) : (
-                activityLog.map((activity:{ action: string }, index) => (
-                    <div key={index} className="text-sm text-gray-300 mb-2">
-                      {activity.action}
+                activityLog.map((activity: { action: string; createdAt?: string; user?: { name: string } }, index) => (
+                    <div key={index} className="flex items-start gap-3 py-3 border-b border-[#2C2C2E] last:border-0">
+                      <div className="w-7 h-7 rounded-full bg-[#2C2C2E] flex items-center justify-center shrink-0 mt-0.5">
+                        <span className="text-xs font-medium text-gray-300">
+                          {(activity.user?.name?.[0] ?? 'U').toUpperCase()}
+                        </span>
+                      </div>
+                      <div className="flex-1 min-w-0">
+                        <div className="flex items-center gap-2 flex-wrap">
+                          <span className="text-sm font-medium text-white">{activity.user?.name ?? 'Unknown User'}</span>
+                          <span className="text-xs text-gray-500">
+                            {activity.createdAt ? new Date(activity.createdAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) : 'Now'}
+                          </span>
+                        </div>
+                        <p className="text-sm text-gray-400 mt-0.5 leading-snug">{activity.action}</p>
+                      </div>
                     </div>
-                ))
+                  ))
               )}
             </div>
           </div>
