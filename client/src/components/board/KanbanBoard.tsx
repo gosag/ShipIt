@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useRef } from 'react';
 import { useParams } from 'react-router-dom';
 import { KanbanColumn } from './KanbanColumn';
 import { Filter, Search, Loader, X, MessageSquare} from 'lucide-react';
@@ -199,19 +199,27 @@ const handleDragEnd = async (event: DragEndEvent) => {
       console.log(err)
     }
   }
- useEffect(()=>{
-    socket.on("newActivityLog", (newActivity)=>{
-      console.log("Received new activity log:", newActivity);
-      setActivityLog(prev =>prev.length===0 ? [newActivity] : [newActivity, ...prev]);
-      setNewActivityLog(newActivity.action);
-      console.log("New activity log content:", newActivity.action);
-      setTimeout(() => {setNewActivityLog(null);}, 5000);});
-    return ()=>{
-      socket.off("newActivityLog");
+ const timeoutRef = useRef(null);
+
+useEffect(() => {
+  socket.on("newActivityLog", (newActivity) => {
+    console.log("Received new activity log:", newActivity);
+    setActivityLog(prev => prev.length === 0 ? [newActivity] : [newActivity, ...prev]);
+    setNewActivityLog(newActivity.action);
+    
+    if (timeoutRef.current) {
+      clearTimeout(timeoutRef.current);
     }
+    timeoutRef.current = setTimeout(() => {
+      setNewActivityLog(null);
+    }, 5000);
+  });
 
- }, [])
-
+  return () => {
+    socket.off("newActivityLog");
+    if (timeoutRef.current) clearTimeout(timeoutRef.current);
+  };
+}, []);
   return (
     <div className="flex flex-col h-full w-full">
       {/* Board Header */}
