@@ -1,10 +1,7 @@
 import type {Response, NextFunction} from "express";
-import { Card } from "../models/Card.js";
 import asyncHandler from "express-async-handler";
 import type { AuthRequest } from "../middleware/auth.js";
-import { Workspace } from "../models/Workspace.js";
-import { Project } from "../models/Project.js";
-import { Activity } from "../models/Activity.js";
+import { Activity, Column, Project, Workspace, Card} from "../models/index.js";
 interface customError extends Error {
     status?: number;
 }
@@ -141,8 +138,15 @@ export const moveCard= asyncHandler(async(req:AuthRequest,res:Response,next:Next
     if(!updatedCard){
           throw new Error("Was unable to update the card") as customError;
     }
+    const column = await Column.findById(newColumnId);
+    if(!column){
+        const error= new Error("New column not found") as customError;
+        error.status=404;
+        throw error;
+    }
+    const columnTitle = column.title;
         const activity = new Activity({
-            action: `Card ${updatedCard.title} moved to column ${newColumnId} with order ${newOrder}`,
+            action: `Card titled:(${updatedCard.title}) moved to column ${columnTitle}`,
             card: updatedCard._id,
             project: updatedCard.project,
             workspace: updatedCard.workspace,
