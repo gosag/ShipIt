@@ -337,7 +337,7 @@ const joinRequestHandler = async (notificationId: string, workspaceId: string, u
 
                 <div className="flex-1 overflow-hidden bg-[#0e0e0f] flex flex-col">
                   <div className="flex-1 w-full p-4 md:p-6 overflow-x-hidden overflow-y-auto custom-scrollbar">
-                    <Outlet />
+                    <Outlet context={{ refreshWorkspaces: getWorkspace }} />
                   </div>
                 </div>
             </main>

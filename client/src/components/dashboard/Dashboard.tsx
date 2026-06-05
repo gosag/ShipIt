@@ -1,5 +1,5 @@
 import { useEffect, useState, useCallback } from "react";
-import { useNavigate, Link } from "react-router-dom";
+import { useNavigate, Link, useOutletContext } from "react-router-dom";
 import { api } from "../../axios";
 import socket from "../../../socket";
 import { formatActivityTime } from "../board/KanbanBoard";
@@ -26,8 +26,12 @@ import {
   ChevronRight,
   CheckCircle2,
   X,
-  Search,
+  TrendingUp,
 } from "lucide-react";
+
+interface OutletContext {
+  refreshWorkspaces: () => Promise<void>;
+}
 
 interface DashboardCard {
   _id: string;
@@ -156,8 +160,20 @@ const EmptyState = ({ icon: Icon, message }: { icon: React.ElementType; message:
   </div>
 );
 
-const SectionCard = ({ title, icon: Icon, iconColor, children, action }: { title: string; icon: React.ElementType; iconColor?: string; children: React.ReactNode; action?: React.ReactNode }) => (
-  <div className="bg-zinc-900/50 border border-zinc-800 rounded-2xl p-5 shadow-xl backdrop-blur-sm flex flex-col">
+const SectionCard = ({
+  title,
+  icon: Icon,
+  iconColor,
+  children,
+  action,
+}: {
+  title: string;
+  icon: React.ElementType;
+  iconColor?: string;
+  children: React.ReactNode;
+  action?: React.ReactNode;
+}) => (
+  <div className="bg-zinc-900/50 border border-zinc-800 rounded-2xl p-5 shadow-xl backdrop-blur-sm">
     <div className="flex items-center justify-between mb-4">
       <h2 className="text-sm font-semibold flex items-center gap-2 text-zinc-200">
         <Icon size={16} className={iconColor || "text-zinc-500"} />
@@ -165,7 +181,7 @@ const SectionCard = ({ title, icon: Icon, iconColor, children, action }: { title
       </h2>
       {action}
     </div>
-    <div className="flex-1">{children}</div>
+    {children}
   </div>
 );
 
@@ -183,6 +199,7 @@ const StatCard = ({ label, value, icon: Icon, color }: { label: string; value: n
 
 const Dashboard = () => {
   const navigate = useNavigate();
+  const { refreshWorkspaces } = useOutletContext<OutletContext>();
   const [data, setData] = useState<DashboardData | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -191,7 +208,6 @@ const Dashboard = () => {
 
   const [cardModalOpen, setCardModalOpen] = useState(false);
   const [projectModalOpen, setProjectModalOpen] = useState(false);
-  const [inviteModalOpen, setInviteModalOpen] = useState(false);
 
   const [workspaces, setWorkspaces] = useState<any[]>([]);
   const [newCardTitle, setNewCardTitle] = useState("");
@@ -201,11 +217,25 @@ const Dashboard = () => {
   const [columns, setColumns] = useState<{ _id: string; title: string }[]>([]);
   const [newProjectName, setNewProjectName] = useState("");
   const [newProjectWorkspace, setNewProjectWorkspace] = useState("");
-  const [inviteSlug, setInviteSlug] = useState("");
-  const [inviteResult, setInviteResult] = useState<any>(null);
-  const [inviteLoading, setInviteLoading] = useState(false);
 
   const userData = JSON.parse(localStorage.getItem("userData") || "{}");
+
+  const loadWorkspacesWithProjects = useCallback(async () => {
+    const wsRes = await api.get("/api/workspace/get-all");
+    const withProjects = await Promise.all(
+      wsRes.data.map(async (ws: any) => {
+        try {
+          const pRes = await api.get(`/api/project/getAll/${ws._id}`);
+          return { ...ws, projects: pRes.data };
+        } catch {
+          return { ...ws, projects: [] };
+        }
+      })
+    );
+    setWorkspaces(withProjects);
+    localStorage.setItem("workspaces", JSON.stringify(withProjects));
+    return withProjects;
+  }, []);
 
   const fetchDashboard = useCallback(async () => {
     setLoading(true);
@@ -229,22 +259,8 @@ const Dashboard = () => {
 
     const cachedWorkspaces = JSON.parse(localStorage.getItem("workspaces") || "[]");
     if (cachedWorkspaces.length) setWorkspaces(cachedWorkspaces);
-    else {
-      api.get("/api/workspace/get-all").then(async (res) => {
-        const withProjects = await Promise.all(
-          res.data.map(async (ws: any) => {
-            try {
-              const pRes = await api.get(`/api/project/getAll/${ws._id}`);
-              return { ...ws, projects: pRes.data };
-            } catch {
-              return { ...ws, projects: [] };
-            }
-          })
-        );
-        setWorkspaces(withProjects);
-      });
-    }
-  }, [fetchDashboard]);
+    else loadWorkspacesWithProjects();
+  }, [fetchDashboard, loadWorkspacesWithProjects]);
 
   useEffect(() => {
     if (!data?.workspaces.length || !userData._id) return;
@@ -309,57 +325,14 @@ const Dashboard = () => {
     try {
       await api.post(`/api/project/create/${newProjectWorkspace}`, { name: newProjectName });
       setNewProjectName("");
+      setNewProjectWorkspace("");
       setProjectModalOpen(false);
-      const wsRes = await api.get("/api/workspace/get-all");
-      const withProjects = await Promise.all(
-        wsRes.data.map(async (ws: any) => {
-          try {
-            const pRes = await api.get(`/api/project/getAll/${ws._id}`);
-            return { ...ws, projects: pRes.data };
-          } catch {
-            return { ...ws, projects: [] };
-          }
-        })
-      );
-      setWorkspaces(withProjects);
-      localStorage.setItem("workspaces", JSON.stringify(withProjects));
+      await loadWorkspacesWithProjects();
+      await refreshWorkspaces();
       fetchDashboard();
     } catch (err) {
       console.error(err);
       alert("Failed to create project");
-    }
-  };
-
-  const handleInviteSearch = async () => {
-    if (!inviteSlug.trim()) return;
-    setInviteLoading(true);
-    try {
-      let slug = inviteSlug.trim();
-      if (slug.startsWith("/")) slug = slug.slice(1);
-      const res = await api.get(`/api/workspace/get-slug/${slug}`);
-      setInviteResult(res.data);
-    } catch {
-      setInviteResult(null);
-      alert("Workspace not found");
-    } finally {
-      setInviteLoading(false);
-    }
-  };
-
-  const handleSendJoinRequest = async () => {
-    if (!inviteResult) return;
-    try {
-      await api.post("/api/notification/join-request", {
-        workspaceId: inviteResult.workspaceId,
-        workspaceOwnerId: inviteResult.userId,
-        workSpaceName: inviteResult.name,
-      });
-      alert("Join request sent!");
-      setInviteModalOpen(false);
-      setInviteSlug("");
-      setInviteResult(null);
-    } catch (err: any) {
-      alert(err.response?.data?.error || "Failed to send request");
     }
   };
 
@@ -469,12 +442,6 @@ const Dashboard = () => {
           >
             <FolderKanban size={16} /> New Project
           </button>
-          <button
-            onClick={() => setInviteModalOpen(true)}
-            className="flex items-center gap-2 px-4 py-2 text-sm font-medium text-zinc-200 bg-zinc-800 border border-zinc-700 rounded-xl hover:bg-zinc-700 transition-colors"
-          >
-            <UserPlus size={16} /> Invite
-          </button>
         </div>
       </div>
 
@@ -487,12 +454,12 @@ const Dashboard = () => {
       </div>
 
       {/* Main Grid */}
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 items-start">
         {/* Column 1: Personal Overview */}
         <div className="space-y-6">
           <SectionCard title="Assigned to you" icon={ClipboardList} iconColor="text-indigo-400">
             {data?.personal.assignedCards.length ? (
-              <div className="space-y-2 max-h-64 overflow-y-auto custom-scrollbar">
+              <div className="space-y-2 max-h-48 overflow-y-auto custom-scrollbar">
                 {data.personal.assignedCards.map((card) => (
                   <CardRow key={card._id} card={card} onClick={() => goToCard(card)} />
                 ))}
@@ -504,7 +471,7 @@ const Dashboard = () => {
 
           <SectionCard title="High urgency" icon={Zap} iconColor="text-red-400">
             {data?.personal.urgentCards.length ? (
-              <div className="space-y-2 max-h-52 overflow-y-auto custom-scrollbar">
+              <div className="space-y-2 max-h-40 overflow-y-auto custom-scrollbar">
                 {data.personal.urgentCards.map((card) => (
                   <CardRow key={card._id} card={card} onClick={() => goToCard(card)} />
                 ))}
@@ -596,6 +563,17 @@ const Dashboard = () => {
             ) : (
               <EmptyState icon={Users} message="No teammates online right now" />
             )}
+          </SectionCard>
+
+          <SectionCard title="Team pulse" icon={TrendingUp} iconColor="text-blue-400">
+            <div className="space-y-2">
+              {(data?.workspaces || []).slice(0, 3).map((ws) => (
+                <div key={ws._id} className="flex items-center justify-between text-xs">
+                  <span className="text-zinc-400 truncate">{ws.name}</span>
+                  <span className="text-zinc-500 shrink-0 ml-2">{ws.projectCount} projects</span>
+                </div>
+              ))}
+            </div>
           </SectionCard>
         </div>
 
@@ -723,7 +701,7 @@ const Dashboard = () => {
             )}
           </SectionCard>
 
-          {(data?.pendingJoinRequests.length || 0) > 0 && (
+          {(data?.pendingJoinRequests.length || 0) > 0 ? (
             <SectionCard title="Join requests" icon={UserPlus} iconColor="text-indigo-400">
               <div className="space-y-3">
                 {data!.pendingJoinRequests.map((req) => (
@@ -747,6 +725,8 @@ const Dashboard = () => {
                 ))}
               </div>
             </SectionCard>
+          ) : (
+            <div/>
           )}
         </div>
       </div>
@@ -850,51 +830,6 @@ const Dashboard = () => {
         </form>
       </Modal>
 
-      <Modal isOpen={inviteModalOpen} onClose={() => { setInviteModalOpen(false); setInviteResult(null); setInviteSlug(""); }} title="Invite to Workspace">
-        <div className="space-y-4">
-          <p className="text-sm text-gray-400">Search for a workspace by slug to request joining, or share your workspace slug with others.</p>
-          <div className="relative flex items-center">
-            <Search size={16} className="absolute left-3 text-gray-500" />
-            <input
-              value={inviteSlug}
-              onChange={(e) => setInviteSlug(e.target.value)}
-              onKeyDown={(e) => e.key === "Enter" && handleInviteSearch()}
-              className="w-full pl-10 pr-20 py-2 bg-[#2C2C2E] border border-[#3C3C3E] rounded-lg outline-none focus:border-indigo-500 text-white"
-              placeholder="workspace-slug"
-            />
-            <button
-              onClick={handleInviteSearch}
-              disabled={inviteLoading}
-              className="absolute right-2 px-3 py-1 text-xs font-medium text-white bg-indigo-600 rounded-md hover:bg-indigo-700 disabled:opacity-50"
-            >
-              {inviteLoading ? <Loader2 size={14} className="animate-spin" /> : "Search"}
-            </button>
-          </div>
-          {inviteResult && (
-            <div className="p-4 bg-[#2C2C2E]/50 border border-[#3C3C3E] rounded-lg">
-              <p className="text-sm font-medium text-white">{inviteResult.name}</p>
-              <p className="text-xs text-gray-500 mt-1">/{inviteResult.slug}</p>
-              <button
-                onClick={handleSendJoinRequest}
-                className="mt-3 w-full px-4 py-2 text-sm font-medium text-white bg-indigo-600 rounded-lg hover:bg-indigo-700"
-              >
-                Send Join Request
-              </button>
-            </div>
-          )}
-          {data?.workspaces.length ? (
-            <div className="pt-3 border-t border-[#2C2C2E]">
-              <p className="text-xs text-gray-500 mb-2">Your workspace slugs to share:</p>
-              {data.workspaces.map((ws) => (
-                <div key={ws._id} className="flex items-center justify-between py-1.5">
-                  <span className="text-sm text-gray-300">{ws.name}</span>
-                  <code className="text-xs text-indigo-400 bg-indigo-500/10 px-2 py-0.5 rounded">/{ws.slug}</code>
-                </div>
-              ))}
-            </div>
-          ) : null}
-        </div>
-      </Modal>
     </div>
   );
 };
