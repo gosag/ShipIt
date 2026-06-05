@@ -436,7 +436,7 @@ const Dashboard = () => {
   const greeting = hour < 12 ? "Good morning" : hour < 18 ? "Good afternoon" : "Good evening";
 
   return (
-    <div className="max-w-7xl mx-auto space-y-6 pb-8">
+    <div className="max-w-7xl mx-auto space-y-6 pb-0">
       {/* Header */}
       <div className="flex flex-col md:flex-row md:items-end justify-between gap-4 border-b border-zinc-800 pb-6">
         <div>

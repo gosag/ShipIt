@@ -3,10 +3,13 @@ import { Link } from "react-router-dom";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod"; 
 import { api } from "../axios";
+import {useState} from "react";
+import axios from "axios";
 const schema = z.object({
   name: z.string().min(2, "Name must be at least 2 characters"),
   email: z.string().email("Invalid email address"),
   password: z.string().min(6, "Password must be at least 6 characters"),
+  profilePicture: z.string().url("Invalid image URL").optional()
 });
 
 type FormData = z.infer<typeof schema>;
@@ -15,12 +18,16 @@ const Register = () => {
     const { register, handleSubmit, formState: { errors, isSubmitting } } = useForm<FormData>({
         resolver: zodResolver(schema)
     });
-
+    const [profilePictureUrl, setProfilePictureUrl] = useState<string>("");
     const onSubmit = async (data: FormData) => {
         const controller = new AbortController();
         try{
             // Sending to correct URL
-            const res = await api.post(`/api/auth/register`, data, { signal: controller.signal })
+            const payload = {
+                ...data,
+                profilePicture: profilePictureUrl || undefined
+            }
+            const res = await api.post(`/api/auth/register`, payload, { signal: controller.signal })
             const responseData = res.data;
 
             if(!responseData.accessToken){
@@ -34,7 +41,26 @@ const Register = () => {
         }
         return () => controller.abort();
     };
+   const handleFileChange = async ( e: React.ChangeEvent<HTMLInputElement>) => {
+    console.log("I have been activated!");
+        const file = e.target.files?.[0];
+         if (!file) return;
+            const formData = new FormData();
+            formData.append("file", file);
+            formData.append(
+                "upload_preset",
+                "shipit_avatar"
+            );
+            try {
+                const response = await axios.post("https://api.cloudinary.com/v1_1/dhxvrjcoc/image/upload", formData);
+                console.log(response.data.secure_url);
+                setProfilePictureUrl(response.data.secure_url);
 
+            } catch (error: any) {
+                console.log(error.response?.data);
+            }
+            };
+            const profilePictureRegister = register("profilePicture");
     return (
         <div className="min-h-screen bg-[#0A0A0A] flex items-center justify-center p-6 relative overflow-hidden font-sans text-white">
             {/* Ambient Background Glow matching 'Premium/Linear' aesthetic */}
@@ -44,7 +70,7 @@ const Register = () => {
                 {/* Clean minimalist logo block matching shipIt logo */}
                 <div className="flex justify-center mb-10">
                     <div className="flex items-center">
-                        <img src="/logo.png" alt="ShipIt Logo" className="h-12 w-auto object-contain" />
+                        <p className="text-2xl font-bold">Ship<span className="text-purple-800">It</span></p>
                     </div>
                 </div>
 
@@ -101,6 +127,25 @@ const Register = () => {
                             />
                             {errors.password && <p className="text-xs text-red-500 mt-1">{errors.password.message}</p>}
                         </div>
+                        {/* add input for profile picture  */}
+                        <div className="space-y-2">
+                            <label className="text-xs font-semibold text-[#81818B] uppercase tracking-wider block" htmlFor="profilePicture">
+                                Profile Picture
+                            </label>
+                            <input
+                               className=""
+                                type="file"
+                                accept="image/*"
+                                placeholder="Upload a profile picture (optional)"
+                                {...profilePictureRegister}
+                                onChange={(e) => {
+                                    profilePictureRegister.onChange(e);
+                                    handleFileChange(e);
+                                }}
+                            />  
+                            {errors.profilePicture && <p className="text-xs text-red-500 mt-1">{errors.profilePicture.message}</p>}
+                        </div>
+
 
                         <button
                             type="submit"
