@@ -189,7 +189,7 @@ const joinRequestHandler = async (notificationId: string, workspaceId: string, u
 
             {/* Sidebar */}
             <aside 
-              className={`fixed inset-y-0 left-0 z-30 md:static md:inset-auto flex flex-col w-64 md:w-72 h-full border-r border-[#2C2C2E] bg-[#141415] transform transition-transform duration-300 ease-in-out md:translate-x-0 ${
+              className={`fixed max-h-screen inset-y-0 left-0 z-30 md:static md:inset-auto flex flex-col w-64 md:w-72 h-full border-r border-[#2C2C2E] bg-[#141415] transform transition-transform duration-300 ease-in-out md:translate-x-0 ${
                 isSidebarOpen ? "translate-x-0" : "-translate-x-full"
               }`}
             >
@@ -234,7 +234,7 @@ const joinRequestHandler = async (notificationId: string, workspaceId: string, u
                     </div>
 
                     {/* Workspaces Section */}
-                    <div className="space-y-4 overflow-y-auto custom-scrollbar">
+                    <div className="space-y-4 max-h-[70%] overflow-y-auto custom-scrollbar">
                         <div className="flex items-center justify-between px-3 group">
                           <h3 className="text-xs font-semibold text-gray-500 uppercase tracking-wider">Workspaces</h3>
                           <div className="flex gap-1">
