@@ -10,7 +10,7 @@ export interface DraggableCardProps {
 }
 import {api} from '../../axios';
 import socket from '../../../socket';
-import { MessageSquare , User, X} from 'lucide-react';
+import { MessageSquare, X} from 'lucide-react';
 export const DraggableCard: React.FC<DraggableCardProps> = ({ card, columnId, activeCardId, onClick, currentUserId, workspaceId }) => {
   const { attributes, listeners, setNodeRef: setDraggableNodeRef, transform, isDragging } = useDraggable({ id: card._id, data: { columnId, card } });
   const style = transform ? { transform: `translate3d(${transform.x}px, ${transform.y}px, 0)` } : undefined;
@@ -168,7 +168,11 @@ useEffect(() => {
                   messages.map((msg: any) => (
                     <div key={msg._id} className="flex gap-3 items-start">
                       <div className="w-8 h-8 rounded-full bg-indigo-500/20 flex items-center justify-center shrink-0 border border-indigo-500/30">
-                        <User size={14} className="text-indigo-400" />
+                        {msg.author?.avatar ? (
+                          <img src={msg.author.avatar} alt={msg.author.name} className="w-8 h-8 rounded-full object-cover" />
+                        ) : (
+                          <img src="/placeholder-pp.jpg" alt="Default Avatar" className="w-8 h-8 rounded-full object-cover" />
+                        )}
                       </div>
                       <div className="flex flex-col max-w-[85%]">
                         <span className="text-xs text-gray-400 font-medium mb-1 ml-1">{currentUser && currentUser?.email===msg.author?.email?  <span className="font-bold text-blue-400">You</span> : msg.author?.name}</span>

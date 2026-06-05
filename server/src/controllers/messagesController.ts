@@ -18,7 +18,7 @@ export const getComments = AsyncHandler(async (req: AuthRequest, res: Response, 
             error.status = 400;
             throw error;
         }
-        const comments = await Comment.find({ card: cardId }).populate('author', 'name email');
+        const comments = await Comment.find({ card: cardId }).populate('author', 'name email avatar');
         res.json(comments);
 
     }catch(error){
@@ -54,7 +54,7 @@ export const sendComment = AsyncHandler(async (req: AuthRequest, res: Response, 
         error.status = 500;
         throw error;
     }
-    const populatedComment = await savedComment.populate('author', 'name email');
+    const populatedComment = await savedComment.populate('author', 'name email avatar');
     if(!populatedComment){
         const error= new Error('Failed to populate comment') as customError;
         error.status = 500;
