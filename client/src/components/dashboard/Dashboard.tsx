@@ -26,7 +26,6 @@ import {
   ChevronRight,
   CheckCircle2,
   X,
-  TrendingUp,
 } from "lucide-react";
 
 interface OutletContext {
@@ -138,7 +137,7 @@ const Modal = ({ isOpen, onClose, title, children }: { isOpen: boolean; onClose:
 const CardRow = ({ card, onClick }: { card: DashboardCard; onClick: () => void }) => (
   <button
     onClick={onClick}
-    className="w-full flex items-center gap-3 p-3 rounded-xl bg-zinc-900/40 border border-zinc-800/60 hover:bg-zinc-800/40 hover:border-zinc-700/60 transition-all text-left group"
+    className="w-full min-h-18 shrink-0 flex items-center gap-3 p-3 rounded-xl bg-zinc-900/40 border border-zinc-800/60 hover:bg-zinc-800/40 hover:border-zinc-700/60 transition-all text-left group"
   >
     <div className="flex-1 min-w-0">
       <p className="text-sm font-medium text-zinc-200 truncate group-hover:text-white transition-colors">{card.title}</p>
@@ -157,6 +156,29 @@ const EmptyState = ({ icon: Icon, message }: { icon: React.ElementType; message:
   <div className="flex flex-col items-center justify-center py-8 text-zinc-500">
     <Icon size={28} className="mb-2 opacity-20" />
     <p className="text-sm">{message}</p>
+  </div>
+);
+
+const ItemScroll = ({
+  children,
+  itemHeight,
+  gap,
+  gapClass,
+  visibleCount = 2,
+}: {
+  children: React.ReactNode;
+  itemHeight: string;
+  gap: string;
+  gapClass: string;
+  visibleCount?: number;
+}) => (
+  <div
+    className={`${gapClass} overflow-y-auto custom-scrollbar`}
+    style={{
+      maxHeight: `calc(${visibleCount} * ${itemHeight} + ${Math.max(0, visibleCount - 1)} * ${gap})`,
+    }}
+  >
+    {children}
   </div>
 );
 
@@ -483,11 +505,11 @@ const Dashboard = () => {
 
           <SectionCard title="Recently touched" icon={Clock} iconColor="text-amber-400">
             {data?.personal.recentlyTouchedCards.length ? (
-              <div className="space-y-2 max-h-52 overflow-y-auto custom-scrollbar">
+              <ItemScroll itemHeight="4.5rem" gap="0.5rem" gapClass="space-y-2" visibleCount={1}>
                 {data.personal.recentlyTouchedCards.map((card) => (
                   <CardRow key={card._id} card={card} onClick={() => goToCard(card)} />
                 ))}
-              </div>
+              </ItemScroll>
             ) : (
               <EmptyState icon={Clock} message="No recent card activity" />
             )}
@@ -565,16 +587,6 @@ const Dashboard = () => {
             )}
           </SectionCard>
 
-          <SectionCard title="Team pulse" icon={TrendingUp} iconColor="text-blue-400">
-            <div className="space-y-2">
-              {(data?.workspaces || []).slice(0, 3).map((ws) => (
-                <div key={ws._id} className="flex items-center justify-between text-xs">
-                  <span className="text-zinc-400 truncate">{ws.name}</span>
-                  <span className="text-zinc-500 shrink-0 ml-2">{ws.projectCount} projects</span>
-                </div>
-              ))}
-            </div>
-          </SectionCard>
         </div>
 
         {/* Column 3: Health, Activity, Notifications */}
@@ -677,9 +689,9 @@ const Dashboard = () => {
 
           <SectionCard title="Recent activity" icon={Activity} iconColor="text-emerald-400">
             {data?.activityFeed.length ? (
-              <div className="space-y-3 max-h-64 overflow-y-auto custom-scrollbar">
+              <ItemScroll itemHeight="3.5rem" gap="0.75rem" gapClass="space-y-3" visibleCount={2}>
                 {data.activityFeed.map((act) => (
-                  <div key={act._id} className="flex gap-3 items-start">
+                  <div key={act._id} className="flex gap-3 items-start min-h-14 shrink-0">
                     <div className="w-7 h-7 rounded-full bg-zinc-800 flex items-center justify-center text-[10px] font-bold text-zinc-400 shrink-0 mt-0.5">
                       {act.user?.name?.charAt(0) || "?"}
                     </div>
@@ -695,7 +707,7 @@ const Dashboard = () => {
                     </div>
                   </div>
                 ))}
-              </div>
+              </ItemScroll>
             ) : (
               <EmptyState icon={Activity} message="No recent activity" />
             )}
