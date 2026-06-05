@@ -22,7 +22,7 @@ const generateRefreshToken = (userId: string, email: string) => {
 
 export const register = async (req: Request, res: Response): Promise<any> => {
   try {
-    const { name, email, password } = req.body;
+    const { name, email, password, avatar } = req.body;
 
     const existingUser = await User.findOne({ email });
     if (existingUser) {
@@ -30,9 +30,9 @@ export const register = async (req: Request, res: Response): Promise<any> => {
     }
 
     const hashedPassword = await bcrypt.hash(password, 10);
-    const user = new User({ name, email, password: hashedPassword });
+    const user = new User({ name, email, password: hashedPassword, avatar });
     await user.save();
-
+    console.log("New user registered:", user);
     const accessToken = generateAccessToken(user.id, user.email);
     const refreshToken = generateRefreshToken(user.id, user.email);
 
@@ -44,7 +44,7 @@ export const register = async (req: Request, res: Response): Promise<any> => {
     });
 
     res.status(201).json({
-      user: { _id: user.id, name: user.name, email: user.email },
+      user: { _id: user.id, name: user.name, email: user.email, avatar: user.avatar },
       accessToken,
     });
   } catch (error) {
@@ -79,7 +79,7 @@ export const login = async (req: Request, res: Response): Promise<any> => {
     });
 
     res.json({
-      user: { _id: user.id, name: user.name, email: user.email },
+      user: { _id: user.id, name: user.name, email: user.email, avatar: user.avatar },
       accessToken,
     });
   } catch (error) {

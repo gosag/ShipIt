@@ -25,6 +25,7 @@ const Login = () => {
              const responseData = res.data;
             if (responseData.accessToken) {
                 localStorage.setItem("accessToken", responseData.accessToken);
+                localStorage.setItem("userProfile", responseData.user.avatar || "");
             }
             window.location.href = "/"; 
         } catch (err) {
@@ -41,7 +42,7 @@ const Login = () => {
                 {/* Clean minimalist logo block matching shipIt logo */}
                 <div className="flex justify-center mb-10">
                     <div className="flex items-center">
-                        <img src="/logo.png" alt="ShipIt Logo" className="h-12 w-auto object-contain" ></img>
+                         <p className="text-2xl font-bold tracking-tight">Ship<span className="text-purple-500">It</span></p>
                     </div>
                 </div>
 

@@ -28,7 +28,7 @@ const Register = () => {
         try {
             const payload = {
                 ...data,
-                profilePicture: profilePictureUrl || undefined
+                avatar: profilePictureUrl || undefined
             };
             
             const res = await api.post(`/api/auth/register`, payload, { signal: controller.signal });
@@ -37,8 +37,8 @@ const Register = () => {
             if (!responseData.accessToken) {
                 throw new Error(responseData.message || "Something went wrong");
             }
-            
             localStorage.setItem("accessToken", responseData.accessToken);
+            localStorage.setItem("userProfile", responseData.user.avatar || "");
             window.location.href = "/";
         } catch (err) {
             console.log(err);
@@ -76,7 +76,7 @@ const Register = () => {
                 {/* Clean minimalist logo block */}
                 <div className="flex justify-center mb-8">
                     <div className="flex items-center">
-                        <p className="text-2xl font-bold tracking-tight">Ship<span className="text-indigo-500">It</span></p>
+                        <p className="text-2xl font-bold tracking-tight">Ship<span className="text-purple-500">It</span></p>
                     </div>
                 </div>
 
