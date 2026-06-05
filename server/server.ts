@@ -15,6 +15,7 @@ import messagesRouter from './src/routes/messagesRoutes.js';
 import errorMiddleware from './src/middleware/errror.js';
 import DbConnect from './config/db.js'; 
 import notificationRouter from './src/routes/notificationRotes.js';
+import dashboardRouter from './src/routes/dashboardRoutes.js';
 import {initializeSockets} from './src/sockets/socketHadler.js';    
 dotenv.config()
 const app=express()
@@ -45,6 +46,7 @@ app.use('/api/project', projectRouter);
 app.use('/api/column', columnRouter);
 app.use('/api', cardsRouter);
 app.use('/api/notification', notificationRouter);
+app.use('/api/dashboard', dashboardRouter);
 app.use('/api/messages', messagesRouter);
 app.get("/",(req,res)=>{
     res.json({message:"Hello from the ShipIt Server!"})

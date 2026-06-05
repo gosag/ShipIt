@@ -1,8 +1,11 @@
 import express from 'express';
 import { authenticate } from '../middleware/auth.js';
-import { sendJoinRequest, getNotifications, geYourNotificationsStatus } from '../controllers/notificationController.js';
+import { sendJoinRequest, getNotifications, geYourNotificationsStatus, markNotificationRead, markAllNotificationsRead, getUnreadCount } from '../controllers/notificationController.js';
 const notificationRouter = express.Router();
 notificationRouter.post('/join-request', authenticate, sendJoinRequest);
-notificationRouter.get('/', authenticate, getNotifications);
+notificationRouter.get('/unread-count', authenticate, getUnreadCount);
 notificationRouter.get('/your-notifications', authenticate, geYourNotificationsStatus);
+notificationRouter.get('/', authenticate, getNotifications);
+notificationRouter.patch('/read-all', authenticate, markAllNotificationsRead);
+notificationRouter.patch('/:id/read', authenticate, markNotificationRead);
 export default notificationRouter;

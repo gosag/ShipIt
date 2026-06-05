@@ -78,6 +78,46 @@ export const getNotifications= asyncHandler(async(req:AuthRequest,res:Response,n
         return next(customError);
     }
 });
+export const markNotificationRead = asyncHandler(async (req: AuthRequest, res: Response, next: NextFunction) => {
+    if (!req.user?._id) {
+        const error = new Error("Unauthorized: User not authenticated") as customError;
+        error.status = 401;
+        return next(error);
+    }
+    const notification = await Notification.findById(req.params.id);
+    if (!notification || notification.recipient.toString() !== req.user._id) {
+        const error = new Error("Notification not found") as customError;
+        error.status = 404;
+        return next(error);
+    }
+    notification.read = true;
+    await notification.save();
+    res.status(200).json(notification);
+});
+
+export const markAllNotificationsRead = asyncHandler(async (req: AuthRequest, res: Response, next: NextFunction) => {
+    if (!req.user?._id) {
+        const error = new Error("Unauthorized: User not authenticated") as customError;
+        error.status = 401;
+        return next(error);
+    }
+    await Notification.updateMany(
+        { recipient: req.user._id, read: false },
+        { read: true }
+    );
+    res.status(200).json({ message: "All notifications marked as read" });
+});
+
+export const getUnreadCount = asyncHandler(async (req: AuthRequest, res: Response, next: NextFunction) => {
+    if (!req.user?._id) {
+        const error = new Error("Unauthorized: User not authenticated") as customError;
+        error.status = 401;
+        return next(error);
+    }
+    const count = await Notification.countDocuments({ recipient: req.user._id, read: false });
+    res.status(200).json({ count });
+});
+
 export const geYourNotificationsStatus= asyncHandler(async(req:AuthRequest,res:Response,next:NextFunction)=>{
     if(!req.user || !req.user._id){
         const error = new Error("Unauthorized: User not authenticated") as customError;

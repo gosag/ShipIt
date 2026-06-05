@@ -88,6 +88,30 @@ export const KanbanBoard: React.FC = () => {
   }
 
   useEffect(() => {
+    if (!projectId) return;
+    try {
+      const workspacesData = JSON.parse(localStorage.getItem("workspaces") || "[]");
+      for (const ws of workspacesData) {
+        const project = ws.projects?.find((p: any) => p._id === projectId);
+        if (project) {
+          const recent = JSON.parse(localStorage.getItem("recentProjects") || "[]");
+          const entry = {
+            _id: project._id,
+            name: project.name,
+            workspaceName: ws.name,
+            visitedAt: new Date().toISOString(),
+          };
+          const filtered = recent.filter((r: any) => r._id !== projectId);
+          localStorage.setItem("recentProjects", JSON.stringify([entry, ...filtered].slice(0, 10)));
+          break;
+        }
+      }
+    } catch (e) {
+      console.error("Error tracking recent project", e);
+    }
+  }, [projectId]);
+
+  useEffect(() => {
     const fetchColumns = async () => {
       try {
         if (!projectId) return;
@@ -341,7 +365,7 @@ useEffect(() => {
                   
                   const isAssignedToMe = currentUserId && (activeCard as any).assignees && (activeCard as any).assignees.includes(currentUserId);
                   return (
-                    <div className="bg-[#1C1C1E] border border-[#2C2C2E] rounded-lg p-3 shadow-2xl cursor-grabbing w-40 opacity-95">
+                    <div className="bg-[#1C1C1E] border border-[#2C2C2E] rounded-lg p-3 shadow-2xl cursor-grabbing md:w-40 opacity-95">
                       <h4 className="text-gray-200 font-medium text-sm">{activeCard.title}</h4>
                       {activeCard.description && (
                         <p className="text-gray-400 text-xs mt-1 line-clamp-2">{activeCard.description}</p>

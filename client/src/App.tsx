@@ -5,6 +5,7 @@ import MainOutlet from "./components/outlet/mainOutlet";
 import { KanbanBoard } from "./components/board/KanbanBoard";
 import Search from "./components/Search"
 import WorkspaceInfo from "./components/workspaceInfo";
+import Dashboard from "./components/dashboard/Dashboard";
 const App=()=>{
   const savedToken=!!localStorage.getItem("accessToken")
   return(
@@ -18,6 +19,7 @@ const App=()=>{
       </Route>):
       (<Route>
         <Route path="/" element={<MainOutlet />}>
+          <Route index element={<Dashboard />} />
           <Route path="projects/:projectId" element={<KanbanBoard />} />
           <Route path="/workspace/:workspaceId" element={<WorkspaceInfo />} />
           <Route path="search" element={<Search/>}/>

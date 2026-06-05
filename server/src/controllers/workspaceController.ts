@@ -28,11 +28,15 @@ export const createWorkspace=asyncHandler(async(req:AuthRequest,res:Response,nex
             const randomNumber = Math.floor(Math.random() * 999) +10;
             slug = `${slug}${randomNumber}`;
         }
+        const initialMembers = [{ user: userId, role: "admin" as const }];
+        if (Array.isArray(members)) {
+            initialMembers.push(...members.filter((m: { user?: unknown }) => m?.user));
+        }
         const newWorkspace= new Workspace({
             name,
             slug,
             owner:userId,
-            members:[{user:userId, role:"admin"},members],
+            members: initialMembers,
         })
         const savedWorkspace= await newWorkspace.save();
         if(!savedWorkspace){
