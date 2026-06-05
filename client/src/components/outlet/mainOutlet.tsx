@@ -35,7 +35,7 @@ const MainOutlet = () => {
     const [isSidebarOpen, setSidebarOpen] = useState(false);
     const [workspaceModalOpen, setWorkspaceModalOpen] = useState(false);
     const [projectModalOpen, setProjectModalOpen] = useState(false);
-    const [userData,setUserData]=useState<{name:string,email:string,_id:string} | null>(null);
+    const [userData,setUserData]=useState<{name:string,email:string,_id:string, avatar:string} | null>(null);
     const [workspaces, setWorkspaces] = useState<{_id:string, name:string, slug:string,owner:string, members:any[]}[]>([]);
     const navigate=useNavigate();
     const getWorkspace = async () => {
@@ -176,7 +176,10 @@ const joinRequestHandler = async (notificationId: string, workspaceId: string, u
     alert(err.response?.data?.error || "An error occurred while processing the join request.");
    }
 }
- 
+const [avatarUrl, setAvatarUrl] = useState<string>("");
+ useEffect(()=>{
+   setAvatarUrl(userData?.avatar || localStorage.getItem("userProfile") || "");
+ },[userData])
     return (
         <div className="flex h-screen overflow-hidden bg-[#0e0e0f] text-[#f2f2f2] font-sans antialiased selection:bg-indigo-500/30">
             {/* Mobile Sidebar Overlay */}
@@ -308,9 +311,11 @@ const joinRequestHandler = async (notificationId: string, workspaceId: string, u
                 {/* User Section */}
                 <div className="p-4 border-t border-[#2C2C2E]/50 mt-auto">
                     <div className="flex items-center gap-3 px-2 py-2 text-sm font-medium rounded-lg text-gray-300 hover:text-white hover:bg-[#2C2C2E]/50 cursor-pointer transition-colors">
-                      <div className="w-8 h-8 rounded-full bg-indigo-500 flex items-center justify-center text-white font-semibold shrink-0">
-                        {userData?firstLetter(userData.name):"JD"}
-                      </div>
+                      {avatarUrl ? (
+                        <img src={avatarUrl} alt="User Avatar" className="w-8 h-8 rounded-full object-cover" />
+                      ) : (
+                        <img src="/placeholder-pp.jpg" alt="Default Avatar" className="w-8 h-8 rounded-full object-cover" />
+                      )}
                       <div className="truncate">
                         <p className="text-sm font-medium">{userData ? userData.name : "John Doe"}</p>
                         <p className="text-xs text-gray-500 truncate">{userData?.email ? userData.email : "gosa@shipit.app"}</p>
