@@ -3,7 +3,6 @@ import type { AuthRequest } from '../middleware/auth.js';
 import { Workspace } from '../models/Workspace.js';
 import { Notification } from '../models/Notification.js';
 import asyncHandler from 'express-async-handler';
-import type { listenerCount } from 'cluster';
 interface customError extends Error {
     status?: number;
     statusCode?: number;
@@ -144,8 +143,8 @@ export const acceptJoinRequest=asyncHandler(async(req:AuthRequest,res:Response,n
     if(!req.user || !req.user._id){
         const error=new Error("Unauthorized: User not authenticated") as customError;
         error.status=401;
-        throw error;}
-    const userId=req.user._id;
+        throw error;
+    }
     const workspaceId=req.params.workspaceId;
     const notificationId=req.body.notificationId;
     if(!workspaceId || !notificationId){

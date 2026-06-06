@@ -1,7 +1,6 @@
 import { api } from "../axios";
 import { useEffect, useState } from "react";
 import { Search as SearchIcon, Loader2, Building2, User, ChevronRight, CheckCircle2, Clock, XCircle, Bell } from "lucide-react";
-
 const Search = () => {
     const [searchTerm, setSearchTerm] = useState("");
     const [searchResults, setSearchResults] = useState<{name: string, slug: string, createdBy: string, userId: string, workspaceId: string}>({ name: "", slug: "", createdBy: "", userId: "", workspaceId: "" });
@@ -9,6 +8,7 @@ const Search = () => {
     const [isSearching, setIsSearching] = useState(false);
     const [hasRequested, setHasRequested] = useState(false);
     const [notifications, setNotifications] = useState<any[]>([]);
+    const [error, setError] = useState<string | null>(null);
     const handleSearch = async () => {
         if (!searchTerm.trim()) return;
         try {
@@ -22,8 +22,14 @@ const Search = () => {
             setSearchResults(response.data);
         } catch (error) {
             console.error("Error searching workspaces:", error);
-            // Clear results on error
             setSearchResults({ name: "", slug: "", createdBy: "", userId: "", workspaceId: "" });
+            if(error.response?.status === 404){
+                setError("No workspace found with that slug. Please check and try again.");
+            }
+            else{
+                setError("An error occurred while searching. Please try again later.");
+            }
+            setTimeout(() => setError(null), 5000);
         } finally {
             setIsSearching(false);
         }
@@ -91,7 +97,11 @@ useEffect(() => {
                         {isSearching ? <Loader2 className="w-4 h-4 animate-spin" /> : "Search"}
                     </button>
                 </div>
-
+                {error && (
+                    <div className="max-w-md mx-auto w-full bg-red-500/10 border border-red-500/20 text-red-400 p-4 rounded-xl">
+                        {error}
+                    </div>
+                )}
                 {/* Result Card */}
                 {searchResults && searchResults.name && (
                     <div className="max-w-md mx-auto w-full bg-[#1C1C1E] border border-[#2C2C2E] rounded-2xl shadow-lg hover:shadow-xl transition-shadow duration-300 overflow-hidden">
