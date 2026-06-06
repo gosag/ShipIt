@@ -42,7 +42,6 @@ const MainOutlet = () => {
       try {
         const res = await api.get("/api/workspace/get-all");
         const workspacesData = res.data;
-        console.log(workspacesData)
         const workspacesWithProjects = await Promise.all(
           workspacesData.map(async (ws: any) => {
             try {
@@ -55,7 +54,6 @@ const MainOutlet = () => {
         );
         
         setWorkspaces(workspacesWithProjects);
-        console.log("Workspaces fetch:", workspacesWithProjects);
       } catch (err) {
         console.log(err);
       }
@@ -66,7 +64,6 @@ const MainOutlet = () => {
       const fetchData=async()=>{
         const res= await api.get("/api/auth/user-info")
         const returnedData = res.data;
-        console.log(returnedData);
         setUserData(returnedData);
         localStorage.setItem("userData", JSON.stringify(returnedData));
       }
