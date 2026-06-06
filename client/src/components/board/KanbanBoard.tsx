@@ -532,12 +532,14 @@ useEffect(() => {
               {activityLog.length === 0 || !Array.isArray(activityLog) ? (
                 <p className="text-sm text-gray-500">No activity logged.</p>
               ) : (
-                activityLog.map((activity: { action: string; createdAt?: string; user?: { name: string } }, index) => (
+                activityLog.map((activity: { action: string; createdAt?: string; user?: { name: string; avatar?: string } }, index) => (
                     <div key={index} className="flex items-start gap-3 py-3 border-b border-[#2C2C2E] last:border-0">
                       <div className="w-7 h-7 rounded-full bg-[#2C2C2E] flex items-center justify-center shrink-0 mt-0.5">
-                        <span className="text-xs font-medium text-gray-300">
-                          {(activity.user?.name?.[0] ?? 'U').toUpperCase()}
-                        </span>
+                        {activity.user?.avatar ? (
+                          <img src={activity.user.avatar} alt={activity.user.name} className="w-7 h-7 rounded-full object-cover" />
+                        ) : (
+                          <img src="/placeholder-pp.jpg" alt="Default Avatar" className="w-7 h-7 rounded-full object-cover" />
+                        )}
                       </div>
                       <div className="flex-1 min-w-0">
                         <div className="flex items-center gap-2 flex-wrap">

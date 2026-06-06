@@ -164,7 +164,7 @@ export const moveCard= asyncHandler(async(req:AuthRequest,res:Response,next:Next
         });
 
        const nA = await activity.save();
-       const newActivity = await nA.populate("user", "name email");
+       const newActivity = await nA.populate("user", "name email avatar");
        if(!newActivity){
            throw new Error("Failed to save activity log") as customError;
        };

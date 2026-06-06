@@ -132,7 +132,7 @@ export const getActivityLogs= asyncHandler(async(req:AuthRequest, res:Response, 
         error.status = 400;
         throw error;
     }
-    const activities = await Activity.find({project:projectId}).sort({createdAt:-1}).populate("user", "name email");
+    const activities = await Activity.find({project:projectId}).sort({createdAt:-1}).populate("user", "name email avatar").limit(100);
     if(!activities){
         const error = new Error("No activities found for the project") as customError;
         error.status = 404;
