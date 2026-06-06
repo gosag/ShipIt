@@ -109,6 +109,7 @@ interface RecentProjectVisit {
 interface OnlineMember {
   userId: string;
   userName: string;
+  avatar: string | null;
 }
 
 const PRIORITY_STYLES: Record<string, string> = {
@@ -298,6 +299,7 @@ const Dashboard = () => {
         workspaceId: ws._id,
         userId: userData._id,
         userName: userData.name,
+        avatar: userData.avatar,
       });
     });
 
@@ -307,7 +309,7 @@ const Dashboard = () => {
         socket.emit("leave-workspace", { workspaceId: ws._id });
       });
     };
-  }, [data?.workspaces, userData._id, userData.name]);
+  }, [data?.workspaces, userData._id, userData.name, userData.avatar]);
 
   useEffect(() => {
     if (!newCardProject) {
@@ -578,6 +580,8 @@ const Dashboard = () => {
                     className="flex items-center gap-2 px-3 py-1.5 rounded-full bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 text-xs font-medium"
                   >
                     <Circle size={8} className="fill-emerald-400 text-emerald-400" />
+                    {member.avatar? <img src={member.avatar} alt={member.userName} className="w-7 h-7 rounded-full object-cover" />
+                    :<img src="/placeholder-pp.jpg" alt={member.userName} className="w-7 h-7 rounded-full object-cover" />}
                     {member.userName}
                   </div>
                 ))}

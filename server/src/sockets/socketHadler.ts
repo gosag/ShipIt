@@ -3,6 +3,7 @@ import { Server, Socket } from "socket.io";
 interface OnlineUser {
     userId: string;
     userName: string;
+    avatar: string | null;
     socketId: string;
 }
 
@@ -11,7 +12,7 @@ const workspacePresence = new Map<string, Map<string, OnlineUser>>();
 const broadcastOnlineMembers = (io: Server, workspaceId: string) => {
     const members = workspacePresence.get(workspaceId);
     const onlineList = members
-        ? Array.from(members.values()).map(({ userId, userName }) => ({ userId, userName }))
+        ? Array.from(members.values()).map(({ userId, userName, avatar }) => ({ userId, userName, avatar }))
         : [];
     io.to(`workspace-${workspaceId}`).emit("online-members", { workspaceId, members: onlineList });
 };
@@ -35,7 +36,7 @@ export const initializeSockets = (io: Server) => {
             socket.to(projectId).emit("user-connected", `A new user has joined project ${projectId}`);
         });
 
-        socket.on("join-workspace", ({ workspaceId, userId, userName }) => {
+        socket.on("join-workspace", ({ workspaceId, userId, userName, avatar }) => {
             if (!workspaceId || !userId) return;
 
             const room = `workspace-${workspaceId}`;
@@ -50,6 +51,7 @@ export const initializeSockets = (io: Server) => {
             workspacePresence.get(workspaceId)!.set(socket.id, {
                 userId,
                 userName: userName || "User",
+                avatar: avatar || null,
                 socketId: socket.id,
             });
 
