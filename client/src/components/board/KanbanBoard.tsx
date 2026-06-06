@@ -217,8 +217,6 @@ const handleDragEnd = async (event: DragEndEvent) => {
     try{
       const res= await api.get(`/api/project/${projectId}/activity-log`)
       setActivityLog(res.data)
-      console.log("I was activated")
-      console.log(res.data)
     }catch(err){
       console.log(err)
     }
@@ -227,7 +225,6 @@ const handleDragEnd = async (event: DragEndEvent) => {
 
 useEffect(() => {
   socket.on("newActivityLog", (newActivity) => {
-    console.log("Received new activity log:", newActivity);
     setActivityLog(prev => prev.length === 0 ? [newActivity] : [newActivity, ...prev]);
     setNewActivityLog(newActivity.action);
     
