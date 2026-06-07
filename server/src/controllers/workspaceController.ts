@@ -118,19 +118,24 @@ export const updateWorkspace=asyncHandler(async(req:AuthRequest,res:Response,nex
         throw error;}
     const userId=req.user._id;
     const workspaceId=req.params.id;
-    const {name, slug, members}=req.body;
-    const updateFields:{name?:string,slug?:string, members?:any}={};
-    if(name) updateFields.name=name;
-    if(slug) updateFields.slug=slug;
-    if(members) updateFields.members=members;
+    const {name, slug, avatar}=req.body;
+    const updateFields:{$set: Record<string, unknown>}={ $set: {} };
+    if(name) updateFields.$set.name=name;
+    if(slug) updateFields.$set.slug=slug;
+    if(avatar !== undefined) updateFields.$set.avatar=avatar;
+    if(Object.keys(updateFields.$set).length === 0){
+        const error = new Error("No valid fields to update") as customError;
+        error.status = 400;
+        throw error;
+    }
     try{
         const updatedWorkspace= await Workspace.findOneAndUpdate(
             {_id:workspaceId, members:{$elemMatch:{user:userId, role:"admin"}}} as any,
-            {updateFields},
+            updateFields,
             {new:true}
-        );
+        ).populate("members.user","name email");
         if(!updatedWorkspace){
-            const error = new Error("Workspace not found or you are not the owner") as customError;
+            const error = new Error("Workspace not found or you are not an admin") as customError;
             error.status = 404;
             throw error;
         }
@@ -139,6 +144,75 @@ export const updateWorkspace=asyncHandler(async(req:AuthRequest,res:Response,nex
         next(err);
     }
 })
+
+export const removeMember = asyncHandler(async (req: AuthRequest, res: Response) => {
+    if (!req.user?._id) {
+        const error = new Error("Unauthorized: User not authenticated") as customError;
+        error.status = 401;
+        throw error;
+    }
+    const { workspaceId, userId } = req.params;
+    const workspace = await Workspace.findOne({
+        _id: workspaceId,
+        members: { $elemMatch: { user: req.user._id, role: "admin" } },
+    } as any);
+    if (!workspace) {
+        const error = new Error("Workspace not found or you are not an admin") as customError;
+        error.status = 404;
+        throw error;
+    }
+    if (workspace.owner.toString() === userId) {
+        const error = new Error("Cannot remove the workspace owner") as customError;
+        error.status = 400;
+        throw error;
+    }
+    const updated = await Workspace.findByIdAndUpdate(
+        workspaceId,
+        { $pull: { members: { user: userId } } },
+        { new: true }
+    ).populate("members.user", "name email");
+    res.json(updated);
+});
+
+export const updateMemberRole = asyncHandler(async (req: AuthRequest, res: Response) => {
+    if (!req.user?._id) {
+        const error = new Error("Unauthorized: User not authenticated") as customError;
+        error.status = 401;
+        throw error;
+    }
+    const { workspaceId, userId } = req.params;
+    const { role } = req.body;
+    if (!role || !["admin", "member"].includes(role)) {
+        const error = new Error("Role must be 'admin' or 'member'") as customError;
+        error.status = 400;
+        throw error;
+    }
+    const workspace = await Workspace.findOne({
+        _id: workspaceId,
+        members: { $elemMatch: { user: req.user._id, role: "admin" } },
+    } as any);
+    if (!workspace) {
+        const error = new Error("Workspace not found or you are not an admin") as customError;
+        error.status = 404;
+        throw error;
+    }
+    if (workspace.owner.toString() === userId && role !== "admin") {
+        const error = new Error("Cannot demote the workspace owner") as customError;
+        error.status = 400;
+        throw error;
+    }
+    const updated = await Workspace.findOneAndUpdate(
+        { _id: workspaceId, "members.user": userId } as any,
+        { $set: { "members.$.role": role } },
+        { new: true }
+    ).populate("members.user", "name email");
+    if (!updated) {
+        const error = new Error("Member not found") as customError;
+        error.status = 404;
+        throw error;
+    }
+    res.json(updated);
+});
 export const acceptJoinRequest=asyncHandler(async(req:AuthRequest,res:Response,next:NextFunction)=>{
     if(!req.user || !req.user._id){
         const error=new Error("Unauthorized: User not authenticated") as customError;

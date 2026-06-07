@@ -59,21 +59,22 @@ const MainOutlet = () => {
       }
     };
 
-    useEffect(()=>{
-      try{
-      const fetchData=async()=>{
-        const res= await api.get("/api/auth/user-info")
+    const refreshUserData = async () => {
+      try {
+        const res = await api.get("/api/auth/user-info");
         const returnedData = res.data;
         setUserData(returnedData);
         localStorage.setItem("userData", JSON.stringify(returnedData));
+        localStorage.setItem("userProfile", returnedData.avatar || "");
+      } catch (err) {
+        console.log(err);
       }
-      fetchData()
-      getWorkspace()
-    }catch(err){
-      console.log(err)
-    }
+    };
 
-  },[])
+    useEffect(() => {
+      refreshUserData();
+      getWorkspace();
+    }, []);
   useEffect(()=>{
     if(workspaces.length>0){
       localStorage.setItem("workspaces", JSON.stringify(workspaces));
@@ -228,9 +229,12 @@ const [avatarUrl, setAvatarUrl] = useState<string>("");
                         >
                           <Search size={16} /> Search
                         </NavLink>
-                        <button className="flex w-full items-center gap-3 px-3 py-1.5 text-sm font-medium text-gray-400 rounded-lg transition-colors duration-150 hover:text-gray-100 hover:bg-[#2C2C2E]/50">
+                        <NavLink
+                          to="/settings"
+                          className={({isActive}) => `flex items-center gap-3 px-3 py-1.5 text-sm font-medium rounded-lg transition-colors duration-150 ${isActive ? 'bg-[#2C2C2E] text-white' : 'text-gray-400 hover:text-gray-100 hover:bg-[#2C2C2E]/50'}`}
+                        >
                           <Settings size={16} /> Settings
-                        </button>
+                        </NavLink>
                     </div>
 
                     {/* Workspaces Section */}
@@ -339,7 +343,7 @@ const [avatarUrl, setAvatarUrl] = useState<string>("");
 
                 <div className="flex-1 overflow-hidden bg-[#0e0e0f] flex flex-col">
                   <div className="flex-1 w-full p-4 md:p-6 overflow-x-hidden overflow-y-auto custom-scrollbar">
-                    <Outlet context={{ refreshWorkspaces: getWorkspace }} />
+                    <Outlet context={{ refreshWorkspaces: getWorkspace, refreshUserData }} />
                   </div>
                 </div>
             </main>

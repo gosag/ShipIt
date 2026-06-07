@@ -6,6 +6,7 @@ import { KanbanBoard } from "./components/board/KanbanBoard";
 import Search from "./components/Search"
 import WorkspaceInfo from "./components/workspaceInfo";
 import Dashboard from "./components/dashboard/Dashboard";
+import Settings from "./components/settings/Settings";
 const App=()=>{
   const savedToken=!!localStorage.getItem("accessToken")
   return(
@@ -23,6 +24,7 @@ const App=()=>{
           <Route path="projects/:projectId" element={<KanbanBoard />} />
           <Route path="/workspace/:workspaceId" element={<WorkspaceInfo />} />
           <Route path="search" element={<Search/>}/>
+          <Route path="settings" element={<Settings />} />
           <Route path="*" element={<Navigate to="/" replace />} />
         </Route>
       </Route>)}

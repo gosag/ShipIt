@@ -116,12 +116,198 @@ export const userInfo= asyncHandler(async(req:AuthRequest,res:Response, next:Nex
     throw error
   }
   const email= req.user.email;
-  const userInfo= await User.findOne({email})
-  if(!userInfo){
+  const user = await User.findOne({email}).select("-password");
+  if(!user){
     const error= new Error("User info is not found") as customError;
     error.status=404;
     throw error;
   }
-  console.log(userInfo);
-  res.json(userInfo)
-})
+  res.json(user);
+});
+
+export const updateProfile = asyncHandler(async (req: AuthRequest, res: Response) => {
+  if (!req.user?._id) {
+    const error = new Error("Not authenticated") as customError;
+    error.status = 401;
+    throw error;
+  }
+  const { name } = req.body;
+  if (!name?.trim()) {
+    const error = new Error("Name is required") as customError;
+    error.status = 400;
+    throw error;
+  }
+  const user = await User.findByIdAndUpdate(
+    req.user._id,
+    { name: name.trim() },
+    { new: true }
+  ).select("-password");
+  if (!user) {
+    const error = new Error("User not found") as customError;
+    error.status = 404;
+    throw error;
+  }
+  res.json(user);
+});
+
+export const updateEmail = asyncHandler(async (req: AuthRequest, res: Response) => {
+  if (!req.user?._id) {
+    const error = new Error("Not authenticated") as customError;
+    error.status = 401;
+    throw error;
+  }
+  const { email, password } = req.body;
+  if (!email?.trim() || !password) {
+    const error = new Error("Email and current password are required") as customError;
+    error.status = 400;
+    throw error;
+  }
+  const user = await User.findById(req.user._id);
+  if (!user) {
+    const error = new Error("User not found") as customError;
+    error.status = 404;
+    throw error;
+  }
+  const isMatch = await bcrypt.compare(password, user.password!);
+  if (!isMatch) {
+    const error = new Error("Incorrect password") as customError;
+    error.status = 400;
+    throw error;
+  }
+  const existing = await User.findOne({ email: email.trim().toLowerCase() });
+  if (existing && existing._id.toString() !== req.user._id) {
+    const error = new Error("Email already in use") as customError;
+    error.status = 400;
+    throw error;
+  }
+  user.email = email.trim().toLowerCase();
+  await user.save();
+  const updated = await User.findById(user._id).select("-password");
+  res.json(updated);
+});
+
+export const updatePassword = asyncHandler(async (req: AuthRequest, res: Response) => {
+  if (!req.user?._id) {
+    const error = new Error("Not authenticated") as customError;
+    error.status = 401;
+    throw error;
+  }
+  const { currentPassword, newPassword } = req.body;
+  if (!currentPassword || !newPassword) {
+    const error = new Error("Current and new password are required") as customError;
+    error.status = 400;
+    throw error;
+  }
+  if (newPassword.length < 6) {
+    const error = new Error("New password must be at least 6 characters") as customError;
+    error.status = 400;
+    throw error;
+  }
+  const user = await User.findById(req.user._id);
+  if (!user) {
+    const error = new Error("User not found") as customError;
+    error.status = 404;
+    throw error;
+  }
+  const isMatch = await bcrypt.compare(currentPassword, user.password!);
+  if (!isMatch) {
+    const error = new Error("Incorrect current password") as customError;
+    error.status = 400;
+    throw error;
+  }
+  user.password = await bcrypt.hash(newPassword, 10);
+  await user.save();
+  res.json({ message: "Password updated successfully" });
+});
+
+export const updateAvatar = asyncHandler(async (req: AuthRequest, res: Response) => {
+  if (!req.user?._id) {
+    const error = new Error("Not authenticated") as customError;
+    error.status = 401;
+    throw error;
+  }
+  const { avatar } = req.body;
+  const user = await User.findByIdAndUpdate(
+    req.user._id,
+    { avatar: avatar || null },
+    { new: true }
+  ).select("-password");
+  if (!user) {
+    const error = new Error("User not found") as customError;
+    error.status = 404;
+    throw error;
+  }
+  res.json(user);
+});
+
+export const deleteAccount = asyncHandler(async (req: AuthRequest, res: Response) => {
+  if (!req.user?._id) {
+    const error = new Error("Not authenticated") as customError;
+    error.status = 401;
+    throw error;
+  }
+  const { password } = req.body;
+  if (!password) {
+    const error = new Error("Password is required to delete account") as customError;
+    error.status = 400;
+    throw error;
+  }
+  const user = await User.findById(req.user._id);
+  if (!user) {
+    const error = new Error("User not found") as customError;
+    error.status = 404;
+    throw error;
+  }
+  const isMatch = await bcrypt.compare(password, user.password!);
+  if (!isMatch) {
+    const error = new Error("Incorrect password") as customError;
+    error.status = 400;
+    throw error;
+  }
+  const { Workspace } = await import("../models/Workspace.js");
+  const { Notification } = await import("../models/Notification.js");
+  await Workspace.updateMany(
+    { "members.user": req.user._id },
+    { $pull: { members: { user: req.user._id } } }
+  );
+  await Workspace.deleteMany({ owner: req.user._id });
+  await Notification.deleteMany({ $or: [{ sender: req.user._id }, { recipient: req.user._id }] });
+  await User.findByIdAndDelete(req.user._id);
+  res.clearCookie("refreshToken");
+  res.json({ message: "Account deleted successfully" });
+});
+
+export const getNotificationPreferences = asyncHandler(async (req: AuthRequest, res: Response) => {
+  if (!req.user?._id) {
+    const error = new Error("Not authenticated") as customError;
+    error.status = 401;
+    throw error;
+  }
+  const user = await User.findById(req.user._id).select("notificationPreferences");
+  if (!user) {
+    const error = new Error("User not found") as customError;
+    error.status = 404;
+    throw error;
+  }
+  res.json(user.notificationPreferences ?? { cardMoves: true, messages: true, joinRequests: true });
+});
+
+export const updateNotificationPreferences = asyncHandler(async (req: AuthRequest, res: Response) => {
+  if (!req.user?._id) {
+    const error = new Error("Not authenticated") as customError;
+    error.status = 401;
+    throw error;
+  }
+  const { cardMoves, messages, joinRequests } = req.body;
+  const update: Record<string, boolean> = {};
+  if (typeof cardMoves === "boolean") update["notificationPreferences.cardMoves"] = cardMoves;
+  if (typeof messages === "boolean") update["notificationPreferences.messages"] = messages;
+  if (typeof joinRequests === "boolean") update["notificationPreferences.joinRequests"] = joinRequests;
+  const user = await User.findByIdAndUpdate(req.user._id, { $set: update }, { new: true }).select("notificationPreferences");
+  if (!user) {
+    const error = new Error("User not found") as customError;
+    error.status = 404;
+    throw error;
+  }
+  res.json(user.notificationPreferences);
+});
