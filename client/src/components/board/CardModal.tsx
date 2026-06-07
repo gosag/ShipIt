@@ -27,6 +27,7 @@ export const CardModal: React.FC<CardModalProps> = ({
   const currentUserId = currentUserInfo._id;
   const isCreator = card.createdBy === currentUserId;
   const isAdmin = currentMembers.find(m => m._id === currentUserId)?.role === 'admin';
+  
   const canEdit = isCreator || isAdmin;
   const startEditing = () => {
     setEditForm({
