@@ -144,8 +144,8 @@ const Settings = () => {
   const [deleteWsConfirm, setDeleteWsConfirm] = useState("");
 
   const adminWorkspaces = workspaces.filter((ws) =>
-    ws.members.some(
-      (m) => m.user._id === user?._id && m.role === "admin"
+    ws.members?.some(
+      (m) => m?.user?._id === user?._id && m?.role === "admin"
     )
   );
 
@@ -170,9 +170,9 @@ const Settings = () => {
         setWorkspaces(wsRes.data);
         setNotifPrefs(prefsRes.data);
         const adminWs = wsRes.data.filter((ws: Workspace) =>
-          ws.members.some(
+          ws.members?.some(
             (m: Member) =>
-              m.user._id === userRes.data._id && m.role === "admin"
+              m?.user?._id === userRes.data._id && m?.role === "admin"
           )
         );
         if (adminWs.length > 0) {

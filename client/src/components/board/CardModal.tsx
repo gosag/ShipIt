@@ -22,7 +22,12 @@ export const CardModal: React.FC<CardModalProps> = ({
   const [isEditing, setIsEditing] = useState(false);
   const [editForm, setEditForm] = useState<any>({});
   const [actionLoading, setActionLoading] = useState(false);
-
+//disable edit button for non-creators and non-admins, but allow them to view the card details
+  const currentUserInfo = JSON.parse(localStorage.getItem('userData') || '{}');
+  const currentUserId = currentUserInfo._id;
+  const isCreator = card.createdBy === currentUserId;
+  const isAdmin = currentMembers.find(m => m._id === currentUserId)?.role === 'admin';
+  const canEdit = isCreator || isAdmin;
   const startEditing = () => {
     setEditForm({
       title: card.title || '',
@@ -36,6 +41,10 @@ export const CardModal: React.FC<CardModalProps> = ({
   };
 
   const handleDeleteCard = async () => {
+    if(!canEdit) {
+      alert("Only the card creator or workspace admins can delete this card.");
+      return;
+    }
     if (!window.confirm("Are you sure you want to delete this card?")) return;
     setActionLoading(true);
     try {
@@ -50,8 +59,8 @@ export const CardModal: React.FC<CardModalProps> = ({
   };
 
   const handleUpdateCard = async () => {
-    if (!editForm.title?.trim()) {
-      alert("Title is required");
+    if(!canEdit) {
+      alert("Only the card creator or workspace admins can update this card.");
       return;
     }
     setActionLoading(true);
