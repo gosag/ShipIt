@@ -363,10 +363,14 @@ useEffect(() => {
                   const isAssignedToMe = currentUserId && (activeCard as any).assignees && (activeCard as any).assignees.includes(currentUserId);
                   return (
                     <div className="bg-[#1C1C1E] border border-[#2C2C2E] rounded-lg p-3 shadow-2xl cursor-grabbing md:w-40 opacity-95">
-                      <h4 className="text-gray-200 font-medium text-sm">{activeCard.title}</h4>
-                      {activeCard.description && (
-                        <p className="text-gray-400 text-xs mt-1 line-clamp-2">{activeCard.description}</p>
-                      )}
+                      <div className='flex justify-between items-start'>
+                        <h4 className="text-gray-200 font-medium text-sm">{activeCard.title}</h4>
+                        <button className="p-1 rounded relative  hover:bg-[#2C2C2E] transition-colors">
+                              <MessageSquare size={16} />
+                        </button>
+                      </div>
+                  
+                      
                       {(activeCard.priority || isAssignedToMe) && (
                         <div className="mt-3 flex flex-wrap items-center gap-2">
                           {activeCard.priority && (
@@ -386,13 +390,6 @@ useEffect(() => {
                           )}
                         </div>
                       )}
-                      <div className='flex justify-end'>
-                        <button 
-                            className="p-1 rounded relative  hover:bg-[#2C2C2E] transition-colors"
-                          >
-                            <MessageSquare size={16} />
-                          </button>
-                          </div>
                     </div>
                   );
               })() : null}
