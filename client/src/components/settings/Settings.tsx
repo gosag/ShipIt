@@ -25,6 +25,7 @@ type SettingsTab = "profile" | "workspace" | "notifications";
 
 interface OutletContext {
   refreshUserData: () => Promise<void>;
+  refreshWorkspaces: () => Promise<void>;
 }
 
 interface UserData {
@@ -111,7 +112,7 @@ const Toggle = ({
 
 const Settings = () => {
   const navigate = useNavigate();
-  const { refreshUserData } = useOutletContext<OutletContext>();
+  const { refreshUserData, refreshWorkspaces } = useOutletContext<OutletContext>();
   const [activeTab, setActiveTab] = useState<SettingsTab>("profile");
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
@@ -139,6 +140,7 @@ const Settings = () => {
 
   const [wsName, setWsName] = useState("");
   const [wsAvatar, setWsAvatar] = useState("");
+  const [isUploadingWsImage, setIsUploadingWsImage] = useState(false);
   const [deleteWsConfirm, setDeleteWsConfirm] = useState("");
 
   const adminWorkspaces = workspaces.filter((ws) =>
@@ -296,24 +298,57 @@ const Settings = () => {
     }
   };
 
-  const handleUpdateWorkspace = async (e: React.FormEvent) => {
+  const handleUpdateWorkspaceName = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!selectedWorkspaceId) return;
     setSaving(true);
     try {
-      const res = await api.put(`/api/workspace/update/${selectedWorkspaceId}`, {
-        name: wsName,
-        avatar: wsAvatar || null,
-      });
+      const res = await api.put(`/api/workspace/update/${selectedWorkspaceId}`, { name: wsName });
       setWorkspace(res.data);
       setWorkspaces((prev) =>
-        prev.map((ws) => (ws._id === selectedWorkspaceId ? { ...ws, name: wsName, avatar: wsAvatar } : ws))
+        prev.map((ws) => (ws._id === selectedWorkspaceId ? { ...ws, name: wsName } : ws))
       );
-      showToast("success", "Workspace updated successfully");
+      await refreshWorkspaces();
+      showToast("success", "Workspace name updated");
     } catch (err: any) {
       showToast("error", err.response?.data?.error || err.response?.data?.message || "Failed to update workspace");
     } finally {
       setSaving(false);
+    }
+  };
+
+  const handleWsFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file || !selectedWorkspaceId) return;
+
+    setIsUploadingWsImage(true);
+    const formData = new FormData();
+    formData.append("file", file);
+    formData.append("upload_preset", "shipit_avatar");
+
+    try {
+      const response = await axios.post(
+        "https://api.cloudinary.com/v1_1/dhxvrjcoc/image/upload",
+        formData
+      );
+      const secureUrl = response.data.secure_url;
+      setWsAvatar(secureUrl);
+
+      const res = await api.put(`/api/workspace/update/${selectedWorkspaceId}`, {
+        avatar: secureUrl,
+      });
+      setWorkspace(res.data);
+      setWorkspaces((prev) =>
+        prev.map((ws) => (ws._id === selectedWorkspaceId ? { ...ws, avatar: secureUrl } : ws))
+      );
+      await refreshWorkspaces();
+      showToast("success", "Workspace icon updated");
+    } catch (error: any) {
+      console.log(error.response?.data);
+      showToast("error", "Failed to upload image. Please try again.");
+    } finally {
+      setIsUploadingWsImage(false);
+      e.target.value = "";
     }
   };
 
@@ -616,16 +651,39 @@ const Settings = () => {
                     <Building2 className="h-5 w-5 text-zinc-500" />
                     Workspace Details
                   </h2>
-                  <div className="flex items-center gap-4 mb-4">
-                    {wsAvatar ? (
-                      <img src={wsAvatar} alt="" className="w-14 h-14 rounded-xl object-cover border border-zinc-700" />
-                    ) : (
-                      <div className="w-14 h-14 rounded-xl bg-linear-to-br from-indigo-500 to-purple-600 flex items-center justify-center font-bold text-white">
-                        {getInitials(wsName)}
+
+                  <div className="mb-6">
+                    <label className="block text-sm font-medium text-gray-300 mb-3">Workspace Icon</label>
+                    <div className="flex flex-col items-start gap-3">
+                      <div className="relative group cursor-pointer">
+                        <div
+                          className={`w-20 h-20 rounded-xl border-2 border-dashed flex items-center justify-center overflow-hidden bg-[#2C2C2E] transition-all duration-300 border-zinc-700 group-hover:border-indigo-500/50`}
+                        >
+                          {isUploadingWsImage ? (
+                            <Loader2 className="w-6 h-6 text-indigo-500 animate-spin" />
+                          ) : wsAvatar ? (
+                            <img src={wsAvatar} alt="Workspace icon" className="w-full h-full object-cover" />
+                          ) : (
+                            <div className="w-full h-full bg-linear-to-br from-indigo-500 to-purple-600 flex items-center justify-center font-bold text-white text-lg">
+                              {getInitials(wsName)}
+                            </div>
+                          )}
+                        </div>
+                        <input
+                          type="file"
+                          accept="image/*"
+                          className="absolute inset-0 w-full h-full opacity-0 cursor-pointer disabled:cursor-not-allowed"
+                          onChange={handleWsFileChange}
+                          disabled={isUploadingWsImage}
+                        />
                       </div>
-                    )}
+                      <p className="text-sm text-zinc-400">
+                        {isUploadingWsImage ? "Uploading..." : "Click to upload a new workspace icon"}
+                      </p>
+                    </div>
                   </div>
-                  <form onSubmit={handleUpdateWorkspace} className="space-y-3">
+
+                  <form onSubmit={handleUpdateWorkspaceName} className="space-y-3">
                     <div>
                       <label className="block text-sm font-medium text-gray-300 mb-1">Workspace Name</label>
                       <input
@@ -636,22 +694,12 @@ const Settings = () => {
                         required
                       />
                     </div>
-                    <div>
-                      <label className="block text-sm font-medium text-gray-300 mb-1">Workspace Icon URL</label>
-                      <input
-                        type="url"
-                        value={wsAvatar}
-                        onChange={(e) => setWsAvatar(e.target.value)}
-                        className={inputClass}
-                        placeholder="https://example.com/icon.png"
-                      />
-                    </div>
                     <button
                       type="submit"
                       disabled={saving}
                       className="px-4 py-2 text-sm font-medium text-white bg-indigo-600 rounded-lg hover:bg-indigo-700 transition-colors disabled:opacity-50"
                     >
-                      Save Changes
+                      Save Name
                     </button>
                   </form>
                 </div>

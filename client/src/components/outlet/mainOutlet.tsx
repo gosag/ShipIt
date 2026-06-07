@@ -266,9 +266,13 @@ const [avatarUrl, setAvatarUrl] = useState<string>("");
                                 to={`/workspace/${ws._id}`} 
                                 className={({isActive}) => `flex items-center gap-3 px-3 py-1.5 text-sm font-medium rounded-lg transition-colors duration-150 ${isActive ? 'bg-[#2C2C2E] text-white' : 'text-gray-400 hover:text-gray-100 hover:bg-[#2C2C2E]/50'}`}
                               >
-                                <div className="flex items-center justify-center w-5 h-5 bg-linear-to-br from-indigo-500 to-purple-600 rounded shrink-0">
-                                  <span className="text-[10px] text-white font-bold">{firstLetter(ws.name)}</span>
-                                </div>
+                                {ws.avatar ? (
+                                  <img src={ws.avatar} alt="" className="w-5 h-5 rounded object-cover shrink-0" />
+                                ) : (
+                                  <div className="flex items-center justify-center w-5 h-5 bg-linear-to-br from-indigo-500 to-purple-600 rounded shrink-0">
+                                    <span className="text-[10px] text-white font-bold">{firstLetter(ws.name)}</span>
+                                  </div>
+                                )}
                                 <span className="truncate">{ws.name}</span>
                               </NavLink>
 
