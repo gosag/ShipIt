@@ -82,7 +82,6 @@ export const KanbanColumn: React.FC<KanbanColumnProps> = ({ id, title, badgeColo
       const currentWorkspace = workspacesData.find((ws: any) => ws && ws.projects && ws.projects.some((p: any) => p && p._id === projectId));
       if (currentWorkspace && Array.isArray(currentWorkspace.members)) {
         currentMembers = currentWorkspace.members.map((m: any) => { return m && m.user ? { ...m.user, role: m.role } : null; }).filter(Boolean);
-        console.log("Current workspace members:", currentMembers);
       }
     }
   } catch (e) {
