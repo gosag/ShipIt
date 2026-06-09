@@ -1,7 +1,7 @@
 import type {Response, NextFunction} from "express";
 import asyncHandler from "express-async-handler";
 import type { AuthRequest } from "../middleware/auth.js";
-import { Activity, Column, Project, Workspace, Card} from "../models/index.js";
+import { Activity, Column, Project, Workspace, Card, Comment} from "../models/index.js";
 import { CommentRead } from "../models/commentRead.js";
 import mongoose from 'mongoose'; 
 
@@ -239,3 +239,30 @@ export const commentRead = asyncHandler(async (req: AuthRequest, res: Response) 
 
     res.json({ message: "Comment read status updated", commentRead: updatedCommentRead });
 });
+export const unreadcomments = asyncHandler(async (req: AuthRequest, res: Response) => {
+    if (!req.user || !req.user._id) {
+        const error = new Error("Not authenticated or no token!") as customError;
+        error.status = 401;
+        throw error;
+    }
+    const cardId = req.params.cardId;
+    const record = await CommentRead.findOne({
+      where: { userId: req.user._id, cardId}
+   })
+
+  const unreadCount = await Comment.find({
+   where: {
+    cardId,
+    createdAt: {
+      $gt: record?.lastReadAt ?? new Date(0) 
+    }
+   }
+  }).countDocuments();
+  if (unreadCount === undefined) {
+    const error = new Error("Failed to fetch unread comments") as customError;
+    error.status = 500;
+    throw error;
+  }
+    res.json({ unreadCount});
+});
+    
