@@ -247,11 +247,10 @@ export const unreadcomments = asyncHandler(async (req: AuthRequest, res: Respons
     }
     const cardId = req.params.cardId;
     const record = await CommentRead.findOne({
-      userId: req.user._id, cardId: cardId
+      user: req.user._id, card: new mongoose.Types.ObjectId(cardId as string)
    })
-
   const unreadCount = await Comment.countDocuments({
-    card:cardId as any,
+    card: new mongoose.Types.ObjectId(cardId as string ),
     createdAt: { $gt: record ? record.lastReadAt : new Date(0) }
   });
   if (unreadCount === undefined) {

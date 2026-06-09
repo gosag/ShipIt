@@ -87,10 +87,18 @@ useEffect(() => {
     scrollToBottom();
   }
 }, [messages, showMessages]);
+ const markCommentsAsRead = async () => {
+  try {
+    await api.patch(`/api/columns/${columnId}/cards/${card._id}/read`);
+    console.log(`Marked comments as read for card ${card._id}`);
+    setUnreadCount(0);
+  } catch (error) {
+    console.error("Failed to mark comments as read", error);
+  }
+};
 const newMessagesCounter= async()=>{
   try{
     const res= await api.get(`/api/columns/${columnId}/cards/${card._id}/unread`);
-    console.log("Raw data for unread count:", res.data);
     console.log("Unread messages count:", res.data.unreadCount);
     setUnreadCount(res.data.unreadCount);
   } catch (error) {
@@ -115,6 +123,7 @@ useEffect(()=>{
           onClick={(e)=>{
              handleMessageClick(e);
              getMessagesHandler(card._id);
+             markCommentsAsRead();
           }}
            
           onPointerDown={(e) => e.stopPropagation()}
