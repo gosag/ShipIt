@@ -62,9 +62,6 @@ export const DraggableCard: React.FC<DraggableCardProps> = ({ card, columnId, ac
     }
 }
 useEffect(()=>{
-  if(!showMessages){
-    return;
-  }
   socket.on("groupMessageOnCard", (message)=>{
     console.log("Received group message on card:", message);
     if(typeof message === "string"){
@@ -73,6 +70,10 @@ useEffect(()=>{
     }
     console.log("Message info:", message);
     setMessages(prev => [...prev, message]);
+    if(!showMessages){
+      setUnreadCount(prev => prev + 1);
+    }
+    
     scrollToBottom();
   });
   return ()=>{
@@ -117,7 +118,7 @@ useEffect(()=>{
       {...attributes}
       className={`bg-[#1C1C1E] border border-[#2C2C2E] hover:border-[#3C3C3E] transition-colors rounded-lg p-3 shadow-sm cursor-grab active:cursor-grabbing ${isDragging || activeCardId === card._id ? 'opacity-0' : ''}`}
     >
-      <div className='flex justify-between items-start'>
+      <div className='flex justify-between items-start relative'>
        <h4 className="text-gray-200 font-medium text-sm">{card.title}</h4>
        <button 
           onClick={(e)=>{
@@ -131,6 +132,11 @@ useEffect(()=>{
         >
           <MessageSquare size={16} />
         </button> 
+        {unreadCount > 0 && (
+          <span className="absolute -top-1 -right-1 bg-red-500 text-white text-xs font-bold px-1.5 py-0.5 rounded-full">
+            {unreadCount}
+          </span>
+        )}
       </div>
       
       {(card.priority || isAssignedToMe) && (

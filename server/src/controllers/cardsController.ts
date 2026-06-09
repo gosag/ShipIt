@@ -248,10 +248,12 @@ export const unreadcomments = asyncHandler(async (req: AuthRequest, res: Respons
     const cardId = req.params.cardId;
     const record = await CommentRead.findOne({
       user: req.user._id, card: new mongoose.Types.ObjectId(cardId as string)
-   })
+   });
+   const userId =req.user._id;
   const unreadCount = await Comment.countDocuments({
     card: new mongoose.Types.ObjectId(cardId as string ),
-    createdAt: { $gt: record ? record.lastReadAt : new Date(0) }
+    createdAt: { $gt: record ? record.lastReadAt : new Date(0) },
+    author: { $ne: userId }
   });
   if (unreadCount === undefined) {
     const error = new Error("Failed to fetch unread comments") as customError;
