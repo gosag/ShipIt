@@ -7,3 +7,4 @@ export * from './Card.js';
 export * from './Comment.js';
 export * from './Activity.js';
 export * from './Notification.js';
+export * from './commentRead.js';

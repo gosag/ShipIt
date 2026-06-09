@@ -2,6 +2,9 @@ import type {Response, NextFunction} from "express";
 import asyncHandler from "express-async-handler";
 import type { AuthRequest } from "../middleware/auth.js";
 import { Activity, Column, Project, Workspace, Card} from "../models/index.js";
+import { CommentRead } from "../models/commentRead.js";
+import mongoose from 'mongoose'; 
+
 interface customError extends Error {
     status?: number;
 }
@@ -206,3 +209,33 @@ export const deleteCard= asyncHandler(async(req:AuthRequest,res:Response)=>{
     await Card.findByIdAndDelete(cardId);
     res.json({ message: "Card deleted successfully" });
 })
+export const commentRead = asyncHandler(async (req: AuthRequest, res: Response) => {
+    if (!req.user || !req.user._id) {
+        const error = new Error("Not authenticated or no token!") as customError;
+        error.status = 401;
+        throw error;
+    }
+
+    const cardId = req.params.cardId;
+    const userId = req.user._id;
+    const currentTime = new Date();
+    const updatedCommentRead = await CommentRead.findOneAndUpdate(
+        { 
+            user: new mongoose.Types.ObjectId(userId as string), 
+            card: new mongoose.Types.ObjectId(cardId as string) 
+        },
+        { lastReadAt: currentTime },
+        {
+            new: true,
+            upsert: true,
+        }
+    );
+
+    if (!updatedCommentRead) {
+        const error = new Error("Failed to update comment read status") as customError;
+        error.status = 500;
+        throw error;
+    }
+
+    res.json({ message: "Comment read status updated", commentRead: updatedCommentRead });
+});
