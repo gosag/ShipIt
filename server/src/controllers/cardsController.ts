@@ -247,22 +247,19 @@ export const unreadcomments = asyncHandler(async (req: AuthRequest, res: Respons
     }
     const cardId = req.params.cardId;
     const record = await CommentRead.findOne({
-      where: { userId: req.user._id, cardId}
+      userId: req.user._id, cardId: cardId
    })
 
-  const unreadCount = await Comment.find({
-   where: {
-    cardId,
-    createdAt: {
-      $gt: record?.lastReadAt ?? new Date(0) 
-    }
-   }
-  }).countDocuments();
+  const unreadCount = await Comment.countDocuments({
+    card:cardId as any,
+    createdAt: { $gt: record ? record.lastReadAt : new Date(0) }
+  });
   if (unreadCount === undefined) {
     const error = new Error("Failed to fetch unread comments") as customError;
     error.status = 500;
     throw error;
   }
+  console.log(`User ${req.user._id} has ${unreadCount} unread comments on card ${cardId}`);
     res.json({ unreadCount});
 });
     

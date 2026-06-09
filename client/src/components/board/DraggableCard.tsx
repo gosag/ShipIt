@@ -20,7 +20,7 @@ export const DraggableCard: React.FC<DraggableCardProps> = ({ card, columnId, ac
   const [messageInput, setMessageInput] = useState("");
   const [messages, setMessages] = useState([]);
   const [currentUser, setCurrentUser] = useState(null);
-
+  const [unreadCount, setUnreadCount] = useState(0);
   const handleMessageClick = (e: React.MouseEvent | React.PointerEvent) => {
     e.stopPropagation();
     setShowMessages(true);
@@ -87,6 +87,19 @@ useEffect(() => {
     scrollToBottom();
   }
 }, [messages, showMessages]);
+const newMessagesCounter= async()=>{
+  try{
+    const res= await api.get(`/api/columns/${columnId}/cards/${card._id}/unread`);
+    console.log("Raw data for unread count:", res.data);
+    console.log("Unread messages count:", res.data.unreadCount);
+    setUnreadCount(res.data.unreadCount);
+  } catch (error) {
+    console.error("Failed to fetch unread messages count", error);
+  }
+};
+useEffect(()=>{
+ newMessagesCounter();
+},[]);
   return (
     <div
       ref={setDraggableNodeRef}
