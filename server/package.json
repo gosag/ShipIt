@@ -13,6 +13,12 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
+    "@types/cookie-parser": "^1.4.10",
+    "@types/cors": "^2.8.19",
+    "@types/express": "^5.0.6",
+    "@types/jsonwebtoken": "^9.0.10",
+    "@types/morgan": "^1.9.10",
+    "@types/node": "^25.9.3",
     "bcryptjs": "^3.0.3",
     "cookie-parser": "^1.4.7",
     "cors": "^2.8.6",
@@ -22,18 +28,12 @@
     "jsonwebtoken": "^9.0.3",
     "mongoose": "^9.6.1",
     "morgan": "^1.10.1",
-    "socket.io": "^4.8.3"
+    "socket.io": "^4.8.3",
+    "typescript": "^6.0.3"
   },
   "devDependencies": {
-    "@types/cookie-parser": "^1.4.10",
-    "@types/cors": "^2.8.19",
-    "@types/express": "^5.0.6",
-    "@types/jsonwebtoken": "^9.0.10",
     "@types/mongoose": "^5.11.96",
-    "@types/morgan": "^1.9.10",
-    "@types/node": "^25.9.3",
     "nodemon": "^3.1.14",
-    "ts-node": "^10.9.2",
-    "typescript": "^6.0.3"
+    "ts-node": "^10.9.2"
   }
 }
