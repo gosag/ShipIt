@@ -1,7 +1,7 @@
 import type {Response, NextFunction} from "express";
 import asyncHandler from "express-async-handler";
 import type { AuthRequest } from "../middleware/auth.js";
-import { Activity, Column, Project, Workspace, Card, Comment} from "../models/index.js";
+import { Activity, Column, Project, Workspace, Card, Comment, User, Notification} from "../models/index.js";
 import { CommentRead } from "../models/commentRead.js";
 import mongoose from 'mongoose'; 
 
@@ -151,12 +151,22 @@ export const moveCard= asyncHandler(async(req:AuthRequest,res:Response,next:Next
           throw new Error("Was unable to update the card") as customError;
           
     }
+    const user = await User.findById(req.user._id);
+    if(!user){
+        const error= new Error("User not found") as customError;
+        error.status=404;
+        throw error;
+    }
+    const assignees= updatedCard.assignees;
+    
+    
     const column = await Column.findById(newColumnId);
     if(!column){
         const error= new Error("New column not found") as customError;
         error.status=404;
         throw error;
     }
+
     const columnTitle = column.title;
         const activity = new Activity({
             action: `Card titled:(${updatedCard.title}) moved from (${oldCardColumnTitle}) to (${columnTitle})`,
@@ -167,10 +177,29 @@ export const moveCard= asyncHandler(async(req:AuthRequest,res:Response,next:Next
         });
 
        const nA = await activity.save();
+
        const newActivity = await nA.populate("user", "name email avatar");
        if(!newActivity){
            throw new Error("Failed to save activity log") as customError;
        };
+       let notificationMessage = `Card "${updatedCard.title}" has been moved from ${oldCardColumnTitle} to ${columnTitle}.`;
+    if(assignees && assignees.length>0){
+        assignees.map(assignee=>(
+            User.findById(assignee).then(user=>{
+                if(user && user.notificationPreferences.cardMoves){
+                    console.log(`Notification: Card "${updatedCard.title}" has been moved to a new column.`)
+                    new Notification({
+                        sender: req.user?._id,
+                        senderName: user.name,
+                        recipient: assignee,
+                        workspace: updatedCard.workspace,
+                        type: "cardMove",
+                        link: `/workspace/${updatedCard.workspace}/project/${updatedCard.project}/card/${updatedCard._id}`,
+                        message: notificationMessage
+                    }).save().then(()=> console.log("Notification saved successfully")).catch(err=> console.error("Error saving notification:", err))
+                }}).catch(err=> console.error("Error fetching user for notification:", err)
+    )))
+    }
        console.log("New activity log created:", newActivity);
     res.json({updatedCard, newActivity});
 })
