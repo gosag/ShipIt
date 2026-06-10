@@ -221,7 +221,7 @@ const handleDragEnd = async (event: DragEndEvent) => {
       console.log(err)
     }
   }
- const timeoutRef = useRef(null);
+ const timeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
 useEffect(() => {
   socket.on("newActivityLog", (newActivity) => {

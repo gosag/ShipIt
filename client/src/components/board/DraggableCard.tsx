@@ -18,8 +18,8 @@ export const DraggableCard: React.FC<DraggableCardProps> = ({ card, columnId, ac
   const isAssignedToMe = currentUserId && card.assignees && card.assignees.includes(currentUserId);
   const [showMessages, setShowMessages] = useState(false);
   const [messageInput, setMessageInput] = useState("");
-  const [messages, setMessages] = useState([]);
-  const [currentUser, setCurrentUser] = useState(null);
+  const [messages, setMessages] = useState<{ content: string; author: { name: string; email: string } }[]>([]);
+  const [currentUser, setCurrentUser] = useState<{ name: string; email: string } | null>(null);
   const [unreadCount, setUnreadCount] = useState(0);
   const handleMessageClick = (e: React.MouseEvent | React.PointerEvent) => {
     e.stopPropagation();
@@ -49,7 +49,7 @@ export const DraggableCard: React.FC<DraggableCardProps> = ({ card, columnId, ac
     }
   }
 
-  const getMessagesHandler=async (cardId)=>{
+  const getMessagesHandler=async (cardId: string)=>{
     try{
       const res= await api.get(`/api/messages/get-messages/${cardId}`);
       if(res.status === 200){

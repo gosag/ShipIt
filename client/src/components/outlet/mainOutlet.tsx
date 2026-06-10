@@ -169,10 +169,10 @@ const joinRequestHandler = async (notificationId: string, workspaceId: string, u
         setNotifications(prev => prev.filter(n => n._id !== notificationId));
         alert(`Join request ${status} successfully`);
        }
-   } catch (err) {
-    console.log(err.response?.data?.error || err);
-    alert(err.response?.data?.error || "An error occurred while processing the join request.");
-   }
+   } catch (err: any) {
+  console.log(err.response?.data?.error || err);
+  alert(err.response?.data?.error || "An error occurred");
+}
 }
 const [avatarUrl, setAvatarUrl] = useState<string>("");
  useEffect(()=>{

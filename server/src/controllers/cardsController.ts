@@ -187,7 +187,6 @@ export const moveCard= asyncHandler(async(req:AuthRequest,res:Response,next:Next
         assignees.map(assignee=>(
             User.findById(assignee).then(user=>{
                 if(user && user.notificationPreferences.cardMoves){
-                    console.log(`Notification: Card "${updatedCard.title}" has been moved to a new column.`)
                     new Notification({
                         sender: req.user?._id,
                         senderName: user.name,

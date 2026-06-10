@@ -20,7 +20,7 @@ const Search = () => {
             }
             const response = await api.get(`/api/workspace/get-slug/${slug}`);
             setSearchResults(response.data);
-        } catch (error) {
+        } catch (error: any) {
             console.error("Error searching workspaces:", error);
             setSearchResults({ name: "", slug: "", createdBy: "", userId: "", workspaceId: "" });
             if(error.response?.status === 404){
@@ -47,7 +47,7 @@ const Search = () => {
             if (response.status === 201) {
                 setHasRequested(true);
             }
-        } catch (error) {
+        } catch (error: any) {
             console.error("Error joining workspace:", error);
             alert(error.response?.data?.error || "Failed to send join request. Please try again.");
         } finally {
@@ -60,7 +60,7 @@ const Search = () => {
             console.log("Your notifications:", response.data);
             setNotifications(response.data);
 
-        } catch (error) {
+        } catch (error: any) {
             console.error("Error fetching your notifications:", error);
         }
     };

@@ -26,7 +26,7 @@ export const KanbanColumn: React.FC<KanbanColumnProps> = ({ id, title, badgeColo
   const [loading, setLoading] = useState(true);
   const [cardInfo, setCardInfo] = useState<any>(null);
   const [showCardInfo, setShowCardInfo] = useState(false);
-  let workspaceId;
+  let workspaceId: string | null = null;
   if(cards.length > 0) {
     workspaceId = cards[0].workspace;
   }
