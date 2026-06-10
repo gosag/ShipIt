@@ -123,12 +123,7 @@ useEffect(()=>{
       {/* Header */}
       <div
         className="flex justify-between items-start gap-2"
-        onClick={(e) => {
-          handleMessageClick(e);
-          getMessagesHandler(card._id);
-          markCommentsAsRead();
-        }}
-        onPointerDown={(e) => e.stopPropagation()}
+        
       >
         <h4 className="text-[13.5px] font-medium text-gray-200 leading-snug flex-1">
           {card.title}
@@ -136,6 +131,12 @@ useEffect(()=>{
 
         <div className="relative shrink-0">
           <button
+          onClick={(e) => {
+              handleMessageClick(e);
+              getMessagesHandler(card._id);
+              markCommentsAsRead();
+            }}
+          onPointerDown={(e) => e.stopPropagation()}
             className="w-7 h-7 flex items-center justify-center rounded-lg text-gray-500 hover:text-gray-300 hover:bg-[#2C2C2E] transition-colors"
             aria-label="Open comments"
           >
