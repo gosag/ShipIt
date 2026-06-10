@@ -36,9 +36,6 @@ app.use(morgan("dev"))
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(cookieParser());
-
-console.log('Models loaded:', Object.keys(models));
-
 // Routes
 app.use('/api/auth', authRoutes);
 app.use('/api/workspace', workspaceRouter);

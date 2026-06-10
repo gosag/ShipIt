@@ -134,7 +134,7 @@ useEffect(()=>{
           {card.title}
         </h4>
 
-        <div className="relative flex-shrink-0">
+        <div className="relative shrink-0">
           <button
             className="w-7 h-7 flex items-center justify-center rounded-lg text-gray-500 hover:text-gray-300 hover:bg-[#2C2C2E] transition-colors"
             aria-label="Open comments"
@@ -142,7 +142,7 @@ useEffect(()=>{
             <MessageSquare size={15} />
           </button>
           {unreadCount > 0 && (
-            <span className="absolute -top-1 -right-1 min-w-[16px] h-4 bg-red-500 text-white text-[10px] font-semibold px-1 rounded-full flex items-center justify-center leading-none">
+            <span className="absolute -top-1 -right-1 min-w-4 h-4 bg-red-500 text-white text-[10px] font-semibold px-1 rounded-full flex items-center justify-center leading-none">
               {unreadCount}
             </span>
           )}
@@ -186,7 +186,7 @@ useEffect(()=>{
           onPointerDown={(e) => e.stopPropagation()}
         >
           <div
-            className="w-full max-w-[420px] bg-[#1C1C1E] rounded-2xl border border-[#3A3A3C] flex flex-col overflow-hidden shadow-2xl"
+            className="w-full max-w-105 bg-[#1C1C1E] rounded-2xl border border-[#3A3A3C] flex flex-col overflow-hidden shadow-2xl"
             onClick={(e) => e.stopPropagation()}
           >
             {/* Modal Header */}
@@ -205,7 +205,7 @@ useEffect(()=>{
             </div>
 
             {/* Messages List */}
-            <div className="flex-1 overflow-y-auto p-4 space-y-4 max-h-[55vh] min-h-[200px] custom-scrollbar">
+            <div className="flex-1 overflow-y-auto p-4 space-y-4 max-h-[55vh] min-h-50 custom-scrollbar">
               {messages.length > 0 ? (
                 messages.map((msg: any) => (
                   <div key={msg._id} className="flex gap-2.5 items-start">
