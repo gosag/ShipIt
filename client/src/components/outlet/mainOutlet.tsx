@@ -35,7 +35,8 @@ const MainOutlet = () => {
     const [isSidebarOpen, setSidebarOpen] = useState(false);
     const [workspaceModalOpen, setWorkspaceModalOpen] = useState(false);
     const [projectModalOpen, setProjectModalOpen] = useState(false);
-    const [userData,setUserData]=useState<{name:string,email:string,_id:string, avatar:string} | null>(null);
+    const savedUserData = localStorage.getItem("userData");
+    const [userData,setUserData]=useState<{name:string,email:string,_id:string, avatar:string} | null>(savedUserData ? JSON.parse(savedUserData) : null);
     const [workspaces, setWorkspaces] = useState<{_id:string, name:string, slug:string,owner:string, members:any[]}[]>([]);
     const navigate=useNavigate();
     const getWorkspace = async () => {
@@ -323,7 +324,7 @@ const [avatarUrl, setAvatarUrl] = useState<string>("");
                       )}
                       <div className="truncate">
                         <p className="text-sm font-medium">{userData ? userData.name : "John Doe"}</p>
-                        <p className="text-xs text-gray-500 truncate">{userData?.email ? userData.email : "gosa@shipit.app"}</p>
+                        <p className="text-xs text-gray-500 truncate">{userData?.email ? userData.email : "JohnDoe@shipit.app"}</p>
                       </div>
                     </div>
                 </div>
