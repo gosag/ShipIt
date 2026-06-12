@@ -51,15 +51,14 @@ export const KanbanColumn: React.FC<KanbanColumnProps> = ({ id, title, badgeColo
       const { cardId, sourceColumnId, destinationColumnId, cardData } = e.detail;
       try{
       if (id === sourceColumnId) {
-        // Remove from source column immediately
         setCards(prev => prev.filter(c => c._id !== cardId));
       } else if (id === destinationColumnId) {
-        // Add to destination column immediately
         setCards(prev => {
           if (prev.some(c => c?._id === cardId)) return prev;
           if (!cardData) return prev; // Safety check
           return [...prev, cardData];
         });
+        
       }} catch (error) {
         console.error("Error handling card move:", error);
         // return the card to its original column in case of error

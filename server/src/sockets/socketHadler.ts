@@ -58,6 +58,11 @@ export const initializeSockets = (io: Server) => {
             broadcastOnlineMembers(io, workspaceId);
         });
 
+        socket.on("join-personal-room", (userId) => {
+            socket.join(`user-${userId}`);
+            console.log(`User with ID ${userId} joined their personal room`);
+        });
+
         socket.on("leave-workspace", ({ workspaceId }) => {
             if (!workspaceId) return;
             socket.leave(`workspace-${workspaceId}`);
@@ -80,14 +85,22 @@ export const initializeSockets = (io: Server) => {
         socket.on("message-group", (groupId, message) => {
             console.log(`Message to group ${groupId}: ${message}`);
             socket.join(groupId);
-            console.log(message);
             socket.to(groupId).emit("groupMessageOnCard", message);
         });
 
         socket.on("Activity-log", (projectId, activity) => {
             io.to(projectId).emit("newActivityLog", activity);
         });
-
+        socket.on("notification", (recipientId, notification) => {
+            if (!recipientId || !notification) return;
+            if (Array.isArray(recipientId)) {   
+                recipientId.forEach(id => {
+                    if (!id) return;
+                    io.to(`user-${id}`).emit("newNotification", notification);
+                });
+                return;
+            }
+        });
         socket.on("disconnect", () => {
             console.log(`User with socket ID: ${socket.id} disconnected`);
 

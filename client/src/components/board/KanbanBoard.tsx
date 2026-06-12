@@ -200,7 +200,12 @@ const handleDragEnd = async (event: DragEndEvent) => {
       newOrder: 0,
     });
     const newActivity = response.data.newActivity;
+    const receipentsID = response.data.notificationRecipientId;
+    const notification = response.data.notification;
+    console.log("Card moved successfully, notifying other clients...");
+    console.log("receipentId:", receipentsID);
     socket.emit("card-moved", { cardId, sourceColumnId, destinationColumnId, projectId, cardData });
+    socket.emit("notification", receipentsID, notification);
     socket.emit("Activity-log", projectId, newActivity);
   } catch (error) {
     console.error('Failed to move card:', error);

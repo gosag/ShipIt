@@ -12,6 +12,7 @@ import {
   Bell
 } from "lucide-react";
 import { api } from "../../axios";
+import socket from "../../../socket";
 const Modal = ({ isOpen, onClose, title, children }: any) => {
   if (!isOpen) return null;
   return (
@@ -198,6 +199,29 @@ const [avatarUrl, setAvatarUrl] = useState<string>("");
       console.error("Error updating notification seen data:", err);
     }
  }
+//make the user join their own socket room for receiving personal notifications
+  useEffect(()=>{
+    if(userData && userData._id){
+      socket.emit("join-personal-room", userData._id);
+    }
+    return ()=>{
+      if(userData && userData._id){
+        socket.off("join-personal-room");
+      }
+    }
+  },[userData])
+ //listen for personal notifications
+ useEffect(()=>{
+   socket.on(`newNotification`, (notification) => {
+    setNotifications(prev => [notification, ...prev]);
+    setUnreadCount(prev => prev + 1);
+    console.log("Received personal notification:", notification);
+   });
+    return () => {
+      socket.off(`newNotification`);
+    };
+ },[userData])
+
     return (
         <div className="flex h-screen overflow-hidden bg-[#0e0e0f] text-[#f2f2f2] font-sans antialiased selection:bg-indigo-500/30">
             {/* Mobile Sidebar Overlay */}

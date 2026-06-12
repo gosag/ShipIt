@@ -4,6 +4,7 @@ import type { AuthRequest } from "../middleware/auth.js";
 import { Activity, Column, Project, Workspace, Card, Comment, User, Notification} from "../models/index.js";
 import { CommentRead } from "../models/commentRead.js";
 import mongoose from 'mongoose'; 
+import { create } from "node:domain";
 
 interface customError extends Error {
     status?: number;
@@ -183,31 +184,49 @@ export const moveCard= asyncHandler(async(req:AuthRequest,res:Response,next:Next
            throw new Error("Failed to save activity log") as customError;
        };
        let notificationMessage = `Card "${updatedCard.title}" has been moved from ${oldCardColumnTitle} to ${columnTitle}.`;
+      let notificationRecipientsId: string[] | null = null;
+      const notificationIdAddHandler = async (recipientId: string) => {
+        if (!recipientId) return null;
+        console.log(`Adding notification recipient ID: ${recipientId}`);
+        notificationRecipientsId = notificationRecipientsId ? [...notificationRecipientsId, recipientId] : [recipientId];
+        return recipientId;
+    };
       if(assignees && assignees.length>0){
-        assignees.map(assignee=>(
-            User.findById(assignee).then(user=>{
-                if(!user){
-                    console.error("User not found for notification:", assignee);
-                    return;
+         await Promise.all(
+            assignees.map(async (assignee) => {
+            try {
+                const user = await User.findById(assignee);
+                if (!user) {
+                console.error("User not found for notification:", assignee);
+                return;
                 }
-                if(user._id.toString() === req.user?._id.toString()){
-                    return;
+                if (user._id.toString() === req.user?._id.toString()) return;
+                if (user.notificationPreferences.cardMoves) {
+                await new Notification({
+                    sender: req.user?._id,
+                    senderName: req.user?.name || "Someone",
+                    recipient: assignee,
+                    workspace: updatedCard.workspace,
+                    type: "cardMove",
+                    link: `/workspace/${updatedCard.workspace}/project/${updatedCard.project}/card/${updatedCard._id}`,
+                    message: notificationMessage
+                }).save();
+                await notificationIdAddHandler(assignee.toString());
+                console.log("Notification IDs:", notificationRecipientsId);
                 }
-                if(user && user.notificationPreferences.cardMoves){
-                    new Notification({
-                        sender: req.user?._id,
-                        senderName: user.name,
-                        recipient: assignee,
-                        workspace: updatedCard.workspace,
-                        type: "cardMove",
-                        link: `/workspace/${updatedCard.workspace}/project/${updatedCard.project}/card/${updatedCard._id}`,
-                        message: notificationMessage
-                    }).save().then(()=> console.log("Notification saved successfully")).catch(err=> console.error("Error saving notification:", err))
-                }}).catch(err=> console.error("Error fetching user for notification:", err)
-    )))
+            } catch (err) {
+                console.error("Error processing notification:", err);
+            }
+            })
+        );
     }
-       console.log("New activity log created:", newActivity);
-    res.json({updatedCard, newActivity});
+    console.log("all user IDs to be notified:", notificationRecipientsId);
+    res.json({updatedCard, newActivity, notificationRecipientId: notificationRecipientsId, notification: {
+        type: "cardMove",
+        message: notificationMessage,
+        link: `/workspace/${updatedCard.workspace}/project/${updatedCard.project}/card/${updatedCard._id}`,
+        createdAt: new Date(),
+    }});
 })
 
 export const deleteCard= asyncHandler(async(req:AuthRequest,res:Response)=>{
