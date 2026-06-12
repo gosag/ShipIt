@@ -71,31 +71,37 @@ export const sendComment = AsyncHandler(async (req: AuthRequest, res: Response, 
         }
         const cardTitle= card.title;
         const assignees = card.assignees;
+        const receipentsID = assignees?.filter(assigne => assigne.toString() !== req.user?._id.toString()).map(assigne => assigne.toString()) || [];
         if(assignees && assignees.length > 0){
-            assignees.forEach(assigne => {
+          await Promise.all(assignees.map(async (assigne) => {
                 if(!assigne || assigne.toString() === req.user?._id.toString()){
                     return;
                 }
-                User.findById(assigne).then(user => {
-                 if(user?.notificationPreferences.messages){
+                const user = await User.findById(assigne);
+                if(user?.notificationPreferences.messages){
                     try{
-                        Notification.create({
+                      await new Notification({
                             sender: req.user?._id,
                             senderName: req.user?.name,
                             recipient: assigne,
                             workspace,
                             type: "new_comment",
-                            message: `${req.user?.name} commented ${content} on card ${cardTitle}`,
+                            message: `${req.user?.name} commented (${content}) on card ${cardTitle}`,
                             link: `/workspaces/${workspace}/cards/${cardId}`,
-                        });
+                        }).save();
                     } catch (error) {
                         console.error('Error creating notification:', error);
 
                     }
                  }
-            })
-        })
-        res.status(201).json(populatedComment);
+            }))
+            
+        res.status(201).json({ populatedComment, receipentsID, notification: { 
+            type: "new_comment", 
+            message: `${req.user?.name} commented (${content}) on card ${cardTitle}`, 
+            link: `/workspaces/${workspace}/cards/${cardId}`,
+            createdAt: new Date(),
+        } });
     }
 }
     catch(error){

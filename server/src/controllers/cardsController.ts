@@ -212,7 +212,6 @@ export const moveCard= asyncHandler(async(req:AuthRequest,res:Response,next:Next
                     message: notificationMessage
                 }).save();
                 await notificationIdAddHandler(assignee.toString());
-                console.log("Notification IDs:", notificationRecipientsId);
                 }
             } catch (err) {
                 console.error("Error processing notification:", err);

@@ -39,11 +39,12 @@ export const DraggableCard: React.FC<DraggableCardProps> = ({ card, columnId, ac
  
     if(res.status === 201){
       console.log(res.data)
-      setMessages(prev => [...prev, res.data]);
+      setMessages(prev => [...prev, res.data.populatedComment]);
       scrollToBottom()
       setMessageInput("");
-      mssgInfo = { content: res.data.content, author: { name: res.data.author.name, email: res.data.author.email } };
+      mssgInfo = { content: res.data.populatedComment.content, author: { name: res.data.populatedComment.author.name, email: res.data.populatedComment.author.email } };
       socket.emit("message-group", `card-${card._id}`, mssgInfo);
+      socket.emit("notification", res.data.receipentsID, res.data.notification);
     } else {
       alert("Failed to send message.");
     }
