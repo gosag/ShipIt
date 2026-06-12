@@ -191,6 +191,13 @@ const [avatarUrl, setAvatarUrl] = useState<string>("");
  useEffect(()=>{
    setAvatarUrl(userData?.avatar || localStorage.getItem("userProfile") || "");
  },[userData])
+ const updateNetificationsSeenData = async () =>{
+    try {
+      await api.put("/api/notification/update-seen");
+    }catch(err){
+      console.error("Error updating notification seen data:", err);
+    }
+ }
     return (
         <div className="flex h-screen overflow-hidden bg-[#0e0e0f] text-[#f2f2f2] font-sans antialiased selection:bg-indigo-500/30">
             {/* Mobile Sidebar Overlay */}
@@ -214,7 +221,7 @@ const [avatarUrl, setAvatarUrl] = useState<string>("");
                    </div> 
                    <div className=" flex justify-end items-center gap-4">
                    <div className="relative ">
-                      <button onClick={() => setShowNotifications(true)} className="relative" >
+                      <button onClick={() => {setShowNotifications(true); updateNetificationsSeenData(); }} className="relative" >
                         <Bell size={18}/></button>
                       <span className={`absolute -top-1 -right-1 w-3 h-3 ${unreadCount > 0 ? 'bg-red-500' : 'bg-gray-500'} text-white text-xs rounded-full flex items-center justify-center`}>
                         {unreadCount }

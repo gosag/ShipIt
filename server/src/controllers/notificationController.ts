@@ -139,3 +139,22 @@ export const getYourNotificationsStatus= asyncHandler(async(req:AuthRequest,res:
         return next(customError);
     }
 });
+export const updateNotificationsSeen = asyncHandler(async (req: AuthRequest, res: Response, next: NextFunction) => {
+    if (!req.user?._id) {
+        const error = new Error("Unauthorized: User not authenticated") as customError;
+        error.status = 401;
+        return next(error);
+    }
+    try {
+        const result = await NotificationSeen.findOneAndUpdate(
+            { user: req.user._id },
+            { lastReadAt: new Date() },
+            { upsert: true, new: true }
+        );
+        res.status(200).json({ message: "Notification seen data updated", data: result });
+    } catch (error: any) {
+        const customError = new Error("Internal server error") as customError;
+        customError.status = 500;
+        return next(customError);
+    }
+});
