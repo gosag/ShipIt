@@ -18,7 +18,7 @@ import {
   AlertTriangle,
   ArrowRightLeft,
   MessageSquare,
-  UserPlus,
+  
 } from "lucide-react";
 
 type SettingsTab = "profile" | "workspace" | "notifications";
@@ -828,13 +828,13 @@ const Settings = () => {
               description="Get notified about new messages on your cards"
               icon={MessageSquare}
             />
-            <Toggle
+           {/*  <Toggle
               enabled={notifPrefs.joinRequests}
               onChange={(v) => handleToggleNotif("joinRequests", v)}
               label="Join requests"
               description="Get notified when someone requests to join your workspace"
               icon={UserPlus}
-            />
+            /> */}
           </div>
         )}
       </div>

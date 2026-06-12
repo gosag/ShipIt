@@ -12,12 +12,12 @@ interface customError extends Error{
   status?:number,
   statusCode?:number
 }
-const generateAccessToken = (userId: string, email: string) => {
-  return jwt.sign({ _id: userId, email }, process.env.JWT_SECRET || 'fallback_secret', { expiresIn: ACCESS_TOKEN_EXPIRATION });
+const generateAccessToken = (userId: string, email: string, name: string) => {
+  return jwt.sign({ _id: userId, email, name }, process.env.JWT_SECRET || 'fallback_secret', { expiresIn: ACCESS_TOKEN_EXPIRATION });
 };
 
-const generateRefreshToken = (userId: string, email: string) => {
-  return jwt.sign({ _id: userId, email }, process.env.JWT_REFRESH_SECRET || 'fallback_refresh_secret', { expiresIn: REFRESH_TOKEN_EXPIRATION });
+const generateRefreshToken = (userId: string, email: string, name: string) => {
+  return jwt.sign({ _id: userId, email, name }, process.env.JWT_REFRESH_SECRET || 'fallback_refresh_secret', { expiresIn: REFRESH_TOKEN_EXPIRATION });
 };
 
 export const register = async (req: Request, res: Response): Promise<any> => {
@@ -33,8 +33,8 @@ export const register = async (req: Request, res: Response): Promise<any> => {
     const user = new User({ name, email, password: hashedPassword, avatar });
     await user.save();
     console.log("New user registered:", user);
-    const accessToken = generateAccessToken(user.id, user.email);
-    const refreshToken = generateRefreshToken(user.id, user.email);
+    const accessToken = generateAccessToken(user.id, user.email, user.name);
+    const refreshToken = generateRefreshToken(user.id, user.email, user.name);
 
     res.cookie('refreshToken', refreshToken, {
       httpOnly: true,
@@ -68,8 +68,8 @@ export const login = async (req: Request, res: Response): Promise<any> => {
       return res.status(400).json({ message: 'Invalid credentials' });
     }
 
-    const accessToken = generateAccessToken(user.id, user.email);
-    const refreshToken = generateRefreshToken(user.id, user.email);
+    const accessToken = generateAccessToken(user.id, user.email, user.name);
+    const refreshToken = generateRefreshToken(user.id, user.email, user.name);
 
     res.cookie('refreshToken', refreshToken, {
       httpOnly: true,
@@ -102,8 +102,8 @@ export const refresh = async (req: Request, res: Response): Promise<any> => {
   }
 
   try {
-    const decoded = jwt.verify(refreshToken, process.env.JWT_REFRESH_SECRET || 'fallback_refresh_secret') as { _id: string; email: string };
-    const accessToken = generateAccessToken(decoded._id, decoded.email);
+    const decoded = jwt.verify(refreshToken, process.env.JWT_REFRESH_SECRET || 'fallback_refresh_secret') as { _id: string; email: string; name: string };
+    const accessToken = generateAccessToken(decoded._id, decoded.email, decoded.name);
     res.json({ accessToken });
   } catch (error) {
     return res.status(401).json({ message: 'Invalid or expired refresh token' });

@@ -1,7 +1,10 @@
 import type {Response, NextFunction} from 'express';
 import type { AuthRequest } from '../middleware/auth.js';
 import {Comment}  from "../models/Comment.js";
+import { Card } from '../models/Card.js';
 import AsyncHandler from 'express-async-handler';
+import { User } from '../models/index.js';
+import { Notification } from '../models/Notification.js';
 type customError = {
     status?: number;
 }
@@ -41,27 +44,61 @@ export const sendComment = AsyncHandler(async (req: AuthRequest, res: Response, 
             error.status = 400;
             throw error;
         }
-    const newComment = new Comment({
-        card: cardId,
-        workspace,
-        author: req.user._id,
-        content,
-        mentions
-    })
-    const savedComment = await newComment.save();
-    if(!savedComment){
-        const error= new Error('Failed to save comment') as customError;
-        error.status = 500;
-        throw error;
+        const newComment = new Comment({
+            card: cardId,
+            workspace,
+            author: req.user._id,
+            content,
+            mentions
+        });
+        const savedComment = await newComment.save();
+        if(!savedComment){
+            const error= new Error('Failed to save comment') as customError;
+            error.status = 500;
+            throw error;
+        }
+        const populatedComment = await savedComment.populate('author', 'name email avatar');
+        if(!populatedComment){
+            const error= new Error('Failed to populate comment') as customError;
+            error.status = 500;
+            throw error;
+        }
+        const card = await Card.findById(cardId);
+        if(!card){
+            const error= new Error('Card not found') as customError;    
+            error.status = 404;
+            throw error;
+        }
+        const cardTitle= card.title;
+        const assignees = card.assignees;
+        if(assignees && assignees.length > 0){
+            assignees.forEach(assigne => {
+                if(!assigne || assigne.toString() === req.user?._id.toString()){
+                    return;
+                }
+                User.findById(assigne).then(user => {
+                 if(user?.notificationPreferences.messages){
+                    try{
+                        Notification.create({
+                            sender: req.user?._id,
+                            senderName: req.user?.name,
+                            recipient: assigne,
+                            workspace,
+                            type: "new_comment",
+                            message: `${req.user?.name} commented ${content} on card ${cardTitle}`,
+                            link: `/workspaces/${workspace}/cards/${cardId}`,
+                        });
+                    } catch (error) {
+                        console.error('Error creating notification:', error);
+
+                    }
+                 }
+            })
+        })
+        res.status(201).json(populatedComment);
     }
-    const populatedComment = await savedComment.populate('author', 'name email avatar');
-    if(!populatedComment){
-        const error= new Error('Failed to populate comment') as customError;
-        error.status = 500;
-        throw error;
-    }
-    res.status(201).json(populatedComment);
-    }catch(error){
+}
+    catch(error){
         next(error);
     }
 });
