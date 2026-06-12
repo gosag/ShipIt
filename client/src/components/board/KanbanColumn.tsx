@@ -7,7 +7,6 @@ import socket from '../../../socket';
 
 import { DraggableCard } from './DraggableCard';
 import { CardModal } from './CardModal';
-import { a } from 'motion/react-client';
 
 interface KanbanColumnProps {
   id: string;

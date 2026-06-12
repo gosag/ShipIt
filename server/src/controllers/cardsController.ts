@@ -183,9 +183,16 @@ export const moveCard= asyncHandler(async(req:AuthRequest,res:Response,next:Next
            throw new Error("Failed to save activity log") as customError;
        };
        let notificationMessage = `Card "${updatedCard.title}" has been moved from ${oldCardColumnTitle} to ${columnTitle}.`;
-    if(assignees && assignees.length>0){
+      if(assignees && assignees.length>0){
         assignees.map(assignee=>(
             User.findById(assignee).then(user=>{
+                if(!user){
+                    console.error("User not found for notification:", assignee);
+                    return;
+                }
+                if(user._id.toString() === req.user?._id.toString()){
+                    return;
+                }
                 if(user && user.notificationPreferences.cardMoves){
                     new Notification({
                         sender: req.user?._id,
