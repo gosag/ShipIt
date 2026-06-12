@@ -5,7 +5,6 @@ import morgan from "morgan"
 import cookieParser from "cookie-parser"
 import {createServer} from 'http';
 import { Server } from 'socket.io';
-import * as models from './src/models/index.js'
 import authRoutes from './src/routes/authRoutes.js'
 import workspaceRouter from './src/routes/workSpaceRoutes.js';
 import projectRouter from './src/routes/projectRoutes.js'; 
