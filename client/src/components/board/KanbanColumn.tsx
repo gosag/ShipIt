@@ -7,6 +7,7 @@ import socket from '../../../socket';
 
 import { DraggableCard } from './DraggableCard';
 import { CardModal } from './CardModal';
+import { a } from 'motion/react-client';
 
 interface KanbanColumnProps {
   id: string;
@@ -49,7 +50,7 @@ export const KanbanColumn: React.FC<KanbanColumnProps> = ({ id, title, badgeColo
   useEffect(() => {
     const handleCardMoved = (e: CustomEvent) => {
       const { cardId, sourceColumnId, destinationColumnId, cardData } = e.detail;
-      
+      try{
       if (id === sourceColumnId) {
         // Remove from source column immediately
         setCards(prev => prev.filter(c => c._id !== cardId));
@@ -60,6 +61,19 @@ export const KanbanColumn: React.FC<KanbanColumnProps> = ({ id, title, badgeColo
           if (!cardData) return prev; // Safety check
           return [...prev, cardData];
         });
+      }} catch (error) {
+        console.error("Error handling card move:", error);
+        // return the card to its original column in case of error
+        if (id === sourceColumnId) {
+          setCards(prev => {
+            if (prev.some(c => c?._id === cardId)) return prev;
+            if (!cardData) return prev; // Safety check
+            return [...prev, cardData];
+          });
+        } else if (id === destinationColumnId) {
+          setCards(prev => prev.filter(c => c._id !== cardId));
+        }
+        alert("An error occurred while moving the card. Please try again.");
       }
     };
 
