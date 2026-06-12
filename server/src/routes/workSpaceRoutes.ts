@@ -15,4 +15,5 @@ workspaceRouter.put('/join-request/:workspaceId/reject', authenticate, rejectJoi
 workspaceRouter.delete('/:workspaceId/members/:userId', authenticate, removeMember);
 workspaceRouter.patch('/:workspaceId/members/:userId/role', authenticate, updateMemberRole);
 workspaceRouter.get('/:workspaceId',authenticate, getWorkspaceById);
+
 export default workspaceRouter;

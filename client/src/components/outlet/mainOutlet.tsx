@@ -143,6 +143,7 @@ const MainOutlet = () => {
    const [notifications, setNotifications] = useState<any[]>([]);
    const [showNotifications, setShowNotifications] = useState(false);
    const [notificationsToProcess, setNotificationsToProcess] = useState<any>(null);
+   const [unreadCount, setUnreadCount] = useState(0);
   useEffect(()=>{
     const fetchNotifications = async () => {
       try {
@@ -154,9 +155,20 @@ const MainOutlet = () => {
       } catch (err) {
         console.error("Error fetching notifications:", err);
       }
-    };
+    };``
     fetchNotifications();
   },[showNotifications]);
+  useEffect(()=>{
+    const fetchUnreadCount = async () => {
+      try {
+        const res = await api.get("/api/notification/unread-count");
+        setUnreadCount(res.data.unreadCount);
+      } catch (err: any) {
+        console.error("Error fetching unread count:", err.response?.data?.error || err);
+      } 
+    };
+    fetchUnreadCount();
+  },[notificationsToProcess])
 const joinRequestHandler = async (notificationId: string, workspaceId: string, userId: string, status: string) => {
   let response: any;
   try {
@@ -204,8 +216,8 @@ const [avatarUrl, setAvatarUrl] = useState<string>("");
                    <div className="relative ">
                       <button onClick={() => setShowNotifications(true)} className="relative" >
                         <Bell size={18}/></button>
-                      <span className={`absolute -top-1 -right-1 w-3 h-3 ${notificationsToProcess?.length > 0 ? 'bg-red-500' : 'bg-gray-500'} text-white text-xs rounded-full flex items-center justify-center`}>
-                        { notificationsToProcess?.length>0? notificationsToProcess.length : 0}
+                      <span className={`absolute -top-1 -right-1 w-3 h-3 ${unreadCount > 0 ? 'bg-red-500' : 'bg-gray-500'} text-white text-xs rounded-full flex items-center justify-center`}>
+                        {unreadCount }
                       </span>
                    </div>
                    <button className="md:hidden p-1.5 text-gray-400 hover:text-white rounded-md hover:bg-white/5" onClick={toggleSidebar}>

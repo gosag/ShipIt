@@ -307,4 +307,4 @@ export const deleteWorkspace=asyncHandler(async(req:AuthRequest,res:Response,nex
         res.status(200).json({message:"Workspace deleted successfully"});
     } catch (err) {
         next(err);
-    }})
+    }});

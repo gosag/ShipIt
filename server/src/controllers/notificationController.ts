@@ -3,6 +3,7 @@ import type { AuthRequest } from "../middleware/auth.js";
 import { Notification } from "../models/Notification.js";
 import { Workspace } from "../models/Workspace.js";
 import { User } from "../models/User.js";
+import NotificationSeen from "../models/notificationSeen.js";
 import asyncHandler from "express-async-handler";
 interface customError extends Error {
     status?: number;
@@ -46,7 +47,8 @@ export const sendJoinRequest= asyncHandler(async(req:AuthRequest,res:Response,ne
                 recipient: workspace.owner,
                 workspace: workspaceId,
                 message: `${userInfo.name} has requested to join workspace ${workSpaceName}`,
-                link: `/workspaces/${workspaceId}/join-requests`
+                link: `/workspaces/${workspaceId}/join-requests`,
+                status: "pending"
             });
             await newNotification.save();
             res.status(201).json({ message: "Join request sent successfully" });
@@ -101,6 +103,7 @@ export const markAllNotificationsRead = asyncHandler(async (req: AuthRequest, re
         error.status = 401;
         return next(error);
     }
+
     await Notification.updateMany(
         { recipient: req.user._id, read: false },
         { read: true }
@@ -114,11 +117,13 @@ export const getUnreadCount = asyncHandler(async (req: AuthRequest, res: Respons
         error.status = 401;
         return next(error);
     }
-    const count = await Notification.countDocuments({ recipient: req.user._id, read: false });
-    res.status(200).json({ count });
+    const lastRead = await NotificationSeen.findOne({ user: req.user._id});
+    const lastReadDate = lastRead ? lastRead.lastReadAt : new Date(0);
+    const unreadCount = await Notification.countDocuments({ recipient: req.user._id, createdAt: { $gt: lastReadDate }, read: false }) || 0;
+    res.status(200).json({ unreadCount });
 });
 
-export const geYourNotificationsStatus= asyncHandler(async(req:AuthRequest,res:Response,next:NextFunction)=>{
+export const getYourNotificationsStatus= asyncHandler(async(req:AuthRequest,res:Response,next:NextFunction)=>{
     if(!req.user || !req.user._id){
         const error = new Error("Unauthorized: User not authenticated") as customError;
         error.status = 401;

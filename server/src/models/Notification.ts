@@ -24,7 +24,7 @@ const notificationSchema = new Schema<INotification>(
     message: { type: String, required: true },
     link: { type: String, required: true },
     read: { type: Boolean, default: false },
-    status: { type: String, enum: ['pending', 'accepted', 'rejected'], default: 'pending' }
+    status: { type: String, enum: ['pending', 'accepted', 'rejected'] }
   },
   {
     timestamps: true,
