@@ -73,7 +73,7 @@ const Button: React.FC<BtnProps> = ({
 
 const Logo: React.FC<{ className?: string }> = ({ className = "" }) => (
   <span className={`font-bold tracking-tight ${className}`}>
-    Ship<span className="text-[#7f77dd]">It</span>
+    Ship<span className="text-rgb(129, 52, 254)">It</span>
   </span>
 );
 
@@ -317,20 +317,7 @@ const Hero: React.FC = () => (
       </motion.div>
     </div>
 
-    {/* floating mockup */}
-    <motion.div
-      initial={{ opacity: 0, y: 40 }}
-      animate={{ opacity: 1, y: 0 }}
-      transition={{ delay: 0.5, duration: 0.5 }}
-      className="relative mx-auto mt-16 max-w-5xl"
-    >
-      <motion.div
-        animate={{ y: [0, -10, 0] }}
-        transition={{ duration: 6, repeat: Infinity, ease: "easeInOut" }}
-      >
-        <KanbanMockup />
-      </motion.div>
-    </motion.div>
+    
   </section>
 );
 
@@ -431,7 +418,7 @@ const Features: React.FC = () => (
 /* ------------------------------------------------------------------ */
 const steps: { title: string; desc: string }[] = [
   { title: "Create a workspace", desc: "Spin up a workspace and invite your team in seconds." },
-  { title: "Build your board", desc: "Add columns, create cards, then assign and prioritize the work." },
+  { title: "Build your board", desc: "Create cards, then assign and prioritize the work." },
   { title: "Ship", desc: "Drag, collaborate, and track everything in real time." },
 ];
 
@@ -585,10 +572,11 @@ const LandingPage: React.FC = () => (
     <Navbar />
     <main>
       <Hero />
+      <Showcase />
       <SocialProof />
       <Features />
       <HowItWorks />
-      <Showcase />
+      
       <CTA />
     </main>
     <Footer />

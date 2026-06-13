@@ -322,7 +322,6 @@ const [avatarUrl, setAvatarUrl] = useState<string>("");
                               {/* Render Projects for this Workspace */}
                               {ws.projects && ws.projects.length > 0 && (
                                 <div>
-                                  <p className="text-gray-500 text-[12px] font-semibold ml-10">PROJECTS</p>
                                 <div className="pl-6 pr-3 space-y-1 mt-1 border-l border-[#2C2C2E]/30 ml-5.5">
                                   {ws.projects.map((project: any) => (
                                     <NavLink 
