@@ -318,7 +318,7 @@ const Hero: React.FC = () => (
         </Link>
         <a href="#features" className="text-sm text-zinc-400 hover:text-zinc-200">
         <Button variant="ghost">
-            See How It Works <ArrowRight className="h-4 w-4" />
+            Learn More <ArrowRight className="h-4 w-4" />
         </Button>
         </a>
       </motion.div>
