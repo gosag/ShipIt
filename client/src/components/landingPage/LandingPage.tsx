@@ -73,7 +73,7 @@ const Button: React.FC<BtnProps> = ({
 
 const Logo: React.FC<{ className?: string }> = ({ className = "" }) => (
   <span className={`font-bold tracking-tight ${className}`}>
-    Ship<span className="text-rgb(129, 52, 254)">It</span>
+    Ship<span className="text-[rgb(129,52,254)]">It</span>
   </span>
 );
 
