@@ -8,7 +8,6 @@ import {
   Search,
   Menu,
   X,
-  Trash2,
   Bell
 } from "lucide-react";
 import { api } from "../../axios";
@@ -322,33 +321,21 @@ const [avatarUrl, setAvatarUrl] = useState<string>("");
 
                               {/* Render Projects for this Workspace */}
                               {ws.projects && ws.projects.length > 0 && (
-                                <div className="pl-11 pr-3 space-y-1 mt-1 border-l border-[#2C2C2E]/30 ml-5.5">
+                                <div>
+                                  <p className="text-gray-500 text-[12px] font-semibold ml-10">PROJECTS</p>
+                                <div className="pl-6 pr-3 space-y-1 mt-1 border-l border-[#2C2C2E]/30 ml-5.5">
                                   {ws.projects.map((project: any) => (
                                     <NavLink 
                                       key={project._id}
                                       to={`/projects/${project._id}`} 
-                                      className={({isActive}) => `flex items-center gap-3 py-1.5 text-sm font-medium rounded transition-colors duration-150 ${isActive ? 'text-white' : 'text-gray-400 hover:text-gray-100'}`}
+                                      className={({isActive}) => `flex items-center gap-1 py-1 text-sm font-medium rounded transition-colors duration-150 ${isActive ? 'text-white' : 'text-gray-400 hover:text-gray-100'}`}
                                     >
-                                      <span className="w-1.5 h-1.5 rounded-full bg-blue-400 shrink-0"></span>
+                                      <span className="">< FolderKanban size={16}/></span>
                                       <span className="truncate">{project.name}</span>
-                                      {project.createdBy === userData?._id || ws.owner===userData?._id && (
-                                        <button 
-                                          className="ml-auto p-1 text-gray-400 hover:text-red-500 transition-colors" 
-                                          title="Delete Project"
-                                          onClick={(e) => {
-                                            e.preventDefault();
-                                            e.stopPropagation();
-                                            setProjectToDelete(project);
-                                            
-                                            setDeleteConfirmName("");
-                                            setShowDeleteProjectModal(true);
-                                          }}
-                                        >
-                                          <Trash2 size={12} className="text-gray-400 pointer-events-none" />
-                                        </button>
-                                      )}
+                                       
                                     </NavLink>
                                   ))}
+                                </div>
                                 </div>
                               )}
                             </div>
