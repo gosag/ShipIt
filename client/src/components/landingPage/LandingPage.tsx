@@ -13,7 +13,7 @@ import {
   Check,
   FolderKanban
 } from "lucide-react";
-
+import { Link } from "react-router-dom";
 const C = {
   bg: "#111113",
   surface: "#1a1a1c",
@@ -39,14 +39,12 @@ const stagger: Variants = {
 /*  Reusable primitives                                                */
 /* ------------------------------------------------------------------ */
 type BtnProps = {
-  href: string;
   children: React.ReactNode;
   variant?: "filled" | "ghost" | "outline";
   className?: string;
 };
 
 const Button: React.FC<BtnProps> = ({
-  href,
   children,
   variant = "filled",
   className = "",
@@ -61,7 +59,6 @@ const Button: React.FC<BtnProps> = ({
   };
   return (
     <motion.a
-      href={href}
       whileHover={{ scale: 1.02 }}
       whileTap={{ scale: 0.97 }}
       className={`${base} ${styles[variant]} ${className}`}
@@ -102,12 +99,16 @@ const Navbar: React.FC = () => {
       <nav className="mx-auto flex max-w-6xl items-center justify-between px-6 py-4">
         <Logo className="text-xl text-white" />
         <div className="flex items-center gap-2">
-          <Button href="/login" variant="ghost">
+        <Link to="/login">
+          <Button variant="ghost">
             Log in
           </Button>
-          <Button href="/register" variant="filled">
+        </Link>
+        <Link to="/register">
+          <Button variant="filled">
             Get Started
           </Button>
+          </Link>
         </div>
       </nav>
     </motion.header>
@@ -152,14 +153,16 @@ const MockCard: React.FC<{ card: Card }> = ({ card }) => (
     </div>
     <div className="flex items-center justify-between">
     
-      {card.unread ? (
+      
         <div className="flex items-center gap-1 relative">
           <MessageSquare className="h-3.5 w-3.5 text-zinc-500" />
+          {card.unread ? (
           <span className=" absolute -top-2 -right-2 flex h-4 w-4 items-center justify-center rounded-full bg-red-500 text-[10px] font-medium text-white">
             {card.unread}
           </span>
+          ) : null}
         </div>
-      ) : null}
+      
     </div>
      </div>
   </div>
@@ -308,12 +311,16 @@ const Hero: React.FC = () => (
         transition={{ delay: 0.4, duration: 0.4 }}
         className="mt-8 flex flex-col items-center justify-center gap-3 sm:flex-row"
       >
-        <Button href="/register" variant="filled">
-          Get Started Free <ArrowRight className="h-4 w-4" />
+        <Link to="/register">
+          <Button variant="filled">
+            Get Started Free <ArrowRight className="h-4 w-4" />
+          </Button>
+        </Link>
+        <a href="#features" className="text-sm text-zinc-400 hover:text-zinc-200">
+        <Button variant="ghost">
+            See How It Works <ArrowRight className="h-4 w-4" />
         </Button>
-        <Button href="#features" variant="outline">
-          See how it works
-        </Button>
+        </a>
       </motion.div>
     </div>
 
@@ -527,9 +534,11 @@ const CTA: React.FC = () => (
           forward today.
         </p>
         <div className="mt-8 flex justify-center">
-          <Button href="/register" variant="filled" className="px-6 py-3 text-base">
+          <Link to="/register">
+          <Button variant="filled" className="px-6 py-3 text-base">
             Get Started Free <ArrowRight className="h-4 w-4" />
           </Button>
+            </Link>
         </div>
         <p className="mt-4 flex items-center justify-center gap-1.5 text-xs text-zinc-500">
           <Check className="h-3.5 w-3.5 text-[#7f77dd]" />
@@ -553,7 +562,7 @@ const Footer: React.FC = () => (
         </span>
       </div>
       <a
-        href="https://www.linkedin.com/"
+        href="https://www.linkedin.com/in/gosa-girma"
         target="_blank"
         rel="noreferrer"
         className="text-sm text-zinc-500 transition-colors hover:text-zinc-300"
