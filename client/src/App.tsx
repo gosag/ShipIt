@@ -7,6 +7,7 @@ import Search from "./components/Search"
 import WorkspaceInfo from "./components/workspaceInfo";
 import Dashboard from "./components/dashboard/Dashboard";
 import Settings from "./components/settings/Settings";
+import LandingPage from "./components/landingPage/LandingPage";
 const App=()=>{
   const savedToken=!!localStorage.getItem("accessToken")
   return(
@@ -14,7 +15,8 @@ const App=()=>{
     <Routes>
       {!savedToken?
       (<Route>
-          <Route index element={<Register />} />
+          <Route index element={<LandingPage />} />
+          <Route path="register" element={<Register />} />
           <Route path="login" element={<Login />} />
           <Route path="*" element={<Navigate to="/" replace />} />
       </Route>):
