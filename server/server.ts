@@ -11,7 +11,7 @@ import projectRouter from './src/routes/projectRoutes.js';
 import cardsRouter from './src/routes/cardsRoutes.js';
 import columnRouter from './src/routes/columnRoutes.js';
 import messagesRouter from './src/routes/messagesRoutes.js';
-import errorMiddleware from './src/middleware/errror.js';
+import errorMiddleware from './src/middleware/error.js';
 import DbConnect from './config/db.js'; 
 import notificationRouter from './src/routes/notificationRotes.js';
 import dashboardRouter from './src/routes/dashboardRoutes.js';

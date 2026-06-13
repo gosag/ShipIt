@@ -130,7 +130,7 @@ export const getYourNotificationsStatus= asyncHandler(async(req:AuthRequest,res:
         return next(error);
     }
     try{
-        const notifications = await Notification.find({sender: req.user._id}).sort({createdAt: -1});
+        const notifications = await Notification.find({sender: req.user._id, type:"join_request"}).sort({createdAt: -1});
         res.status(200).json(notifications);
     }
     catch (error: any) {
