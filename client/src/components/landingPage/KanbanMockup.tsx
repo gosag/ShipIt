@@ -1,10 +1,3 @@
-/**
- * KanbanMockup.tsx
- *
- * Install deps if not already present:
- *   npm install @dnd-kit/core @dnd-kit/sortable @dnd-kit/utilities
- */
-
 import React, { useState } from "react";
 import { motion, AnimatePresence, type Variants } from "framer-motion";
 import {
@@ -27,9 +20,6 @@ import {
 import { CSS } from "@dnd-kit/utilities";
 import { FolderKanban, MessageSquare, GripVertical } from "lucide-react";
 
-/* ------------------------------------------------------------------ */
-/*  Types                                                               */
-/* ------------------------------------------------------------------ */
 type Priority = "urgent" | "high" | "medium";
 
 interface Card {
@@ -47,17 +37,11 @@ interface Column {
   cards: Card[];
 }
 
-/* ------------------------------------------------------------------ */
-/*  Framer Motion variants (restored from original LandingPage)        */
-/* ------------------------------------------------------------------ */
 const fadeUp: Variants = {
   hidden: { opacity: 0, y: 24 },
   show: { opacity: 1, y: 0, transition: { duration: 0.4, ease: "easeOut" } },
 };
 
-/* ------------------------------------------------------------------ */
-/*  Initial data                                                        */
-/* ------------------------------------------------------------------ */
 const initialColumns: Column[] = [
   {
     id: "todo",
@@ -91,18 +75,12 @@ const initialColumns: Column[] = [
   },
 ];
 
-/* ------------------------------------------------------------------ */
-/*  Priority badge styles                                               */
-/* ------------------------------------------------------------------ */
 const priorityStyles: Record<Priority, string> = {
   urgent: "bg-red-500/15 text-red-400 border-red-500/30",
   high: "bg-amber-500/15 text-amber-400 border-amber-500/30",
   medium: "bg-blue-500/15 text-blue-400 border-blue-500/30",
 };
 
-/* ------------------------------------------------------------------ */
-/*  Card content (static — used in overlay + inside sortable)          */
-/* ------------------------------------------------------------------ */
 const CardContent: React.FC<{ card: Card; isDragging?: boolean }> = ({
   card,
   isDragging = false,
@@ -161,15 +139,11 @@ const SortableCard: React.FC<{ card: Card }> = ({ card }) => {
   );
 };
 
-/* ------------------------------------------------------------------ */
-/*  Droppable column                                                    */
-/*  FIX: useDroppable on the column id so empty columns accept drops   */
-/* ------------------------------------------------------------------ */
 const DroppableColumn: React.FC<{ column: Column; isOver: boolean }> = ({
   column,
   isOver,
 }) => {
-  // This makes the column itself a valid drop target — critical for empty columns
+
   const { setNodeRef } = useDroppable({ id: column.id });
 
   return (
@@ -178,19 +152,17 @@ const DroppableColumn: React.FC<{ column: Column; isOver: boolean }> = ({
         isOver ? "bg-[#7f77dd]/6 ring-1 ring-[#7f77dd]/25" : ""
       }`}
     >
-      {/* Column header */}
+    
       <div className="flex items-center justify-between px-1">
         <span className="text-xs font-semibold text-zinc-300">{column.name}</span>
         <span className="text-xs text-zinc-500">{column.cards.length}</span>
       </div>
 
-      {/* Cards + empty drop zone */}
       <SortableContext
         items={column.cards.map((c) => c.id)}
         strategy={verticalListSortingStrategy}
       >
-        {/* ref goes here — wraps both cards and the empty state so the whole area is droppable */}
-        <div ref={setNodeRef} className="flex min-h-15 flex-col gap-3">
+        <div ref={setNodeRef} className="flex md:max-h-72 overflow-y-auto custom-scrollbar flex-col gap-3">
           <AnimatePresence initial={false}>
             {column.cards.map((card) => (
               <motion.div
@@ -224,9 +196,6 @@ const DroppableColumn: React.FC<{ column: Column; isOver: boolean }> = ({
   );
 };
 
-/* ------------------------------------------------------------------ */
-/*  Main export                                                         */
-/* ------------------------------------------------------------------ */
 export const KanbanMockup: React.FC<{ withSidebar?: boolean }> = ({
   withSidebar = true,
 }) => {
@@ -323,7 +292,7 @@ export const KanbanMockup: React.FC<{ withSidebar?: boolean }> = ({
       initial="hidden"
       whileInView="show"
       viewport={{ once: true }}
-      className="overflow-hidden rounded-xl border border-[#2a2a2c] bg-[#1a1a1c] shadow-2xl"
+      className="overflow-hidden md:h-100 rounded-xl border border-[#2a2a2c] bg-[#1a1a1c] shadow-2xl"
     >
       {/* Window chrome */}
       <div className="flex items-center justify-between border-b border-[#2a2a2c] px-4 py-3">
