@@ -341,7 +341,7 @@ useEffect(() => {
             <Loader className="animate-spin text-indigo-500" size={32} />
           </div>
         ) : (
-          <div className="flex flex-col lg:grid lg:grid-cols-4 gap-6 h-auto lg:h-full">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 h-auto lg:h-full">
             <DndContext sensors={sensors} onDragStart={handleDragStart} onDragCancel={handleDragCancel} onDragEnd={handleDragEnd}>
             {columns.map((column, index) => (
               <div key={column._id} className="flex flex-col h-125 lg:h-full min-h-0">
