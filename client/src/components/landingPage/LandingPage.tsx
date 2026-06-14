@@ -11,9 +11,10 @@ import {
   Bell,
   ArrowRight,
   Check,
-  FolderKanban
+
 } from "lucide-react";
 import { Link } from "react-router-dom";
+import KanbanMockup from "./KanbanMockup";
 const C = {
   bg: "#111113",
   surface: "#1a1a1c",
@@ -114,154 +115,6 @@ const Navbar: React.FC = () => {
     </motion.header>
   );
 };
-
-/* ------------------------------------------------------------------ */
-/*  Kanban mockup (shared by Hero + Showcase)                          */
-/* ------------------------------------------------------------------ */
-type Priority = "urgent" | "high" | "medium";
-
-const priorityStyles: Record<Priority, string> = {
-  urgent: "bg-red-500/15 text-red-400 border-red-500/30",
-  high: "bg-amber-500/15 text-amber-400 border-amber-500/30",
-  medium: "bg-blue-500/15 text-blue-400 border-blue-500/30",
-};
-
-type Card = {
-  title: string;
-  priority: Priority;
-  initials: string;
-  forYou?: boolean;
-  unread?: number;
-};
-
-const MockCard: React.FC<{ card: Card }> = ({ card }) => (
-  <div className="rounded-lg border border-[#2a2a2c] bg-[#111113] p-3">
-    
-    <p className="mb-3 text-sm font-medium text-zinc-200">{card.title}</p>
-     <div className="flex justify-between"> 
-    <div className="mb-2 flex items-center gap-2">
-      <span
-        className={`rounded border px-1.5 py-0.5 text-[10px] font-medium capitalize ${priorityStyles[card.priority]}`}
-      >
-        {card.priority}
-      </span>
-      {card.forYou && (
-        <span className="rounded border border-[#7f77dd]/40 bg-[#7f77dd]/15 px-1.5 py-0.5 text-[10px] font-medium text-[#a39bff]">
-          For you
-        </span>
-      )}
-    </div>
-    <div className="flex items-center justify-between">
-    
-      
-        <div className="flex items-center gap-1 relative">
-          <MessageSquare className="h-3.5 w-3.5 text-zinc-500" />
-          {card.unread ? (
-          <span className=" absolute -top-2 -right-2 flex h-4 w-4 items-center justify-center rounded-full bg-red-500 text-[10px] font-medium text-white">
-            {card.unread}
-          </span>
-          ) : null}
-        </div>
-      
-    </div>
-     </div>
-  </div>
-);
-
-type Column = { name: string; count: number; cards: Card[] };
-
-const boardData: Column[] = [
-  {
-    name: "To Do",
-    count: 2,
-    cards: [
-      { title: "Design onboarding flow", priority: "high", initials: "GG", forYou: true },
-      { title: "Set up CI pipeline", priority: "medium", initials: "AK" },
-    ],
-  },
-  {
-    name: "In Progress",
-    count: 2,
-    cards: [
-      { title: "Fix realtime socket drop", priority: "urgent", initials: "GG", unread: 3 },
-      { title: "Build dashboard widgets", priority: "high", initials: "MR" },
-    ],
-  },
-  {
-    name: "In Review ",
-    count: 1,
-    cards: [{ title: "Code review for new feature", priority: "high", initials: "JD" }],
-  },
-  {
-    name: "Done",
-    count: 1,
-    cards: [{ title: "Workspace invites", priority: "medium", initials: "AK" }],
-  },
-];
-
-const KanbanMockup: React.FC<{ withSidebar?: boolean }> = ({
-  withSidebar = true,
-}) => (
-  <div className="overflow-hidden rounded-xl border border-[#2a2a2c] bg-[#1a1a1c] shadow-2xl">
-    {/* window chrome */}
-    <div className="flex items-center gap-1.5 border-b border-[#2a2a2c] px-4 py-3">
-      <span className="h-2.5 w-2.5 rounded-full bg-red-500/70" />
-      <span className="h-2.5 w-2.5 rounded-full bg-amber-500/70" />
-      <span className="h-2.5 w-2.5 rounded-full bg-green-500/70" />
-    </div>
-
-    <div className="flex">
-      {/* sidebar */}
-      {withSidebar && (
-        <aside className="hidden w-48 shrink-0 border-r border-[#2a2a2c] p-4 sm:block">
-          <div className="mb-4 flex items-center gap-2">
-            <div className="flex h-7 w-7 items-center justify-center rounded-md bg-[#534ab7] text-xs font-bold text-white">
-              S
-            </div>
-            <span className="text-sm font-semibold text-white">
-              Acme Team
-            </span>
-          </div>
-          <p className="mb-2 text-[10px] font-semibold uppercase tracking-wider text-zinc-500">
-            Projects
-          </p>
-          <ul className="space-y-1 text-sm">
-            {["Product", "Marketing", "Design"].map((p, i) => (
-              <li
-                key={p}
-                className={`flex items-center gap-2 rounded-md px-2 py-1.5 ${
-                  i === 0
-                    ? "bg-[#7f77dd]/15 text-white"
-                    : "text-zinc-400"
-                }`}
-              >
-                <FolderKanban className="h-3.5 w-3.5" />
-                {p}
-              </li>
-            ))}
-          </ul>
-        </aside>
-      )}
-
-      {/* board */}
-      <div className="grid flex-1 grid-cols-1 md:grid-cols-4 gap-3 p-4">
-        {boardData.map((col) => (
-          <div key={col.name} className="flex flex-col gap-3">
-            <div className="flex items-center justify-between">
-              <span className="text-xs font-semibold text-zinc-300">
-                {col.name}
-              </span>
-              <span className="text-xs text-zinc-500">{col.count}</span>
-            </div>
-            {col.cards.map((card) => (
-              <MockCard key={card.title} card={card} />
-            ))}
-          </div>
-        ))}
-      </div>
-    </div>
-  </div>
-);
 
 /* ------------------------------------------------------------------ */
 /*  2. Hero                                                            */
