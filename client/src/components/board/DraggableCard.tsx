@@ -153,7 +153,7 @@ useEffect(()=>{
 
       {/* Badges */}
       {(card.priority || isAssignedToMe) && (
-        <div className="mt-2.5 flex flex-wrap items-center gap-1.5">
+        <div className="mt-2.5 flex flex-wrap items-center gap-1">
           {card.priority && (
             <span
               className={`text-[11px] font-medium px-2 py-0.5 rounded-full uppercase tracking-wide ${
