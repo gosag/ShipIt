@@ -222,8 +222,8 @@ const handleDragEnd = async (event: DragEndEvent) => {
   const getActivityLogs=async ()=>{
     try{
       const res= await api.get(`/api/project/${projectId}/activity-log?size=${activityLogPage}`)
-      if(res.data.length===0){
-        return;
+      if(activityLogPage>0 && res.data.length===0){
+        alert("No more activity logs to load.")
       }
       setActivityLogPage(prev=>prev+1);
       setActivityLog(prev=>[...prev,...res.data])
