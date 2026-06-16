@@ -629,9 +629,11 @@ const Settings = () => {
                   Delete Account
                 </button>
               </form>
-            </div>
-            <div onClick={logoutHandler}>
-                    <button>LogOut</button>
+            </div> 
+            <div className="border  rounded-lg border-zinc-800 bg-zinc-900 p-4" onClick={logoutHandler}>
+                  <button className="bg-red-900  text-white py-2 px-4 rounded-lg hover:bg-red-700 transition-colors active:scale-95 flex items-center gap-2">
+                    Logout
+                  </button>
             </div>
           </div>
         )}
