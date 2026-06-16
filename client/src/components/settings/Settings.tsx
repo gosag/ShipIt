@@ -373,7 +373,15 @@ const Settings = () => {
       showToast("error", err.response?.data?.error || err.response?.data?.message || "Failed to update role");
     }
   };
-
+  const logoutHandler= async()=>{
+    try{
+     await api.post("/api/auth/logout")
+     localStorage.clear()
+     refreshUserData()
+    }catch(err){
+      console.log(err)
+    }
+  }
   const handleDeleteWorkspace = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!selectedWorkspaceId || deleteWsConfirm !== workspace?.name) return;
@@ -621,6 +629,9 @@ const Settings = () => {
                   Delete Account
                 </button>
               </form>
+            </div>
+            <div onClick={logoutHandler}>
+                    <button>LogOut</button>
             </div>
           </div>
         )}

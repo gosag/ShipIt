@@ -127,7 +127,6 @@ export const getActivityLogs= asyncHandler(async(req:AuthRequest, res:Response, 
         throw error
     }
     const size= req.query.size;
-    console.log("This is the Size of the Data the user wats to be returned",size)
     const projectId=req.params.projectId;
     if(!projectId){
         const error = new Error("Project ID is required") as customError;
