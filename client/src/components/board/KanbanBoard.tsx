@@ -10,7 +10,7 @@ interface ColumnType {
   _id: string;
   title: string;
 }
-import { ScrollText} from "lucide-react"; 
+import { ScrollText} from "lucide-react";
 interface ActiveCardData {
   _id: string;
   title: string;
@@ -218,10 +218,15 @@ const handleDragEnd = async (event: DragEndEvent) => {
   const [assigneeFilter, setAssigneeFilter] = useState("all");
   const [activityLog, setActivityLog] = useState<any[]>([]);
   const [showActivityLog, setShowActivityLog] = useState(false);
+  const [activityLogPage, setActivityLogPage] = useState(0);
   const getActivityLogs=async ()=>{
     try{
-      const res= await api.get(`/api/project/${projectId}/activity-log`)
-      setActivityLog(res.data)
+      const res= await api.get(`/api/project/${projectId}/activity-log?size=${activityLogPage}`)
+      if(res.data.length===0){
+        return;
+      }
+      setActivityLogPage(prev=>prev+1);
+      setActivityLog(prev=>[...prev,...res.data])
     }catch(err){
       console.log(err)
     }
@@ -521,7 +526,7 @@ useEffect(() => {
             <div className="flex items-center justify-between p-5 border-b border-[#2C2C2E] bg-[#141415]">
               <h2 className="text-lg font-bold text-white">Activity Log</h2>
               <button 
-                onClick={() => setShowActivityLog(false)}
+                onClick={() => {setShowActivityLog(false); setActivityLogPage(0);}}
                 className="p-1.5 text-gray-400 hover:text-white hover:bg-[#2C2C2E] rounded-md transition-colors"
               >
                 <X size={20} />
@@ -531,7 +536,8 @@ useEffect(() => {
               {activityLog.length === 0 || !Array.isArray(activityLog) ? (
                 <p className="text-sm text-gray-500">No activity logged.</p>
               ) : (
-                activityLog.map((activity: { action: string; createdAt?: string; user?: { name: string; avatar?: string } }, index) => (
+                <div>
+                {activityLog.map((activity: { action: string; createdAt?: string; user?: { name: string; avatar?: string } }, index) => (
                     <div key={index} className="flex items-start gap-3 py-3 border-b border-[#2C2C2E] last:border-0">
                       <div className="w-7 h-7 rounded-full bg-[#2C2C2E] flex items-center justify-center shrink-0 mt-0.5">
                         {activity.user?.avatar ? (
@@ -550,8 +556,15 @@ useEffect(() => {
                         <p className="text-sm text-gray-400 mt-0.5 leading-snug">{activity.action}</p>
                       </div>
                     </div>
-                  ))
+                  ))}
+                  <button>
+                    <span onClick={getActivityLogs} className="mt-4 w-full text-sm text-center text-gray-400 hover:text-white py-2 border-t border-[#2C2C2E] transition-colors">
+                      Load More
+                    </span>
+                  </button>
+                  </div>
               )}
+
             </div>
           </div>
         </div>
