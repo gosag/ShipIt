@@ -42,7 +42,8 @@ const WorkspaceInfo = () => {
   const { workspaceId } = useParams();
   const [workspace, setWorkspace] = useState<Workspace | null>(null);
   const [isLoading, setIsLoading] = useState(true);
- const [emailTOInvite, setEmailToInvite] = useState("");
+ const [userName, setUserName] = useState("");
+ const [loadingInvite, setLoadingInvite] = useState(false);
   useEffect(() => {
     if (!workspaceId) return;
 
@@ -60,7 +61,22 @@ const WorkspaceInfo = () => {
 
     fetchWorkspace();
   }, [workspaceId]);
-
+const handleInvite = async () => {
+    try{
+      setLoadingInvite(true);
+      const response = await api.post(`/api/notification/invitation?username=${userName}`, { workspaceId });
+      if(response.status !== 201) {
+        alert("User not found. Please check the username and try again.");
+        return;
+      }
+      alert(`Invitation sent to user: ${userName} successfully!`);
+      setUserName("");
+    } catch (error) {
+      console.error("Error searching for user:", error);
+    } finally {
+      setLoadingInvite(false);
+    }
+  }
   // Helper to generate initials for the avatar
   const getInitials = (name: string) => {
     return name
@@ -89,7 +105,7 @@ const WorkspaceInfo = () => {
       </div>
     );
   }
-const isAdmin=workspace.members.some(member=>member.user._id===userData._id && member.role.toLowerCase()==="admin");
+const isAdmin=workspace.members.some(member=>member?.user?._id===userData._id && member?.role.toLowerCase()==="admin");
   return (
     <div className="min-h-screen bg-zinc-950 text-zinc-50 p-4 md:p-8 font-sans selection:bg-indigo-500/30">
       <div className="max-w-5xl mx-auto space-y-6">
@@ -229,16 +245,18 @@ const isAdmin=workspace.members.some(member=>member.user._id===userData._id && m
             (<div className="flex gap-2 mt-4">
               <input
                 type="text"
-                placeholder="invite user by email..."
+                placeholder="invite user by username..."
                 className="w-[75%] px-2 py-2 rounded-lg bg-zinc-950/50 border border-zinc-800/80 text-sm text-zinc-300 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-colors"
-                value={emailTOInvite}
-                onChange={(e) => setEmailToInvite(e.target.value)}
+                value={userName}
+                onChange={(e) => setUserName(e.target.value)}
               />
-              <button className="flex items-center gap-2 px-2 bg-indigo-500 hover:bg-indigo-600 text-white rounded-lg transition-colors">
+              <button disabled={(loadingInvite || !userName)} onClick={handleInvite} className="flex items-center gap-2 px-2 bg-indigo-500 hover:bg-indigo-600 text-white rounded-lg transition-colors">
                 <UserPlus className="h-4 w-4" />
                 Invite
               </button>
-            </div>)}
+            </div>
+          )}
+
           </div>
 
         </div>

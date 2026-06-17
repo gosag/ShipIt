@@ -8,17 +8,20 @@ export interface INotificationPreferences {
 
 export interface IUser extends Document {
   name: string;
+  username: string;
   email: string;
   password?: string;
   avatar?: string;
   notificationPreferences: INotificationPreferences;
   createdAt: Date;
   updatedAt: Date;
+
 }
 
 const userSchema = new Schema<IUser>(
   {
     name: { type: String, required: true },
+    username: { type: String, required: true, unique: true, index: true },
     email: { type: String, required: true, unique: true, index: true },
     password: { type: String, required: true },
     avatar: { type: String, default: null },

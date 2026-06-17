@@ -13,11 +13,11 @@ interface customError extends Error{
   statusCode?:number
 }
 const generateAccessToken = (userId: string, email: string, name: string) => {
-  return jwt.sign({ _id: userId, email, name }, process.env.JWT_SECRET || 'fallback_secret', { expiresIn: ACCESS_TOKEN_EXPIRATION });
+  return jwt.sign({ _id: userId, email, name }, process.env.JWT_SECRET! , { expiresIn: ACCESS_TOKEN_EXPIRATION });
 };
 
 const generateRefreshToken = (userId: string, email: string, name: string) => {
-  return jwt.sign({ _id: userId, email, name }, process.env.JWT_REFRESH_SECRET || 'fallback_refresh_secret', { expiresIn: REFRESH_TOKEN_EXPIRATION });
+  return jwt.sign({ _id: userId, email, name }, process.env.JWT_SECRET!, { expiresIn: REFRESH_TOKEN_EXPIRATION });
 };
 
 export const register = async (req: Request, res: Response): Promise<any> => {
@@ -61,8 +61,6 @@ export const login = async (req: Request, res: Response): Promise<any> => {
     if (!user) {
       return res.status(400).json({ message: 'Invalid credentials' });
     }
-
-    // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
     const isMatch = await bcrypt.compare(password, user.password!);
     if (!isMatch) {
       return res.status(400).json({ message: 'Invalid credentials' });
@@ -102,7 +100,7 @@ export const refresh = async (req: Request, res: Response): Promise<any> => {
   }
 
   try {
-    const decoded = jwt.verify(refreshToken, process.env.JWT_REFRESH_SECRET || 'fallback_refresh_secret') as { _id: string; email: string; name: string };
+    const decoded = jwt.verify(refreshToken, process.env.JWT_SECRET!) as { _id: string; email: string; name: string };
     const accessToken = generateAccessToken(decoded._id, decoded.email, decoded.name);
     res.json({ accessToken });
   } catch (error) {
