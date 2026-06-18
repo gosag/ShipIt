@@ -254,7 +254,9 @@ const [avatarUrl, setAvatarUrl] = useState<string>("");
                       aria-label="Notifications"
                     >
                       <Bell size={17} />
-                      <span className={`absolute top-1.25 right-1.25 w-1.75 h-1.75 rounded-full border-[1.5px] border-[#111113] ${unreadCount > 0 ? 'bg-red-500' : 'bg-white/20'}`} />
+                      <span className={`absolute -top-1.25 -right-1 ${unreadCount > 0 ? 'w-4 h-4' : 'w-0 h-0'} text-xs flex items-center justify-center text-white rounded-full border-[1.5px] border-[#111113] ${unreadCount > 0 ? 'bg-red-500' : 'bg-white/20'}`}>
+                        {unreadCount > 0 ? (unreadCount > 9 ? "9+" : unreadCount) : null}
+                      </span>
                     </button>
 
                     <div className="w-px h-4 md:hidden bg-white/10 mx-0.5" />
