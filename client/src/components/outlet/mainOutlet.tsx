@@ -271,10 +271,10 @@ const [avatarUrl, setAvatarUrl] = useState<string>("");
                   </div>
                 </div>
 
-                <div className="flex-1 px-3 py-4 space-y-6 max-h-[70%]">
+                <div  className="flex-1 px-3 py-4 space-y-6 max-h-[70%]">
                     
                     {/* General Links */}
-                    <div className="space-y-1">
+                    <div onClick={()=>{setSidebarOpen(false)}} className="space-y-1">
                         <NavLink 
                           to="/" 
                           className={({isActive}) => `flex items-center gap-3 px-3 py-1.5 text-sm font-medium rounded-lg transition-colors duration-150 ${isActive ? 'bg-[#2C2C2E] text-white' : 'text-gray-400 hover:text-gray-100 hover:bg-[#2C2C2E]/50'}`}
@@ -317,9 +317,9 @@ const [avatarUrl, setAvatarUrl] = useState<string>("");
                           </div>
                         </div>
 
-                        <div className="space-y-2">
+                        <div onClick={()=>{setSidebarOpen(false)}} className="space-y-2">
                           {workspaces.map((ws: any) => (
-                            <div key={ws._id} className="space-y-1">
+                            <div key={ws._id}  className="space-y-1">
                               <NavLink 
                                 to={`/workspace/${ws._id}`} 
                                 className={({isActive}) => `flex items-center gap-3 px-3 py-1.5 text-sm font-medium rounded-lg transition-colors duration-150 ${isActive ? 'bg-[#2C2C2E] text-white' : 'text-gray-400 hover:text-gray-100 hover:bg-[#2C2C2E]/50'}`}
