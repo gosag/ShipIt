@@ -111,7 +111,7 @@ export const sendInvitationRequest = asyncHandler(async (req: AuthRequest, res: 
             status: "pending"
         });
         await newNotification.save();
-        res.status(201).json({ message: "Invitation notification sent successfully" });
+        res.status(201).json({ message: "Invitation notification sent successfully", receipentID: [recipient._id], notification: newNotification });
     } catch (error: any) {
         if (error.status) {
             return next(error);
