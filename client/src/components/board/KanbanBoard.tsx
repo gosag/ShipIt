@@ -3,7 +3,7 @@ import { useParams } from 'react-router-dom';
 import { KanbanColumn } from './KanbanColumn';
 import { Filter, Search, Loader, X, MessageSquare} from 'lucide-react';
 import { api } from '../../axios';
-import { DndContext, DragOverlay, useSensor, useSensors, PointerSensor, type DragCancelEvent, type DragStartEvent } from '@dnd-kit/core';
+import { DndContext, DragOverlay, useSensor, useSensors, MouseSensor, TouchSensor, type DragCancelEvent, type DragStartEvent } from '@dnd-kit/core';
 import type { DragEndEvent } from '@dnd-kit/core';
 import  socket  from '../../../socket';
 interface ColumnType {
@@ -56,12 +56,16 @@ export const KanbanBoard: React.FC = () => {
   const [activeCard, setActiveCard] = useState<ActiveCardData | null>(null);
 
   const sensors = useSensors(
-    useSensor(PointerSensor, {
-      activationConstraint: {
-        distance: 5,
-      },
-    })
-  );
+  useSensor(MouseSensor, {
+    activationConstraint: { distance: 8 },
+  }),
+  useSensor(TouchSensor, {
+    activationConstraint: {
+      delay: 250,
+      tolerance: 5,
+    },
+  })
+);
 
   // New state for task modal
   const [isTaskModalOpen, setIsTaskModalOpen] = useState(false);

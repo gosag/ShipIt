@@ -117,7 +117,7 @@ useEffect(()=>{
       style={style}
       {...listeners}
       {...attributes}
-      className={`group bg-[#1C1C1E] border border-[#2C2C2E] hover:border-[#3A3A3C] hover:shadow-[0_0_0_1px_#2C2C2E] transition-all duration-150 rounded-xl p-3.5 cursor-grab active:cursor-grabbing ${
+      className={`group  touch-none bg-[#1C1C1E] border border-[#2C2C2E] hover:border-[#3A3A3C] hover:shadow-[0_0_0_1px_#2C2C2E] transition-all duration-150 rounded-xl p-3.5 cursor-grab active:cursor-grabbing ${
         isDragging || activeCardId === card._id ? "opacity-0" : ""
       }`}
     >

@@ -3,7 +3,7 @@ import { motion, AnimatePresence, type Variants } from "framer-motion";
 import {
   DndContext,
   DragOverlay,
-  PointerSensor,
+  MouseSensor,
   TouchSensor,
   closestCorners,
   useDroppable,
@@ -92,24 +92,26 @@ const CardContent: React.FC<{ card: Card; isDragging?: boolean }> = ({
         : "border-[#2a2a2c]"
     }`}
   >
-    <p className="mb-3 text-sm font-medium text-zinc-200">{card.title}</p>
-    <div className="flex items-center justify-between">
-      <div className="flex items-center gap-2">
+    <p className="mb-3 text-[11px] sm:text-sm font-medium text-zinc-200 leading-snug">
+      {card.title}
+    </p>
+    <div className="flex items-center justify-between gap-1">
+      <div className="flex items-center gap-1 flex-wrap">
         <span
-          className={`rounded border px-1.5 py-0.5 text-[10px] font-medium capitalize ${priorityStyles[card.priority]}`}
+          className={`rounded border px-1.5 py-0.5 text-[9px] sm:text-[10px] font-medium capitalize ${priorityStyles[card.priority]}`}
         >
           {card.priority}
         </span>
         {card.forYou && (
-          <span className="rounded border border-[#7f77dd]/40 bg-[#7f77dd]/15 px-1.5 py-0.5 text-[10px] font-medium text-[#a39bff]">
-            For you
+          <span className="rounded border border-[#7f77dd]/40 bg-[#7f77dd]/15 px-1.5 py-0.5 text-[9px] sm:text-[10px] font-medium text-[#a39bff]">
+            You
           </span>
         )}
       </div>
-      <div className="relative flex items-center gap-1">
-        <MessageSquare className="h-3.5 w-3.5 text-zinc-500" />
+      <div className="relative flex items-center gap-1 shrink-0">
+        <MessageSquare className="h-3 w-3 sm:h-3.5 sm:w-3.5 text-zinc-500" />
         {card.unread ? (
-          <span className="absolute -right-2 -top-2 flex h-4 w-4 items-center justify-center rounded-full bg-red-500 text-[10px] font-medium text-white">
+          <span className="absolute -right-2 -top-2 flex h-3.5 w-3.5 sm:h-4 sm:w-4 items-center justify-center rounded-full bg-red-500 text-[9px] sm:text-[10px] font-medium text-white">
             {card.unread}
           </span>
         ) : null}
@@ -130,10 +132,18 @@ const SortableCard: React.FC<{ card: Card }> = ({ card }) => {
     transition,
     opacity: isDragging ? 0.35 : 1,
     cursor: isDragging ? "grabbing" : "grab",
+    // critical for mobile — prevents browser from intercepting touch events
+    touchAction: "none" as const,
   };
 
   return (
-    <div ref={setNodeRef} style={style} {...attributes} {...listeners}>
+    <div
+      ref={setNodeRef}
+      style={style}
+      {...attributes}
+      {...listeners}
+      className="touch-none"
+    >
       <CardContent card={card} />
     </div>
   );
@@ -143,26 +153,31 @@ const DroppableColumn: React.FC<{ column: Column; isOver: boolean }> = ({
   column,
   isOver,
 }) => {
-
   const { setNodeRef } = useDroppable({ id: column.id });
 
   return (
     <div
-      className={`flex flex-col gap-3 rounded-lg p-2 transition-colors duration-150 ${
+      className={`flex flex-col gap-2 sm:gap-3 rounded-lg p-1.5 sm:p-2 transition-colors duration-150 min-w-0 ${
         isOver ? "bg-[#7f77dd]/6 ring-1 ring-[#7f77dd]/25" : ""
       }`}
     >
-    
       <div className="flex items-center justify-between px-1">
-        <span className="text-xs font-semibold text-zinc-300">{column.name}</span>
-        <span className="text-xs text-zinc-500">{column.cards.length}</span>
+        <span className="text-[10px] sm:text-xs font-semibold text-zinc-300 truncate pr-1">
+          {column.name}
+        </span>
+        <span className="text-[10px] sm:text-xs text-zinc-500 shrink-0">
+          {column.cards.length}
+        </span>
       </div>
 
       <SortableContext
         items={column.cards.map((c) => c.id)}
         strategy={verticalListSortingStrategy}
       >
-        <div ref={setNodeRef} className="flex md:max-h-72 overflow-y-auto custom-scrollbar flex-col gap-3">
+        <div
+          ref={setNodeRef}
+          className="flex flex-col gap-2 sm:gap-3 overflow-y-auto max-h-48 sm:max-h-60 md:max-h-72 custom-scrollbar"
+        >
           <AnimatePresence initial={false}>
             {column.cards.map((card) => (
               <motion.div
@@ -178,10 +193,9 @@ const DroppableColumn: React.FC<{ column: Column; isOver: boolean }> = ({
             ))}
           </AnimatePresence>
 
-          {/* Empty state — visible drop target when column has no cards */}
           {column.cards.length === 0 && (
             <div
-              className={`rounded-lg border-2 border-dashed py-6 text-center text-xs transition-colors ${
+              className={`rounded-lg border-2 border-dashed py-4 sm:py-6 text-center text-[10px] sm:text-xs transition-colors ${
                 isOver
                   ? "border-[#7f77dd]/50 text-[#7f77dd]/70"
                   : "border-[#2a2a2c] text-zinc-600"
@@ -204,9 +218,18 @@ export const KanbanMockup: React.FC<{ withSidebar?: boolean }> = ({
   const [overColumnId, setOverColumnId] = useState<string | null>(null);
   const [hasInteracted, setHasInteracted] = useState(false);
 
+  // ✅ MouseSensor + TouchSensor instead of PointerSensor
+  // TouchSensor with delay lets mobile distinguish scroll vs drag
   const sensors = useSensors(
-    useSensor(PointerSensor, { activationConstraint: { distance: 5 } }),
-    useSensor(TouchSensor, { activationConstraint: { delay: 250, tolerance: 5 } })
+    useSensor(MouseSensor, {
+      activationConstraint: { distance: 8 },
+    }),
+    useSensor(TouchSensor, {
+      activationConstraint: {
+        delay: 250,   // hold 250ms to start drag
+        tolerance: 5, // allow 5px finger wobble during hold
+      },
+    })
   );
 
   /* helpers */
@@ -236,13 +259,12 @@ export const KanbanMockup: React.FC<{ withSidebar?: boolean }> = ({
     const activeCol = findColumnByCardId(activeId);
     if (!activeCol) return;
 
-    // over.id is either a card id OR a column id (empty column case)
     const overCol = findColumnByCardId(overId) ?? findColumnById(overId);
     if (!overCol) return;
 
     setOverColumnId(overCol.id);
 
-    if (activeCol.id === overCol.id) return; // same column — sortable handles it
+    if (activeCol.id === overCol.id) return;
 
     setColumns((prev) => {
       const srcIdx = prev.findIndex((c) => c.id === activeCol.id);
@@ -251,7 +273,6 @@ export const KanbanMockup: React.FC<{ withSidebar?: boolean }> = ({
 
       const card = prev[srcIdx].cards.find((c) => c.id === activeId)!;
       const overCardIdx = prev[dstIdx].cards.findIndex((c) => c.id === overId);
-      // If overId is a column id (not a card), insert at end
       const insertAt = overCardIdx >= 0 ? overCardIdx : prev[dstIdx].cards.length;
 
       return prev.map((col, i) => {
@@ -266,7 +287,7 @@ export const KanbanMockup: React.FC<{ withSidebar?: boolean }> = ({
     });
   };
 
-  /* drag end — finalise reorder within same column */
+  /* drag end */
   const handleDragEnd = ({ active, over }: DragEndEvent) => {
     setActiveCard(null);
     setOverColumnId(null);
@@ -286,23 +307,22 @@ export const KanbanMockup: React.FC<{ withSidebar?: boolean }> = ({
   };
 
   return (
-    // ✅ fadeUp wraps the whole board — the scroll-triggered lift animation is back
     <motion.div
       variants={fadeUp}
       initial="hidden"
       whileInView="show"
       viewport={{ once: true }}
-      className="overflow-hidden md:h-100 rounded-xl border border-[#2a2a2c] bg-[#1a1a1c] shadow-2xl"
+      className="overflow-hidden rounded-xl border border-[#2a2a2c] bg-[#1a1a1c] shadow-2xl"
     >
       {/* Window chrome */}
-      <div className="flex items-center justify-between border-b border-[#2a2a2c] px-4 py-3">
+      <div className="flex items-center justify-between border-b border-[#2a2a2c] px-3 sm:px-4 py-2.5 sm:py-3">
         <div className="flex items-center gap-1.5">
-          <span className="h-2.5 w-2.5 rounded-full bg-red-500/70" />
-          <span className="h-2.5 w-2.5 rounded-full bg-amber-500/70" />
-          <span className="h-2.5 w-2.5 rounded-full bg-green-500/70" />
+          <span className="h-2 w-2 sm:h-2.5 sm:w-2.5 rounded-full bg-red-500/70" />
+          <span className="h-2 w-2 sm:h-2.5 sm:w-2.5 rounded-full bg-amber-500/70" />
+          <span className="h-2 w-2 sm:h-2.5 sm:w-2.5 rounded-full bg-green-500/70" />
         </div>
 
-        {/* "Try dragging" hint — fades out after first interaction */}
+        {/* Hint — fades out after first interaction */}
         <AnimatePresence>
           {!hasInteracted && (
             <motion.div
@@ -310,42 +330,44 @@ export const KanbanMockup: React.FC<{ withSidebar?: boolean }> = ({
               animate={{ opacity: 1, y: 0 }}
               exit={{ opacity: 0, y: -4 }}
               transition={{ delay: 0.8, duration: 0.4 }}
-              className="flex items-center gap-1.5 rounded-full border border-[#7f77dd]/30 bg-[#7f77dd]/10 px-3 py-1"
+              className="flex items-center gap-1 sm:gap-1.5 rounded-full border border-[#7f77dd]/30 bg-[#7f77dd]/10 px-2 sm:px-3 py-0.5 sm:py-1"
             >
-              <GripVertical className="h-3 w-3 text-[#a39bff]" />
-              <span className="text-[11px] font-medium text-[#a39bff]">
-                Try dragging a card
+              <GripVertical className="h-2.5 w-2.5 sm:h-3 sm:w-3 text-[#a39bff]" />
+              <span className="text-[9px] sm:text-[11px] font-medium text-[#a39bff] whitespace-nowrap">
+                Hold to drag
               </span>
             </motion.div>
           )}
         </AnimatePresence>
 
-        <div className="w-16" />
+        <div className="w-12 sm:w-16" />
       </div>
 
       <div className="flex">
-        {/* Sidebar */}
+        {/* Sidebar — hidden on mobile, visible sm+ */}
         {withSidebar && (
-          <aside className="hidden w-48 shrink-0 border-r border-[#2a2a2c] p-4 sm:block">
-            <div className="mb-4 flex items-center gap-2">
-              <div className="flex h-7 w-7 items-center justify-center rounded-md bg-[#534ab7] text-xs font-bold text-white">
+          <aside className="hidden w-40 sm:w-48 shrink-0 border-r border-[#2a2a2c] p-3 sm:p-4 sm:block">
+            <div className="mb-3 sm:mb-4 flex items-center gap-2">
+              <div className="flex h-6 w-6 sm:h-7 sm:w-7 items-center justify-center rounded-md bg-[#534ab7] text-[10px] sm:text-xs font-bold text-white">
                 S
               </div>
-              <span className="text-sm font-semibold text-white">Acme Team</span>
+              <span className="text-xs sm:text-sm font-semibold text-white truncate">
+                Acme Team
+              </span>
             </div>
-            <p className="mb-2 text-[10px] font-semibold uppercase tracking-wider text-zinc-500">
+            <p className="mb-2 text-[9px] sm:text-[10px] font-semibold uppercase tracking-wider text-zinc-500">
               Projects
             </p>
-            <ul className="space-y-1 text-sm">
+            <ul className="space-y-1 text-xs sm:text-sm">
               {["Product", "Marketing", "Design"].map((p, i) => (
                 <li
                   key={p}
-                  className={`flex items-center gap-2 rounded-md px-2 py-1.5 ${
+                  className={`flex items-center gap-1.5 sm:gap-2 rounded-md px-2 py-1 sm:py-1.5 ${
                     i === 0 ? "bg-[#7f77dd]/15 text-white" : "text-zinc-400"
                   }`}
                 >
-                  <FolderKanban className="h-3.5 w-3.5" />
-                  {p}
+                  <FolderKanban className="h-3 w-3 sm:h-3.5 sm:w-3.5 shrink-0" />
+                  <span className="truncate">{p}</span>
                 </li>
               ))}
             </ul>
@@ -360,20 +382,26 @@ export const KanbanMockup: React.FC<{ withSidebar?: boolean }> = ({
           onDragOver={handleDragOver}
           onDragEnd={handleDragEnd}
         >
-          <div className="grid flex-1 grid-cols-2 gap-3 p-4 md:grid-cols-4">
-            {columns.map((col) => (
-              <DroppableColumn
-                key={col.id}
-                column={col}
-                isOver={overColumnId === col.id}
-              />
-            ))}
+          {/* 
+            Mobile: 2 columns with horizontal scroll for overflow
+            Desktop: 4 columns in a grid
+          */}
+          <div className="flex-1 overflow-x-auto">
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-2 sm:gap-3 p-2 sm:p-3 md:p-4 min-w-0">
+              {columns.map((col) => (
+                <DroppableColumn
+                  key={col.id}
+                  column={col}
+                  isOver={overColumnId === col.id}
+                />
+              ))}
+            </div>
           </div>
 
           {/* Floating card while dragging */}
           <DragOverlay dropAnimation={{ duration: 180, easing: "ease-out" }}>
             {activeCard ? (
-              <div className="rotate-1 scale-105">
+              <div className="rotate-1 scale-105 w-36 sm:w-auto">
                 <CardContent card={activeCard} isDragging />
               </div>
             ) : null}
