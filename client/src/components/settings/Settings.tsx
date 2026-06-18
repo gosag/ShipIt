@@ -358,7 +358,7 @@ const Settings = () => {
       const res = await api.delete(`/api/workspace/${selectedWorkspaceId}/members/${memberId}`);
       setWorkspace(res.data);
       showToast("success", "Member removed");
-      refreshWorkspaces();
+      await refreshWorkspaces();
     } catch (err: any) {
       showToast("error", err.response?.data?.error || err.response?.data?.message || "Failed to remove member");
     }
@@ -396,6 +396,7 @@ const Settings = () => {
       setWorkspace(null);
       setDeleteWsConfirm("");
       showToast("success", "Workspace deleted");
+      await refreshWorkspaces();
     } catch (err: any) {
       showToast("error", err.response?.data?.error || err.response?.data?.message || "Failed to delete workspace");
     } finally {
