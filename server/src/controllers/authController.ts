@@ -23,14 +23,14 @@ const generateRefreshToken = (userId: string, email: string, name: string) => {
 export const register = async (req: Request, res: Response): Promise<any> => {
   try {
     const { name, email, password, avatar } = req.body;
-
+    const username ="@"+ email.split('@')[0];
     const existingUser = await User.findOne({ email });
     if (existingUser) {
       return res.status(400).json({ message: 'User already exists' });
     }
 
     const hashedPassword = await bcrypt.hash(password, 10);
-    const user = new User({ name, email, password: hashedPassword, avatar });
+    const user = new User({ name, email, password: hashedPassword, avatar, username });
     await user.save();
     console.log("New user registered:", user);
     const accessToken = generateAccessToken(user.id, user.email, user.name);
@@ -44,7 +44,7 @@ export const register = async (req: Request, res: Response): Promise<any> => {
     });
 
     res.status(201).json({
-      user: { _id: user.id, name: user.name, email: user.email, avatar: user.avatar },
+      user: { _id: user.id, name: user.name, email: user.email, avatar: user.avatar, username: user.username },
       accessToken,
     });
   } catch (error) {
@@ -77,7 +77,7 @@ export const login = async (req: Request, res: Response): Promise<any> => {
     });
 
     res.json({
-      user: { _id: user.id, name: user.name, email: user.email, avatar: user.avatar },
+      user: { _id: user.id, name: user.name, email: user.email, avatar: user.avatar, username: user.username },
       accessToken,
     });
   } catch (error) {
