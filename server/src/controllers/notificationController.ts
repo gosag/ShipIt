@@ -65,6 +65,60 @@ export const sendJoinRequest= asyncHandler(async(req:AuthRequest,res:Response,ne
         }
     }
 );
+export const sendInvitationRequest = asyncHandler(async (req: AuthRequest, res: Response, next: NextFunction) => {
+    if (!req.user || !req.user._id) {
+        const error = new Error("Unauthorized: User not authenticated") as customError;
+        error.status = 401;
+        return next(error);
+    }
+    console.log("Received invitation request:", { workspaceId: req.body.workspaceId, username: req.query.username });
+    const { workspaceId} = req.body;
+    const username = req.query.username as string;
+    if(!username){
+        const error = new Error("Username is required") as customError;
+        error.status = 400;
+        return next(error);
+    }
+    const recipient = await User.findOne({ username: username.trim() });
+    if (!recipient) {
+        const error = new Error("Recipient user not found") as customError;
+        console.log("Error: Recipient user not found", { username });
+        error.status = 404;
+        return next(error);
+    }
+
+    if (!workspaceId) {
+        const error = new Error("recipientId, workspaceId, and workspaceName are required") as customError;
+        error.status = 400;
+        return next(error);
+    }
+    const workspace = await Workspace.findById(workspaceId);
+    if (!workspace) {
+        const error = new Error("Workspace not found") as customError;
+        console.log("Error: Workspace not found", { workspaceId });
+        error.status = 404;
+        return next(error);
+    }
+    try {
+        const newNotification = new Notification({
+            type: "invitation",
+            sender: req.user._id,
+            senderName: req.user.name,
+            recipient: recipient._id,
+            workspace: workspaceId,
+            message: `${req.user.name} has invited you to join workspace ${workspace.name}`,
+            link: `/workspaces/${workspaceId}`,
+            status: "pending"
+        });
+        await newNotification.save();
+        res.status(201).json({ message: "Invitation notification sent successfully" });
+    } catch (error: any) {
+        if (error.status) {
+            return next(error);
+        }
+        next(error);
+    }
+});
 export const getNotifications= asyncHandler(async(req:AuthRequest,res:Response,next:NextFunction)=>{
     if(!req.user || !req.user._id){
         const error = new Error("Unauthorized: User not authenticated") as customError;

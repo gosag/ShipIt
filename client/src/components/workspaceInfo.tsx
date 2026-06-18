@@ -12,6 +12,7 @@ import {
   Loader2,
   Crown,
   User as UserIcon,
+  UserPlus
 } from "lucide-react";
 
 // Basic type definitions for better autocomplete and safety
@@ -32,18 +33,20 @@ interface Workspace {
   owner?: {
     name: string;
     email: string;
+    _id?: string;
   };
   members: Member[];
 }
-
+const userData = JSON.parse(localStorage.getItem("userData") || "{}");
 const WorkspaceInfo = () => {
   const { workspaceId } = useParams();
   const [workspace, setWorkspace] = useState<Workspace | null>(null);
   const [isLoading, setIsLoading] = useState(true);
-
+ const [userName, setUserName] = useState("");
+ const [loadingInvite, setLoadingInvite] = useState(false);
   useEffect(() => {
     if (!workspaceId) return;
-
+    
     const fetchWorkspace = async () => {
       try {
         setIsLoading(true);
@@ -58,7 +61,23 @@ const WorkspaceInfo = () => {
 
     fetchWorkspace();
   }, [workspaceId]);
-
+const handleInvite = async () => {
+    try{
+      setLoadingInvite(true);
+      const response = await api.post(`/api/notification/invitation?username=${userName}`, { workspaceId });
+      if(response.status !== 201) {
+        alert("User not found. Please check the username and try again.");
+        return;
+      }
+      alert(`Invitation sent to user: ${userName} successfully!`);
+      setUserName("");
+    } catch (error) {
+      console.error("Error searching for user:", error);
+      alert("Something went wrong. Please! make sure the username is correct.")
+    } finally {
+      setLoadingInvite(false);
+    }
+  }
   // Helper to generate initials for the avatar
   const getInitials = (name: string) => {
     return name
@@ -87,7 +106,7 @@ const WorkspaceInfo = () => {
       </div>
     );
   }
-
+const isAdmin=workspace.members.some(member=>member?.user?._id===userData._id && member?.role.toLowerCase()==="admin");
   return (
     <div className="min-h-screen bg-zinc-950 text-zinc-50 p-4 md:p-8 font-sans selection:bg-indigo-500/30">
       <div className="max-w-5xl mx-auto space-y-6">
@@ -169,6 +188,7 @@ const WorkspaceInfo = () => {
           </div>
 
           {/* Right Column: Members List (Takes 2 columns) */}
+          
           <div className="md:col-span-2 bg-zinc-900/50 border border-zinc-800 rounded-2xl p-6 shadow-xl backdrop-blur-sm flex flex-col h-full">
             <div className="flex items-center justify-between mb-6">
               <h2 className="text-lg font-semibold flex items-center gap-2 text-zinc-200">
@@ -176,7 +196,7 @@ const WorkspaceInfo = () => {
                 Members ({workspace.members.filter(Boolean).length})
               </h2>
             </div>
-
+  
             <div className="flex-1 overflow-hidden">
               {workspace.members.length > 0 ? (
                 <ul className="divide-y divide-zinc-800/50">
@@ -222,8 +242,24 @@ const WorkspaceInfo = () => {
                 </div>
               )}
             </div>
+            {(userData._id===workspace.owner._id || isAdmin) && 
+            (<div className="flex gap-2 mt-4">
+              <input
+                type="text"
+                placeholder="invite user by username..."
+                className="w-[75%] px-2 py-2 rounded-lg bg-zinc-950/50 border border-zinc-800/80 text-sm text-zinc-300 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-colors"
+                value={userName}
+                onChange={(e) => setUserName(e.target.value)}
+              />
+              <button disabled={(loadingInvite || !userName)} onClick={handleInvite} className="flex items-center gap-2 px-2 bg-indigo-500 hover:bg-indigo-600 text-white rounded-lg transition-colors">
+                <UserPlus className="h-4 w-4" />
+                Invite
+              </button>
+            </div>
+          )}
+
           </div>
-          
+
         </div>
       </div>
     </div>

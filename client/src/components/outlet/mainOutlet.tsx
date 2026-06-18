@@ -174,6 +174,9 @@ const joinRequestHandler = async (notificationId: string, workspaceId: string, u
   try {
        if(status==="accepted"){
           response= await  api.put(`/api/workspace/join-request/${workspaceId}/accept`, { userId, notificationId });
+          if(response.status === 200){
+            getWorkspace();
+          }
        }
        if(status==="rejected"){
         response =  await  api.put(`/api/workspace/join-request/${workspaceId}/reject`, { userId, notificationId });
@@ -502,7 +505,7 @@ const [avatarUrl, setAvatarUrl] = useState<string>("");
                             <span className="text-xs text-gray-500">
                               {new Date(notification.createdAt).toLocaleDateString()} at {new Date(notification.createdAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
                             </span>
-                            {notification.type === 'join_request' && notification.status === 'pending' && (
+                            {((notification.type === 'join_request'|| notification.type === 'invitation') && notification.status === 'pending') && (
                               <div className="flex gap-2 mt-2">
                                 <button
                                   onClick={() => joinRequestHandler(notification._id, notification.workspace, notification.sender, 'accepted')}
