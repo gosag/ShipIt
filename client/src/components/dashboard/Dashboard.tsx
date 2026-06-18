@@ -436,7 +436,7 @@ const Dashboard = () => {
 
   const hour = new Date().getHours();
   const greeting = hour < 12 ? "Good morning" : hour < 18 ? "Good afternoon" : "Good evening";
-
+  const isThereAProject = workspaces.some((ws) => ws.projects && ws.projects.length > 0);
   return (
     <div className="max-w-7xl mx-auto space-y-6 pb-0">
       {/* Header */}
@@ -453,10 +453,10 @@ const Dashboard = () => {
         </div>
 
         {/* Quick Actions */}
-        <div className="flex flex-wrap gap-2">
+        <div className={`flex flex-wrap gap-2 ${workspaces?.length > 0 ? '' : 'hidden'}`}>
           <button
             onClick={() => setCardModalOpen(true)}
-            className="flex items-center gap-2 px-4 py-2 text-sm font-medium text-white bg-indigo-600 rounded-xl hover:bg-indigo-700 transition-colors shadow-sm"
+            className={`flex items-center gap-2 px-4 py-2 ${isThereAProject ? '' : 'hidden'} text-sm font-medium text-white bg-indigo-600 rounded-xl hover:bg-indigo-700 transition-colors shadow-sm`}
           >
             <Plus size={16} /> New Card
           </button>
