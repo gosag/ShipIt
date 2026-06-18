@@ -14,6 +14,7 @@ import {
   User as UserIcon,
   UserPlus
 } from "lucide-react";
+import socket from "../../socket";
 
 // Basic type definitions for better autocomplete and safety
 interface Member {
@@ -69,7 +70,9 @@ const handleInvite = async () => {
         alert("User not found. Please check the username and try again.");
         return;
       }
+      socket.emit("notification", response.data.receipentID, response.data.notification);
       alert(`Invitation sent to user: ${userName} successfully!`);
+
       setUserName("");
     } catch (error) {
       console.error("Error searching for user:", error);
