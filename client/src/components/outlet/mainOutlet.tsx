@@ -8,7 +8,8 @@ import {
   Search,
   Menu,
   X,
-  Bell
+  Bell,
+  PanelLeftClose
 } from "lucide-react";
 import { api } from "../../axios";
 import socket from "../../../socket";
@@ -241,22 +242,31 @@ const [avatarUrl, setAvatarUrl] = useState<string>("");
               }`}
             >
                 {/* Branding / Top Nav */}
-                <div className="flex items-center justify-between h-14 px-4 border-b border-[#2C2C2E]/50">
-                   <div className="flex  gap-2 font-semibold">
-                      <span className="text-white">Ship<span className="text-[hsl(263,99%,60%)]">It</span></span>
-                   </div> 
-                   <div className=" flex justify-end items-center gap-4">
-                   <div className="relative ">
-                      <button onClick={() => {setShowNotifications(true); updateNetificationsSeenData(); }} className="relative" >
-                        <Bell size={18}/></button>
-                      <span className={`absolute -top-1 -right-1 w-3 h-3 ${unreadCount > 0 ? 'bg-red-500' : 'bg-gray-500'} text-white text-xs rounded-full flex items-center justify-center`}>
-                        {unreadCount }
-                      </span>
-                   </div>
-                   <button className="md:hidden p-1.5 text-gray-400 hover:text-white rounded-md hover:bg-white/5" onClick={toggleSidebar}>
-                     <X size={18} />
-                   </button>
-                   </div>
+                <div className="flex items-center justify-between h-13 px-3.5 border-b border-white/8">
+                  <span className="text-[15px] font-semibold tracking-tight text-white">
+                    Ship<span className="text-[#7B61FF]">It</span>
+                  </span>
+
+                  <div className="flex items-center gap-1">
+                    <button
+                      onClick={() => { setShowNotifications(true); updateNetificationsSeenData(); }}
+                      className="relative w-8 h-8 flex items-center justify-center rounded-md text-white/45 hover:text-white/85 hover:bg-white/[0.07] transition-colors"
+                      aria-label="Notifications"
+                    >
+                      <Bell size={17} />
+                      <span className={`absolute top-1.25 right-1.25 w-1.75 h-1.75 rounded-full border-[1.5px] border-[#111113] ${unreadCount > 0 ? 'bg-red-500' : 'bg-white/20'}`} />
+                    </button>
+
+                    <div className="w-px h-4 md:hidden bg-white/10 mx-0.5" />
+
+                    <button
+                      onClick={toggleSidebar}
+                      className="md:hidden w-8 h-8 flex items-center justify-center rounded-md text-white/45 hover:text-white/85 hover:bg-white/[0.07] transition-colors"
+                      aria-label="Close sidebar"
+                    >
+                      <PanelLeftClose size={17} />
+                    </button>
+                  </div>
                 </div>
 
                 <div className="flex-1 px-3 py-4 space-y-6 max-h-[70%]">
