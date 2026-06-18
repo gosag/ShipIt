@@ -290,14 +290,14 @@ const [avatarUrl, setAvatarUrl] = useState<string>("");
                           <div className="flex gap-1">
                             <button 
                               onClick={() => setProjectModalOpen(true)}
-                              className="p-1 text-gray-400 opacity-0 group-hover:opacity-100 hover:text-white hover:bg-white/10 rounded-md transition-all"
+                              className="p-1 text-gray-400 hover:text-white hover:bg-white/10 rounded-md transition-all"
                               title="Create Project"
                             >
                               <FolderKanban size={14} />
                             </button>
                             <button 
                               onClick={() => setWorkspaceModalOpen(true)}
-                              className="p-1 text-gray-400 opacity-0 group-hover:opacity-100 hover:text-white hover:bg-white/10 rounded-md transition-all"
+                              className="p-1 text-gray-400 hover:text-white hover:bg-white/10 rounded-md transition-all"
                               title="Create Workspace"
                             >
                               <Plus size={14} />
