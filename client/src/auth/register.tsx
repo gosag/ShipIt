@@ -33,16 +33,12 @@ const Register = () => {
             
             const res = await api.post(`/api/auth/register`, payload, { signal: controller.signal });
             const responseData = res.data;
-
-            if (!responseData.accessToken) {
-                throw new Error(responseData.message || "Something went wrong");
-            }
             localStorage.setItem("accessToken", responseData.accessToken);
             localStorage.setItem("userProfile", responseData.user.avatar || "");
             window.location.href = "/";
-        } catch (err) {
-            console.log(err);
-            alert(err instanceof Error ? err.message : "Error registering");
+        } catch (err: any) {
+            console.error("Registration failed:", err);
+           alert(err ? err.response?.data?.message || err.message : "Error regis...")
         }
         return () => controller.abort();
     };
@@ -60,7 +56,7 @@ const Register = () => {
             const response = await axios.post("https://api.cloudinary.com/v1_1/dhxvrjcoc/image/upload", formData);
             setProfilePictureUrl(response.data.secure_url);
         } catch (error: any) {
-            console.log(error.response?.data);
+            console.error("Failed to upload image:", error.response?.data);
             alert("Failed to upload image. Please try again.");
         } finally {
             setIsUploadingImage(false);

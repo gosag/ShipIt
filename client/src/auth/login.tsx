@@ -20,7 +20,6 @@ const Login = () => {
     const onSubmit = async (data: LoginFormData) => {
         const controller = new AbortController();
         try {
-            // Send the request to /api/auth/login
             const res = await api.post(`/api/auth/login`, data, { signal: controller.signal })
              const responseData = res.data;
             if (responseData.accessToken) {
@@ -28,9 +27,9 @@ const Login = () => {
                 localStorage.setItem("userProfile", responseData.user.avatar || "");
             }
             window.location.href = "/"; 
-        } catch (err) {
+        } catch (err: any) {
             console.error(err);
-            alert(err instanceof Error ? err.message : "Something went wrong during login");
+            alert(err? err.response?.data?.message || err.message : "Something went wrong during login");
         }
     };
     return (

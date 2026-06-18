@@ -20,7 +20,7 @@ const generateRefreshToken = (userId: string, email: string, name: string) => {
   return jwt.sign({ _id: userId, email, name }, process.env.JWT_SECRET!, { expiresIn: REFRESH_TOKEN_EXPIRATION });
 };
 
-export const register = async (req: Request, res: Response): Promise<any> => {
+export const register = async (req: Request, res: Response, next: NextFunction): Promise<any> => {
   try {
     const { name, email, password, avatar } = req.body;
     const username ="@"+ email.split('@')[0];
@@ -32,6 +32,11 @@ export const register = async (req: Request, res: Response): Promise<any> => {
     const hashedPassword = await bcrypt.hash(password, 10);
     const user = new User({ name, email, password: hashedPassword, avatar, username });
     await user.save();
+    if (!user) {
+      const error = new Error("User registration failed") as customError;
+      error.status = 500;
+      throw error;
+    }
     console.log("New user registered:", user);
     const accessToken = generateAccessToken(user.id, user.email, user.name);
     const refreshToken = generateRefreshToken(user.id, user.email, user.name);
@@ -47,25 +52,30 @@ export const register = async (req: Request, res: Response): Promise<any> => {
       user: { _id: user.id, name: user.name, email: user.email, avatar: user.avatar, username: user.username },
       accessToken,
     });
-  } catch (error) {
+  } catch (error:any) {
     console.error("Registration error:", error);
-    res.status(500).json({ message: 'Error registering user' });
+    if (error.name === 'ValidationError') {
+      const errors = Object.values((error as any).errors).map((el: any) => el.message);
+      const errorMessage = `Validation error: ${errors.join(', ')}`;
+      console.error(errorMessage);
+      return res.status(400).json({ message: errorMessage });
+    }
+    next(error);
   }
 };
 
-export const login = async (req: Request, res: Response): Promise<any> => {
+export const login = async (req: Request, res: Response, next: NextFunction): Promise<any> => {
   try {
     const { email, password } = req.body;
 
     const user = await User.findOne({ email });
     if (!user) {
-      return res.status(400).json({ message: 'Invalid credentials' });
+      return res.status(400).json({ message: 'Please register first' });
     }
     const isMatch = await bcrypt.compare(password, user.password!);
     if (!isMatch) {
-      return res.status(400).json({ message: 'Invalid credentials' });
+      return res.status(400).json({ message: 'The password you entered is incorrect' });
     }
-
     const accessToken = generateAccessToken(user.id, user.email, user.name);
     const refreshToken = generateRefreshToken(user.id, user.email, user.name);
 
@@ -81,7 +91,7 @@ export const login = async (req: Request, res: Response): Promise<any> => {
       accessToken,
     });
   } catch (error) {
-    res.status(500).json({ message: 'Error logging in' });
+    next(error);
   }
 };
 
