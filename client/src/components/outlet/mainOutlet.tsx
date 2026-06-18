@@ -36,7 +36,7 @@ const MainOutlet = () => {
     const [workspaceModalOpen, setWorkspaceModalOpen] = useState(false);
     const [projectModalOpen, setProjectModalOpen] = useState(false);
     const savedUserData = localStorage.getItem("userData");
-    const [userData,setUserData]=useState<{name:string,email:string,_id:string, avatar:string} | null>(savedUserData ? JSON.parse(savedUserData) : null);
+    const [userData,setUserData]=useState<{name:string,email:string,_id:string, avatar:string, username:string} | null>(savedUserData ? JSON.parse(savedUserData) : null);
     const [workspaces, setWorkspaces] = useState<{_id:string, name:string, slug:string,owner:string, members:any[]}[]>([]);
     const navigate=useNavigate();
     const getWorkspace = async () => {
@@ -259,7 +259,7 @@ const [avatarUrl, setAvatarUrl] = useState<string>("");
                    </div>
                 </div>
 
-                <div className="flex-1 px-3 py-4 space-y-6 ">
+                <div className="flex-1 px-3 py-4 space-y-6 max-h-[70%]">
                     
                     {/* General Links */}
                     <div className="space-y-1">
@@ -284,7 +284,7 @@ const [avatarUrl, setAvatarUrl] = useState<string>("");
                     </div>
 
                     {/* Workspaces Section */}
-                    <div className="space-y-4 max-h-[70%] overflow-y-auto custom-scrollbar">
+                    <div className="space-y-4 max-h-[75%]  overflow-y-auto custom-scrollbar">
                         <div className="flex items-center justify-between px-3 group">
                           <h3 className="text-xs font-semibold text-gray-500 uppercase tracking-wider">Workspaces</h3>
                           <div className="flex gap-1">
@@ -356,7 +356,7 @@ const [avatarUrl, setAvatarUrl] = useState<string>("");
                       )}
                       <div className="truncate">
                         <p className="text-sm font-medium">{userData ? userData.name : "John Doe"}</p>
-                        <p className="text-xs text-gray-500 truncate">{userData?.email ? userData.email : "JohnDoe@shipit.app"}</p>
+                        <p className="text-xs text-gray-500 truncate">{userData?.username ? userData.username : userData?.email? userData.email:"@JohnDoe"}</p>
                       </div>
                     </div>
                 </div>

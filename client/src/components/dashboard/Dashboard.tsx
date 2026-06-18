@@ -522,7 +522,7 @@ const Dashboard = () => {
         <div className="space-y-6">
           <SectionCard title="Your workspaces" icon={Building2} iconColor="text-indigo-400">
             {data?.workspaces.length ? (
-              <div className="space-y-2">
+              <div className="space-y-2 max-h-50 overflow-auto custom-scrollbar">
                 {data.workspaces.map((ws) => (
                   <Link
                     key={ws._id}
