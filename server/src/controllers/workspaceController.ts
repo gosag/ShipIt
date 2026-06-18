@@ -240,7 +240,13 @@ export const acceptJoinRequest=asyncHandler(async(req:AuthRequest,res:Response,n
         error.status = 404;
         throw error;
     }
-    const userToAddId = notification.sender;
+    let userToAddId: string | undefined;
+    if(notification.type === "join_request" && notification.sender){
+        userToAddId = notification.sender.toString();
+    } else if(notification.type === "invitation" && notification.recipient){
+        userToAddId = notification.recipient.toString();
+    }
+    console.log("User to add ID:", userToAddId);
     if (workspace.members.some((member) => member?.user?.toString() === userToAddId?.toString())) {
         await Notification.findByIdAndUpdate(notificationId, {status: "accepted"});
         res.status(200).json({message: "Join request accepted. User is already a member"});

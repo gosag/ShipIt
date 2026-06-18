@@ -46,7 +46,7 @@ const WorkspaceInfo = () => {
  const [loadingInvite, setLoadingInvite] = useState(false);
   useEffect(() => {
     if (!workspaceId) return;
-
+    
     const fetchWorkspace = async () => {
       try {
         setIsLoading(true);
@@ -73,6 +73,7 @@ const handleInvite = async () => {
       setUserName("");
     } catch (error) {
       console.error("Error searching for user:", error);
+      alert("Something went wrong. Please! make sure the username is correct.")
     } finally {
       setLoadingInvite(false);
     }
