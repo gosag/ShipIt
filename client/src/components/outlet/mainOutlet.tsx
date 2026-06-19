@@ -115,6 +115,7 @@ const MainOutlet = () => {
         setNewWorkspaceName("");
         if(res.status === 201){
           setWorkspaces(prev=> [...prev, res.data])
+          navigate(`/workspace/${res.data._id}`);
         }
         setWorkspaceModalOpen(false);
       } catch (err) {
@@ -131,6 +132,7 @@ const MainOutlet = () => {
         setSelectedWorkspaceId("");
         if(res.status === 201){
           setWorkspaces(prev => prev.map(ws=> ws._id === selectedWorkspaceId ? {...ws, projects: [...ws.projects, res.data]} : ws));
+          navigate(`/projects/${res.data._id}`);
         }
         setProjectModalOpen(false);
        
