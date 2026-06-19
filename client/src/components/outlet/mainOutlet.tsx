@@ -13,6 +13,7 @@ import {
 } from "lucide-react";
 import { api } from "../../axios";
 import socket from "../../../socket";
+
 const Modal = ({ isOpen, onClose, title, children }: any) => {
   if (!isOpen) return null;
   return (
@@ -38,7 +39,7 @@ const MainOutlet = () => {
     const [projectModalOpen, setProjectModalOpen] = useState(false);
     const savedUserData = localStorage.getItem("userData");
     const [userData,setUserData]=useState<{name:string,email:string,_id:string, avatar:string, username:string} | null>(savedUserData ? JSON.parse(savedUserData) : null);
-    const [workspaces, setWorkspaces] = useState<{_id:string, name:string, slug:string,owner:string, members:any[]}[]>([]);
+    const [workspaces, setWorkspaces] = useState<{_id:string, name:string, slug:string,owner:string, members:any[], projects:any[]}[]>([]);
     const navigate=useNavigate();
     const getWorkspace = async () => {
       try {
@@ -110,10 +111,12 @@ const MainOutlet = () => {
       if (!newWorkspaceName.trim()) return;
       try {
         const slug = newWorkspaceName.toLowerCase().replace(/[^a-z0-9]+/g, '-');
-        await api.post("/api/workspace/create", { name: newWorkspaceName, slug });
+        const res=  await api.post("/api/workspace/create", { name: newWorkspaceName, slug });
         setNewWorkspaceName("");
+        if(res.status === 201){
+          setWorkspaces(prev=> [...prev, res.data])
+        }
         setWorkspaceModalOpen(false);
-        getWorkspace();
       } catch (err) {
         console.error("Error creating workspace:", err);
       }
@@ -123,11 +126,14 @@ const MainOutlet = () => {
       e.preventDefault();
       if (!newProjectName.trim() || !selectedWorkspaceId) return;
       try {
-        await api.post(`/api/project/create/${selectedWorkspaceId}`, { name: newProjectName });
+        const res =await api.post(`/api/project/create/${selectedWorkspaceId}`, { name: newProjectName });
         setNewProjectName("");
         setSelectedWorkspaceId("");
+        if(res.status === 201){
+          setWorkspaces(prev => prev.map(ws=> ws._id === selectedWorkspaceId ? {...ws, projects: [...ws.projects, res.data]} : ws));
+        }
         setProjectModalOpen(false);
-        getWorkspace(); // Refresh the list of workspaces and projects
+       
       } catch (err) {
         console.error("Error creating project:", err);
       }
@@ -302,7 +308,7 @@ const [avatarUrl, setAvatarUrl] = useState<string>("");
                           <div className="flex gap-1">
                             <button 
                               onClick={() => setProjectModalOpen(true)}
-                              className="p-1 text-gray-400 hover:text-white hover:bg-white/10 rounded-md transition-all"
+                              className={`p-1 text-gray-400 hover:text-white ${workspaces.length>0? "":"hidden"} hover:bg-white/10 rounded-md transition-all`}
                               title="Create Project"
                             >
                               <FolderKanban size={14} />
