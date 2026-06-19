@@ -387,14 +387,14 @@ const WorkspaceInfo = () => {
 
               <div className="flex-1">
                 {workspace.members.length > 0 ? (
-                  <ul className="divide-y divide-zinc-800/60">
+                  <ul className="divide-y max-h-42 overflow-y-auto custom-scrollbar divide-zinc-800/60">
                     {workspace.members.map((member) => {
                       if (!member?.user) return null;
                       const memberIsAdmin = member.role.toLowerCase() === "admin";
                       return (
                         <li
                           key={member.user._id}
-                          className="py-3 flex items-center justify-between"
+                          className="py-3 flex items-center justify-between px-2"
                         >
                           <div className="flex items-center gap-3 min-w-0">
                             <div className="h-8 w-8 rounded-full bg-zinc-800 flex items-center justify-center text-xs font-medium text-zinc-300 border border-zinc-700/50 shrink-0">
