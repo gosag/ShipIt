@@ -456,7 +456,7 @@ const WorkspaceInfo = () => {
                     ) : (
                       <UserPlus className="h-4 w-4" />
                     )}
-                    Invite
+                    <span className="hidden sm:block">Invite</span>
                   </button>
                 </div>
               )}
@@ -502,7 +502,7 @@ const WorkspaceInfo = () => {
                           className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium text-blue-400 bg-blue-500/10 hover:bg-blue-500/20 border border-blue-500/20 rounded-lg transition-colors"
                         >
                           <Pencil className="h-3.5 w-3.5" />
-                          Edit
+                          <span className="hidden sm:block">Edit</span>
                         </button>
                         <button
                           onClick={() => deleteProject(project._id)}
@@ -514,7 +514,7 @@ const WorkspaceInfo = () => {
                           ) : (
                             <Trash className="h-3.5 w-3.5" />
                           )}
-                          Delete
+                          <span className="hidden sm:block">Delete</span>
                         </button>
                       </div>
                     )}
