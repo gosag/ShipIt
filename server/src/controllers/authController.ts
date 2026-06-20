@@ -34,10 +34,7 @@ export const googleCallback = async (req: Request, res: Response, next: NextFunc
       sameSite: process.env.NODE_ENV === 'production' ? 'none' : 'lax',
       maxAge: REFRESH_TOKEN_COOKIE_MAX_AGE,
     });
-    res.json({
-      user: { _id: user._id, name: user.name, email: user.email, avatar: user.avatar, username: user.username },
-      accessToken,
-    });
+    res.redirect(`${process.env.CLIENT_URL || 'http://localhost:5173'}/login/?accessToken=${accessToken}`);
   } catch (error) {
     next(error);
   }

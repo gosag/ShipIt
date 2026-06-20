@@ -22,7 +22,7 @@ const userSchema = new Schema<IUser>(
   { 
     name: { type: String, required: true },
     googleId: { type: String, unique: true, sparse: true }, 
-    username: { type: String, required: true, unique: true, index: true },
+    username: { type: String, unique: true, index: true },
     email: { type: String, required: true, unique: true, index: true },
     password: { type: String, required: function() { return !this.googleId; } },
     avatar: { type: String, default: null },

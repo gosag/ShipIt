@@ -1,9 +1,9 @@
-import { useForm } from "react-hook-form";
-import {  Link } from "react-router-dom";
+import { useForm,  } from "react-hook-form";
+import {  Link, useNavigate} from "react-router-dom";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod"; 
 import { api } from "../axios";
-
+import { useEffect } from "react";
 const loginSchema = z.object({
     email: z.string().email("Invalid email address"),
     password: z.string().min(1, "Password is required"),
@@ -12,7 +12,7 @@ const loginSchema = z.object({
 type LoginFormData = z.infer<typeof loginSchema>;
 
 const Login = () => {
-    
+    const navigate = useNavigate();
     const { register, handleSubmit, formState: { errors, isSubmitting } } = useForm<LoginFormData>({
         resolver: zodResolver(loginSchema)
     });
@@ -35,6 +35,17 @@ const Login = () => {
     const handleGoogleLogin = () => {
         window.location.href = `${import.meta.env.VITE_API_BASE_URL}/api/auth/google`;
     }
+    useEffect(() => {
+  const token = new URLSearchParams(window.location.search).get("accessToken");
+  if (token) {
+    localStorage.setItem("accessToken", token);
+    console.log("Access token stored and user redirected to dashboard.");
+    navigate("/");
+    
+  } else {
+    navigate("/login");
+  }
+}, []);
     return (
         <div className="min-h-screen bg-[#0A0A0A] flex items-center justify-center p-6 relative overflow-hidden font-sans text-white">
             {/* Ambient Background Glow matching 'Premium/Linear' aesthetic */}

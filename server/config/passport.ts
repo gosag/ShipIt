@@ -15,7 +15,8 @@ passport.use( new GoogleStrategy({
         const email = profile?.emails?.[0]?.value;
         const displayName = profile?.displayName;
         const avatar = profile?.photos?.[0]?.value;
-
+        const username= `${email?.split('@')[0]}${Math.floor(Math.random() * 10000)}`
+        console.log("Google profile received:", { googleId, email, displayName, avatar, username });
         // Guard: email is essential
         if (!email || !googleId) {
             return done(new Error("Google profile is missing email or ID"), undefined);
@@ -27,7 +28,7 @@ passport.use( new GoogleStrategy({
                 user.googleId = googleId;
                 await user.save();
             }else{
-                const username= `${email.split('@')[0]}${Math.floor(Math.random() * 10000)}`;
+                ;
                 user = new User({
                     googleId,
                     name:displayName,
