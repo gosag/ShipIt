@@ -32,6 +32,9 @@ const Login = () => {
             alert(err? err.response?.data?.message || err.message : "Something went wrong during login");
         }
     };
+    const handleGoogleLogin = () => {
+        window.location.href = `${import.meta.env.VITE_API_BASE_URL}/api/auth/google`;
+    }
     return (
         <div className="min-h-screen bg-[#0A0A0A] flex items-center justify-center p-6 relative overflow-hidden font-sans text-white">
             {/* Ambient Background Glow matching 'Premium/Linear' aesthetic */}
@@ -97,7 +100,14 @@ const Login = () => {
                             {isSubmitting ? "Signing in..." : "Sign In"}
                         </button>
                     </form>
-
+                    <div className="mt-6 text-center">
+                        <button
+                            onClick={handleGoogleLogin}
+                            className="w-full mt-4 bg-[#4285F4] hover:bg-[#357ae8] text-white font-semibold rounded-lg px-4 py-3 text-sm shadow-[0_0_15px_rgba(66,133,244,0.2)] transition-all active:scale-[0.98]"
+                        >
+                            Sign in with Google
+                        </button>
+                    </div>
                     <div className="mt-8 text-center border-t border-white/5 pt-6">
                         <p className="text-sm text-[#71717A]">
                             Don't have an account?{" "}

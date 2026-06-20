@@ -1,6 +1,6 @@
+import './config/env.js';
 import express from 'express';
 import cors from "cors"
-import dotenv from "dotenv"
 import morgan from "morgan"
 import cookieParser from "cookie-parser"
 import {createServer} from 'http';
@@ -12,11 +12,13 @@ import cardsRouter from './src/routes/cardsRoutes.js';
 import columnRouter from './src/routes/columnRoutes.js';
 import messagesRouter from './src/routes/messagesRoutes.js';
 import errorMiddleware from './src/middleware/error.js';
+import passport from 'passport';
 import DbConnect from './config/db.js'; 
 import notificationRouter from './src/routes/notificationRotes.js';
 import dashboardRouter from './src/routes/dashboardRoutes.js';
-import {initializeSockets} from './src/sockets/socketHadler.js';    
-dotenv.config()
+import {initializeSockets} from './src/sockets/socketHadler.js'; 
+import './config/passport.js'; 
+
 const app=express()
 const PORT= process.env.PORT || 8000;
 const allowedOrigins = [
@@ -40,6 +42,7 @@ app.use(morgan("dev"))
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(cookieParser());
+app.use(passport.initialize());
 // Routes
 app.use('/api/auth', authRoutes);
 app.use('/api/workspace', workspaceRouter);
