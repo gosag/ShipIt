@@ -9,7 +9,8 @@ import {
   Menu,
   X,
   Bell,
-  PanelLeftClose
+  PanelLeftClose,
+  Loader2
 } from "lucide-react";
 import { api } from "../../axios";
 import socket from "../../../socket";
@@ -86,6 +87,7 @@ const MainOutlet = () => {
   //create new WorkSpace
     const [newWorkspaceName, setNewWorkspaceName] = useState("");
     const [newProjectName, setNewProjectName] = useState("");
+    const [newProjectDescription, setNewProjectDescription] = useState("");
     const [selectedWorkspaceId, setSelectedWorkspaceId] = useState("");
     const [showDeleteProjectModal, setShowDeleteProjectModal] = useState(false);
     const [projectToDelete, setProjectToDelete] = useState<any>(null);
@@ -107,6 +109,7 @@ const MainOutlet = () => {
     };
 
     const handleCreateWorkspace = async (e: React.FormEvent) => {
+      setLoading(true);
       e.preventDefault();
       if (!newWorkspaceName.trim()) return;
       try {
@@ -120,14 +123,17 @@ const MainOutlet = () => {
         setWorkspaceModalOpen(false);
       } catch (err) {
         console.error("Error creating workspace:", err);
+      }finally {
+        setLoading(false);
       }
     };
-
+   const [loading, setLoading] = useState(false);
     const handleCreateProject = async (e: React.FormEvent) => {
       e.preventDefault();
       if (!newProjectName.trim() || !selectedWorkspaceId) return;
       try {
-        const res =await api.post(`/api/project/create/${selectedWorkspaceId}`, { name: newProjectName });
+        setLoading(true);
+        const res =await api.post(`/api/project/create/${selectedWorkspaceId}`, { name: newProjectName , description: newProjectDescription });
         setNewProjectName("");
         setSelectedWorkspaceId("");
         if(res.status === 201){
@@ -138,7 +144,10 @@ const MainOutlet = () => {
        
       } catch (err) {
         console.error("Error creating project:", err);
+      } finally {
+        setLoading(false);
       }
+
     };
   
     const toggleSidebar = () => setSidebarOpen(!isSidebarOpen);
@@ -421,7 +430,9 @@ const [avatarUrl, setAvatarUrl] = useState<string>("");
                 </div>
                 <div className="flex justify-end gap-3 mt-6">
                   <button type="button" onClick={() => setWorkspaceModalOpen(false)} className="px-4 py-2 text-sm font-medium text-gray-300 hover:text-white transition-colors">Cancel</button>
-                  <button type="submit" className="px-4 py-2 text-sm font-medium text-white bg-indigo-600 rounded-lg hover:bg-indigo-700 transition-colors shadow-sm">Create Workspace</button>
+                  <button type="submit" disabled={loading} className="px-4 py-2 text-sm font-medium text-white bg-indigo-600 rounded-lg hover:bg-indigo-700 transition-colors shadow-sm">
+                    {loading ? <Loader2 className="animate-spin" /> : 'Create Workspace'}
+                  </button>
                 </div>
               </form>
             </Modal>
@@ -454,10 +465,23 @@ const [avatarUrl, setAvatarUrl] = useState<string>("");
                     required 
                   />
                 </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-300 mb-1">Description</label>
+                  <textarea 
+                    value={newProjectDescription} 
+                    onChange={e => setNewProjectDescription(e.target.value)} 
+                    className="w-full px-3 py-2 bg-[#2C2C2E] border border-[#3C3C3E] rounded-lg outline-none focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 text-white transition-all placeholder:text-gray-500" 
+                    placeholder="Short description (optional)" 
+                    rows={3}
+                  />
+                </div>
+
                 {/* Identifier optionally removed since endpoint mostly relies on name/workspace */}
                 <div className="flex justify-end gap-3 mt-6">
-                  <button type="button" onClick={() => setProjectModalOpen(false)} className="px-4 py-2 text-sm font-medium text-gray-300 hover:text-white transition-colors">Cancel</button>
-                  <button type="submit" className="px-4 py-2 text-sm font-medium text-white bg-indigo-600 rounded-lg hover:bg-indigo-700 transition-colors shadow-sm">Create Project</button>
+                  <button type="button"  onClick={() => setProjectModalOpen(false)} className="px-4 py-2 text-sm font-medium text-gray-300 hover:text-white transition-colors">Cancel</button>
+                  <button type="submit" disabled={loading} className="px-4 py-2 text-sm font-medium text-white bg-indigo-600 rounded-lg hover:bg-indigo-700 transition-colors shadow-sm">
+                    {loading ? <Loader2 className="animate-spin" /> : 'Create Project'}
+                  </button>
                 </div>
               </form>
             </Modal>
