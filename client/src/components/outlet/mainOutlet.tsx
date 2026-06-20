@@ -296,19 +296,19 @@ const [avatarUrl, setAvatarUrl] = useState<string>("");
                           to="/" 
                           className={({isActive}) => `flex items-center gap-3 px-3 py-1.5 text-sm font-medium rounded-lg transition-colors duration-150 ${isActive ? 'bg-[#2C2C2E] text-white' : 'text-gray-400 hover:text-gray-100 hover:bg-[#2C2C2E]/50'}`}
                         >
-                          <LayoutDashboard size={16} /> Dashboard
+                          <LayoutDashboard size={16} className="animate-bounce"/> Dashboard
                         </NavLink>
                         <NavLink to="/search"
                          
                          className={({isActive}) => `flex items-center gap-3 px-3 py-1.5 text-sm font-medium rounded-lg transition-colors duration-150 ${isActive ? 'bg-[#2C2C2E] text-white' : 'text-gray-400 hover:text-gray-100 hover:bg-[#2C2C2E]/50'}`}
                         >
-                          <Search size={16} /> Search
+                          <Search size={16} className="animate-pulse"/> Search
                         </NavLink>
                         <NavLink
                           to="/settings"
                           className={({isActive}) => `flex items-center gap-3 px-3 py-1.5 text-sm font-medium rounded-lg transition-colors duration-150 ${isActive ? 'bg-[#2C2C2E] text-white' : 'text-gray-400 hover:text-gray-100 hover:bg-[#2C2C2E]/50'}`}
                         >
-                          <Settings size={16} /> Settings
+                          <Settings size={16} className="animate-spin"/> Settings
                         </NavLink>
                     </div>
 
