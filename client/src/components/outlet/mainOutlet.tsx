@@ -252,7 +252,7 @@ const [avatarUrl, setAvatarUrl] = useState<string>("");
                 {/* Branding / Top Nav */}
                 <div className="flex items-center justify-between h-13 px-3.5 border-b border-white/8">
                   <span className="text-[15px] font-semibold tracking-tight text-white">
-                    Ship<span className="text-[#7B61FF]">It</span>
+                    Ship<span className="text-[hsl(262,98%,60%)]">It</span>
                   </span>
 
                   <div className="flex items-center gap-1">
@@ -386,9 +386,8 @@ const [avatarUrl, setAvatarUrl] = useState<string>("");
             <main className="flex-1 flex flex-col min-w-0 bg-[#0e0e0f] h-full overflow-hidden">
                 {/* Mobile Header */}
                 <header className="md:hidden flex items-center justify-between h-14 px-4 border-b border-[#2C2C2E] bg-[#141415]">
-                   <div className="flex items-center gap-2 font-semibold text-white">
-                      <img src="/logo.png" alt="ShipIt Logo" className="h-5 w-auto object-contain" />
-                      ShipIt
+                   <div className="flex items-center font-semibold text-white">
+                      Ship<span className="text-[hsl(262,98%,60%)]">It</span>
                    </div>
                    <button 
                      className="p-1.5 text-gray-400 hover:text-white rounded-md hover:bg-white/5" 
