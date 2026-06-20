@@ -4,18 +4,18 @@
   "description": "",
   "type": "module",
   "main": "index.ts",
+ 
   "scripts": {
-    "dev": "nodemon -e ts --exec \"node --loader ts-node/esm\" server.ts",
-    "build": "tsc",
-    "start": "node dist/server.js"
-  },
+  "dev": "nodemon -e ts --exec \"tsx\" server.ts",
+  "build": "tsc",
+  "start": "node dist/server.js"
+},
   "keywords": [],
   "author": "",
   "license": "ISC",
   "dependencies": {
     "@types/cookie-parser": "^1.4.10",
     "@types/cors": "^2.8.19",
-    "@types/express": "^5.0.6",
     "@types/jsonwebtoken": "^9.0.10",
     "@types/morgan": "^1.9.10",
     "@types/node": "^25.9.3",
@@ -28,12 +28,19 @@
     "jsonwebtoken": "^9.0.3",
     "mongoose": "^9.6.1",
     "morgan": "^1.10.1",
+    "passport": "^0.7.0",
+    "passport-google-oauth20": "^2.0.0",
     "socket.io": "^4.8.3",
     "typescript": "^6.0.3"
   },
   "devDependencies": {
+    "@types/express": "^5.0.6",
+    "@types/express-session": "^1.19.0",
     "@types/mongoose": "^5.11.96",
+    "@types/passport": "^1.0.17",
+    "@types/passport-google-oauth20": "^2.0.17",
     "nodemon": "^3.1.14",
-    "ts-node": "^10.9.2"
+    "ts-node": "^10.9.2",
+    "tsx": "^4.22.4"
   }
 }

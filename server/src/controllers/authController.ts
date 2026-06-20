@@ -4,6 +4,7 @@ import jwt from 'jsonwebtoken';
 import { User } from '../models/User.js';
 import type { AuthRequest } from '../middleware/auth.js';
 import asyncHandler from 'express-async-handler';
+import passport from 'passport';
 // Configuration
 const ACCESS_TOKEN_EXPIRATION = '15m';
 const REFRESH_TOKEN_EXPIRATION = '30d';
@@ -19,7 +20,26 @@ const generateAccessToken = (userId: string, email: string, name: string) => {
 const generateRefreshToken = (userId: string, email: string, name: string) => {
   return jwt.sign({ _id: userId, email, name }, process.env.JWT_SECRET!, { expiresIn: REFRESH_TOKEN_EXPIRATION });
 };
+export const googleCallback = async (req: Request, res: Response, next: NextFunction) => {
+  if (!req.user) {
+    return res.status(400).json({ message: 'Google authentication failed' });
+  }
+  try {
+    const user = req.user as any;
+    const accessToken = generateAccessToken(user._id, user.email, user.name);
+    const refreshToken = generateRefreshToken(user._id, user.email, user.name);
+    res.cookie('refreshToken', refreshToken, {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === 'production',
+      sameSite: process.env.NODE_ENV === 'production' ? 'none' : 'lax',
+      maxAge: REFRESH_TOKEN_COOKIE_MAX_AGE,
+    });
+    res.redirect(`${process.env.CLIENT_URL || 'http://localhost:5173'}/login/?accessToken=${accessToken}`);
+  } catch (error) {
+    next(error);
+  }
 
+};
 export const register = async (req: Request, res: Response, next: NextFunction): Promise<any> => {
   try {
     const { name, email, password, avatar } = req.body;
