@@ -4,6 +4,9 @@ declare global {
       _id: string;
       email: string;
       name: string;
+      avatar?: string;
+      googleId?: string;
+      username?: string;
     }
   }
 }

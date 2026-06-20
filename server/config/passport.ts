@@ -9,7 +9,7 @@ passport.use( new GoogleStrategy({
     clientID: GOOGLE_CLIENT_ID,
     clientSecret: GOOGLE_CLIENT_SECRET,
     callbackURL: GOOGLE_CALLBACK_URL,
-}, async(accessToken, refreshToken, profile: { id: string; displayName: string; emails?: { value: string }[], photos?: { value: string }[] } | undefined, done: (error: any, user?: any) => void) => {
+}, async(accessToken:string, refreshToken:string, profile: { id: string; displayName: string; emails?: { value: string }[], photos?: { value: string }[] } | undefined, done: (error: any, user?: any) => void) => {
     try{
         const googleId = profile?.id;
         const email = profile?.emails?.[0]?.value;
