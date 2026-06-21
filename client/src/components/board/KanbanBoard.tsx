@@ -1,7 +1,7 @@
 import React, { useEffect, useState, useRef } from 'react';
 import { useParams } from 'react-router-dom';
 import { KanbanColumn } from './KanbanColumn';
-import { Filter, Search, Loader, X, MessageSquare} from 'lucide-react';
+import { Filter, Search, Loader, X, MessageSquare, Loader2} from 'lucide-react';
 import { api } from '../../axios';
 import { DndContext, DragOverlay, useSensor, useSensors, MouseSensor, TouchSensor, type DragCancelEvent, type DragStartEvent } from '@dnd-kit/core';
 import type { DragEndEvent } from '@dnd-kit/core';
@@ -135,11 +135,12 @@ export const KanbanBoard: React.FC = () => {
     setSelectedColumnId(columnId || (columns.length > 0 ? columns[0]._id : ""));
     setIsTaskModalOpen(true);
   };
-
+  const [creatingTask, setCreatingTask] = useState(false);
   const handleCreateTask = async (e: React.FormEvent) => {
     e.preventDefault();
     if(!taskTitle.trim() || !selectedColumnId) return;
     try {
+      setCreatingTask(true);
       await api.post(`/api/projects/${projectId}/columns/${selectedColumnId}/cards`, {
         title: taskTitle,
         description: taskDescription,
@@ -159,6 +160,8 @@ export const KanbanBoard: React.FC = () => {
       setRefreshTrigger(prev => prev + 1);
     } catch (error) {
       console.error("Failed to create task:", error);
+    }finally{
+      setCreatingTask(false);
     }
   };
 
@@ -514,9 +517,9 @@ useEffect(() => {
                 <button 
                   type="submit"
                   className="px-4 py-2 text-sm font-medium bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition-colors"
-                  disabled={!taskTitle.trim() || !selectedColumnId}
+                  disabled={!taskTitle.trim() || !selectedColumnId || creatingTask}
                 >
-                  Create Task
+                  {creatingTask ? <Loader2 className="animate-spin" /> : "Create Task"}
                 </button>
               </div>
             </form>

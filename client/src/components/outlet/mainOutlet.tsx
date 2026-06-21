@@ -10,9 +10,9 @@ import {
   X,
   Bell,
   PanelLeftClose,
-  Loader2
+  Loader2,
+  Settings
 } from "lucide-react";
-import {FcSettings} from "react-icons/fc";
 import { api } from "../../axios";
 import socket from "../../../socket";
 
@@ -138,7 +138,7 @@ const MainOutlet = () => {
         setNewProjectName("");
         setSelectedWorkspaceId("");
         if(res.status === 201){
-          setWorkspaces(prev => prev.map(ws=> ws._id === selectedWorkspaceId ? {...ws, projects: [...ws.projects, res.data]} : ws));
+          setWorkspaces(prev => prev.map(ws=> ws._id === selectedWorkspaceId ? {...ws, projects: [...ws?.projects, res.data]} : ws));
           navigate(`/projects/${res.data._id}`);
         }
         setProjectModalOpen(false);
@@ -309,7 +309,7 @@ const [avatarUrl, setAvatarUrl] = useState<string>("");
                           to="/settings"
                           className={({isActive}) => `flex items-center gap-3 px-3 py-1.5 text-sm font-medium rounded-lg transition-colors duration-150 ${isActive ? 'bg-[#2C2C2E] text-white' : 'text-gray-400 hover:text-gray-100 hover:bg-[#2C2C2E]/50'}`}
                         >
-                          <FcSettings size={18} className=""/> Settings
+                          <Settings size={18} className=""/> Settings
                         </NavLink>
                     </div>
 
