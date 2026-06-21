@@ -78,6 +78,7 @@ export const KanbanBoard: React.FC = () => {
   const [taskAssignees, setTaskAssignees] = useState<string[]>([]);
   const [refreshTrigger, setRefreshTrigger] = useState(0);
   const [newActivityLog, setNewActivityLog] = useState<string | null>(null);
+  const [newCardAdded, setNewCardAdded] = useState<any | null>(null);
   let currentMembers: any[] = [];
   try {
     const workspacesData = JSON.parse(localStorage.getItem("workspaces") || "[]");
@@ -141,7 +142,7 @@ export const KanbanBoard: React.FC = () => {
     if(!taskTitle.trim() || !selectedColumnId) return;
     try {
       setCreatingTask(true);
-      await api.post(`/api/projects/${projectId}/columns/${selectedColumnId}/cards`, {
+      const res = await api.post(`/api/projects/${projectId}/columns/${selectedColumnId}/cards`, {
         title: taskTitle,
         description: taskDescription,
         priority: taskPriority,
@@ -150,6 +151,7 @@ export const KanbanBoard: React.FC = () => {
         assignees: taskAssignees,
         order: 0,
       });
+      setNewCardAdded(res.data);
       setTaskTitle("");
       setTaskDescription("");
       setTaskPriority("medium");
@@ -157,7 +159,6 @@ export const KanbanBoard: React.FC = () => {
       setTaskDueDate("");
       setTaskAssignees([]);
       setIsTaskModalOpen(false);
-      setRefreshTrigger(prev => prev + 1);
     } catch (error) {
       console.error("Failed to create task:", error);
     }finally{
@@ -367,6 +368,7 @@ useEffect(() => {
                   searchTerm={searchTerm}
                   priorityFilter={priorityFilter}
                   assigneeFilter={assigneeFilter}
+                  newCardAdded={newCardAdded}
                 />
               </div>
             ))}

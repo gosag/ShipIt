@@ -18,9 +18,10 @@ interface KanbanColumnProps {
   searchTerm?: string;
   priorityFilter?: string;
   assigneeFilter?: string;
+  newCardAdded?: any | null;
 }
 
-export const KanbanColumn: React.FC<KanbanColumnProps> = ({ id, title, badgeColor, onAddTask, refreshTrigger, activeCardId, searchTerm = "", priorityFilter = "all", assigneeFilter = "all" }) => {
+export const KanbanColumn: React.FC<KanbanColumnProps> = ({ id, title, badgeColor, onAddTask, refreshTrigger, activeCardId, searchTerm = "", priorityFilter = "all", assigneeFilter = "all", newCardAdded }) => {
   const { projectId } = useParams<{ projectId: string }>();
   const [cards, setCards] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
@@ -45,6 +46,14 @@ export const KanbanColumn: React.FC<KanbanColumnProps> = ({ id, title, badgeColo
     };
     fetchCards();
   }, [projectId, id, refreshTrigger]);
+    useEffect(() => {
+    if (newCardAdded && newCardAdded.column === id) {
+      setCards(prev => {
+        if (prev.some(c => c?._id === newCardAdded._id)) return prev;
+        return [...prev, newCardAdded];
+      });
+    }
+  }, [newCardAdded, id]);
 
   useEffect(() => {
     const handleCardMoved = (e: CustomEvent) => {
