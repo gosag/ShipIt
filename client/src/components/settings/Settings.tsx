@@ -380,7 +380,7 @@ const Settings = () => {
      if(res.status===200){
       localStorage.clear()
       await refreshUserData()
-      navigate("/login")
+      navigate("/")
      }
      
     }catch(err){

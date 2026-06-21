@@ -1,4 +1,4 @@
-import { Navigate, Route, Routes } from "react-router-dom";
+import { Navigate, Route, Routes,  } from "react-router-dom";
 import Register from "./auth/register";
 import Login from "./auth/login";
 import MainOutlet from "./components/outlet/mainOutlet";
@@ -8,12 +8,13 @@ import WorkspaceInfo from "./components/workspaceInfo";
 import Dashboard from "./components/dashboard/Dashboard";
 import Settings from "./components/settings/Settings";
 import LandingPage from "./components/landingPage/LandingPage";
+import useAuth from "./context/AuthContext";
 const App=()=>{
-  const savedToken=!!localStorage.getItem("accessToken")
+  const {isLoggedIn}= useAuth()
   return(
     <>
     <Routes>
-      {!savedToken?
+      {!isLoggedIn?
       (<Route>
           <Route index element={<LandingPage />} />
           <Route path="register" element={<Register />} />
