@@ -117,7 +117,7 @@ export const login = async (req: Request, res: Response, next: NextFunction): Pr
 
 export const logout = (req: Request, res: Response) => {
   res.clearCookie('refreshToken');
-  res.json({ message: 'Logged out successfully' });
+  res.status(200).json({ message: 'Logged out successfully' });
 };
 
 export const refresh = async (req: Request, res: Response): Promise<any> => {

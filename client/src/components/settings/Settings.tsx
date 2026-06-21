@@ -376,9 +376,13 @@ const Settings = () => {
   };
   const logoutHandler= async()=>{
     try{
-     await api.post("/api/auth/logout")
-     localStorage.clear()
-     refreshUserData()
+     const res= await api.post("/api/auth/logout")
+     if(res.status===200){
+      localStorage.clear()
+      navigate("/login")
+      refreshUserData()
+     }
+     
     }catch(err){
       console.log(err)
     }
