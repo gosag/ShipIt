@@ -1,9 +1,10 @@
 import { useForm,  } from "react-hook-form";
-import {  Link, useNavigate} from "react-router-dom";
+import {  Link } from "react-router-dom";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod"; 
 import { api } from "../axios";
 import { useEffect } from "react";
+import useAuth from "../context/AuthContext";
 const loginSchema = z.object({
     email: z.string().email("Invalid email address"),
     password: z.string().min(1, "Password is required"),
@@ -12,7 +13,8 @@ const loginSchema = z.object({
 type LoginFormData = z.infer<typeof loginSchema>;
 
 const Login = () => {
-    const navigate = useNavigate();
+    
+    const { setIsLoggedIn } = useAuth();
     const { register, handleSubmit, formState: { errors, isSubmitting } } = useForm<LoginFormData>({
         resolver: zodResolver(loginSchema)
     });
@@ -25,6 +27,7 @@ const Login = () => {
             if (responseData.accessToken) {
                 localStorage.setItem("accessToken", responseData.accessToken);
                 localStorage.setItem("userProfile", responseData.user.avatar || "");
+                setIsLoggedIn(true);
             }
             window.location.href = "/"; 
         } catch (err: any) {
@@ -40,10 +43,10 @@ const Login = () => {
   if (token) {
     localStorage.setItem("accessToken", token);
     console.log("Access token stored and user redirected to dashboard.");
-    navigate("/");
+    setIsLoggedIn(true);
     
   } else {
-    navigate("/login");
+    setIsLoggedIn(!!localStorage.getItem("accessToken"));
   }
 }, []);
     return (

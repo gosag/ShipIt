@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { useNavigate, useOutletContext } from "react-router-dom";
 import axios from "axios";
 import { api } from "../../axios";
+import useAuth from "../../context/AuthContext";
 import {
   User,
   Building2,
@@ -142,7 +143,7 @@ const Settings = () => {
   const [wsAvatar, setWsAvatar] = useState("");
   const [isUploadingWsImage, setIsUploadingWsImage] = useState(false);
   const [deleteWsConfirm, setDeleteWsConfirm] = useState("");
-
+  const {setIsLoggedIn}= useAuth()
   const adminWorkspaces = workspaces.filter((ws) =>
     ws.members?.some(
       (m) => m?.user?._id === user?._id && m?.role === "admin"
@@ -379,8 +380,7 @@ const Settings = () => {
      const res= await api.post("/api/auth/logout")
      if(res.status===200){
       localStorage.clear()
-      await refreshUserData()
-      navigate("/")
+      setIsLoggedIn(false)
      }
      
     }catch(err){
