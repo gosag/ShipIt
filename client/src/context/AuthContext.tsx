@@ -5,7 +5,7 @@ interface AuthContextInterface{
 }
 const AuthContext= createContext<AuthContextInterface | undefined>(undefined)
 export const AuthProvider:React.FC<{children:React.ReactNode}>=({children})=>{
-    const [isLoggedIn,setIsLoggedIn]= useState(!!localStorage.getItem("AccessToken"))
+    const [isLoggedIn,setIsLoggedIn]= useState(!!localStorage.getItem("accessToken"))
    return(
         <AuthContext.Provider value={{isLoggedIn, setIsLoggedIn}}>
             {children}

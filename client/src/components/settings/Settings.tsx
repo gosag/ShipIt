@@ -19,7 +19,8 @@ import {
   AlertTriangle,
   ArrowRightLeft,
   MessageSquare,
-  
+  ShieldAlert,
+  LogOut,
 } from "lucide-react";
 
 type SettingsTab = "profile" | "workspace" | "notifications";
@@ -376,6 +377,21 @@ const Settings = () => {
       showToast("error", err.response?.data?.error || err.response?.data?.message || "Failed to update role");
     }
   };
+  const [armed, setArmed] = useState(false);
+  useEffect(() => {
+    if (!armed) return;
+    const timer = setTimeout(() => setArmed(false), 2500);
+    return () => clearTimeout(timer);
+  }, [armed]);
+
+  const handleClick = () => {
+    if (armed) {
+      logoutHandler();
+      setArmed(false);
+    } else {
+      setArmed(true);
+    }
+  };
   const logoutHandler= async()=>{
     try{
      const res= await api.post("/api/auth/logout")
@@ -637,11 +653,29 @@ const Settings = () => {
                 </button>
               </form>
             </div> 
-            <div className="border  rounded-lg border-zinc-800 bg-zinc-900 p-4" onClick={logoutHandler}>
-                  <button className="bg-red-900  text-white py-2 px-4 rounded-lg hover:bg-red-700 transition-colors active:scale-95 flex items-center gap-2">
-                    Logout
-                  </button>
-            </div>
+            <div className="border rounded-lg border-zinc-800 bg-zinc-900 p-4">
+      <button
+        onClick={handleClick}
+        className={`relative overflow-hidden flex items-center gap-2 py-2 px-4 rounded-lg
+          transition-all duration-300 active:scale-95
+          ${armed
+            ? "bg-red-700 text-white pr-5"
+            : "bg-zinc-800 text-zinc-300 hover:bg-zinc-700 hover:text-white"}
+        `}
+      >
+        {armed ? (
+          <>
+            <ShieldAlert size={16} className="animate-pulse" />
+            Click to confirm
+          </>
+        ) : (
+          <>
+            <LogOut size={16} />
+            Logout
+          </>
+        )}
+      </button>
+    </div>
           </div>
         )}
 
