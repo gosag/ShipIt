@@ -314,7 +314,7 @@ const [avatarUrl, setAvatarUrl] = useState<string>("");
                     </div>
 
                     {/* Workspaces Section */}
-                    <div className="space-y-4 max-h-[75%]  overflow-y-auto custom-scrollbar">
+                    <div className="space-y-4 max-h-[72%]  overflow-y-auto custom-scrollbar">
                         <div className="flex items-center justify-between px-3 group">
                           <h3 className="text-xs font-semibold text-gray-500 uppercase tracking-wider">Workspaces</h3>
                           <div className="flex gap-1">
