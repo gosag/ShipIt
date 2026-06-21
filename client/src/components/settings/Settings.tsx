@@ -34,6 +34,7 @@ interface UserData {
   name: string;
   email: string;
   avatar?: string;
+  googleId?: string;
 }
 
 interface Member {
@@ -568,8 +569,8 @@ const Settings = () => {
                 </button>
               </form>
             </div>
-
-            <div className={cardClass}>
+         { (!user?.googleId) &&
+            (<div className={cardClass}>
               <h2 className="text-lg font-semibold mb-4 flex items-center gap-2 text-zinc-200">
                 <Lock className="h-5 w-5 text-zinc-500" />
                 Change Password
@@ -609,7 +610,7 @@ const Settings = () => {
                 </button>
               </form>
             </div>
-
+             )}
             <div className={`${cardClass} border-red-500/20`}>
               <h2 className="text-lg font-semibold mb-2 flex items-center gap-2 text-red-400">
                 <AlertTriangle className="h-5 w-5" />

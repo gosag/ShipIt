@@ -40,7 +40,7 @@ const MainOutlet = () => {
     const [workspaceModalOpen, setWorkspaceModalOpen] = useState(false);
     const [projectModalOpen, setProjectModalOpen] = useState(false);
     const savedUserData = localStorage.getItem("userData");
-    const [userData,setUserData]=useState<{name:string,email:string,_id:string, avatar:string, username:string} | null>(savedUserData ? JSON.parse(savedUserData) : null);
+    const [userData,setUserData]=useState<{name:string,email:string,_id:string, avatar:string, username:string, googleId?:string} | null>(savedUserData ? JSON.parse(savedUserData) : null);
     const [workspaces, setWorkspaces] = useState<{_id:string, name:string, slug:string,owner:string, members:any[], projects:any[]}[]>([]);
     const navigate=useNavigate();
     const getWorkspace = async () => {
