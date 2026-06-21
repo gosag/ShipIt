@@ -379,8 +379,8 @@ const Settings = () => {
      const res= await api.post("/api/auth/logout")
      if(res.status===200){
       localStorage.clear()
+      await refreshUserData()
       navigate("/login")
-      refreshUserData()
      }
      
     }catch(err){
