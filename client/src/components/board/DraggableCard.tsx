@@ -1,5 +1,5 @@
 import React, { useEffect, useRef, useState } from 'react';
-import { useDraggable } from '@dnd-kit/core';
+import { useSortable } from '@dnd-kit/sortable';
 export interface DraggableCardProps {
   card: any;
   columnId: string;
@@ -11,10 +11,17 @@ export interface DraggableCardProps {
 import {api} from '../../axios';
 import socket from '../../../socket';
 import { MessageSquare, X} from 'lucide-react';
+import { CSS } from '@dnd-kit/utilities';
 export const DraggableCard: React.FC<DraggableCardProps> = ({ card, columnId, activeCardId, onClick, currentUserId, workspaceId }) => {
-  const { attributes, listeners, setNodeRef: setDraggableNodeRef, transform, isDragging } = useDraggable({ id: card._id, data: { columnId, card } });
-  const style = transform ? { transform: `translate3d(${transform.x}px, ${transform.y}px, 0)` } : undefined;
+ const { attributes, listeners, setDraggableNodeRef, transform, transition, isDragging } = useSortable({ 
+  id: card._id, 
+  data: { columnId, card } 
+});
 
+const style = {
+  transform: CSS.Transform.toString(transform),
+  transition,
+};
   const isAssignedToMe = currentUserId && card.assignees && card.assignees.includes(currentUserId);
   const [showMessages, setShowMessages] = useState(false);
   const [messageInput, setMessageInput] = useState("");

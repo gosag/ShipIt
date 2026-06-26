@@ -4,7 +4,7 @@ import { useParams } from 'react-router-dom';
 import { api } from '../../axios';
 import { useDroppable } from '@dnd-kit/core';
 import socket from '../../../socket';
-
+import { SortableContext, verticalListSortingStrategy } from '@dnd-kit/sortable';
 import { DraggableCard } from './DraggableCard';
 import { CardModal } from './CardModal';
 
@@ -184,7 +184,9 @@ export const KanbanColumn: React.FC<KanbanColumnProps> = ({ id, title, badgeColo
             });
 
             return filteredCards.length > 0 ? (
-              filteredCards.map((card) => {
+              <SortableContext items={filteredCards.map(c => c._id)} strategy={verticalListSortingStrategy}>
+
+              {filteredCards.map((card) => {
                 let currentUserId;
                 try {
                   currentUserId = JSON.parse(localStorage.getItem("userData") || "{}")?._id;
@@ -202,6 +204,7 @@ export const KanbanColumn: React.FC<KanbanColumnProps> = ({ id, title, badgeColo
                   />
                 );
               })
+            }</SortableContext>
             ) : cards.length > 0 ? (
               <div className="flex-1 flex items-center justify-center py-8">
                 <span className="text-sm font-medium text-gray-500 text-center px-4">
