@@ -1,4 +1,5 @@
 import { Navigate, Route, Routes,  } from "react-router-dom";
+import { Analytics } from "@vercel/analytics/react";
 import Register from "./auth/register";
 import Login from "./auth/login";
 import MainOutlet from "./components/outlet/mainOutlet";
@@ -32,6 +33,7 @@ const App=()=>{
         </Route>
       </Route>)}
     </Routes>
+    <Analytics />
     </>
   )
 };
