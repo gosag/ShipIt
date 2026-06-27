@@ -69,9 +69,6 @@ export const KanbanBoard: React.FC = () => {
   const [columns, setColumns] = useState<ColumnType[]>([]);
   const [loading, setLoading] = useState(true);
   const [activeCard, setActiveCard] = useState<ActiveCardData | null>(null);
-  const [activeCardColumnId, setActiveCardColumnId] = useState<string | null>(null);
-
-  // ── Lifted cards state so board controls sort order ──
   const [columnCards, setColumnCards] = useState<ColumnCardsMap>({});
 
   const sensors = useSensors(
@@ -289,20 +286,16 @@ export const KanbanBoard: React.FC = () => {
   // ── Drag handlers ──
   const handleDragStart = (event: DragStartEvent) => {
     const card = event.active.data.current?.card as ActiveCardData | undefined;
-    const colId = event.active.data.current?.columnId as string | undefined;
     setActiveCard(card ?? null);
-    setActiveCardColumnId(colId ?? null);
   };
 
   const handleDragCancel = (_event: DragCancelEvent) => {
     setActiveCard(null);
-    setActiveCardColumnId(null);
   };
 
   const handleDragEnd = async (event: DragEndEvent) => {
     const { active, over } = event;
     setActiveCard(null);
-    setActiveCardColumnId(null);
     if (!over) return;
 
     const cardId = String(active.id);
@@ -310,10 +303,6 @@ export const KanbanBoard: React.FC = () => {
     const cardData = active.data.current?.card;
 
     if (!cardId || !sourceColumnId) return;
-
-    // Determine destination column:
-    // over.id is either a columnId (dropped on empty column droppable)
-    // or a card._id (dropped on another card — its columnId is in over.data)
     const overColumnId =
       (over.data.current?.columnId as string | undefined) ?? String(over.id);
     const overId = String(over.id);
@@ -353,9 +342,6 @@ export const KanbanBoard: React.FC = () => {
     // ── Cross-column move ──
     const sourceCards = columnCards[sourceColumnId] ?? [];
     const destCards = columnCards[overColumnId] ?? [];
-
-    // Find where to insert: if dropped on a card, insert before/after it
-    // If dropped on the column itself (empty), append
     let insertIndex = destCards.length; // default: end
     const overCardIndex = destCards.findIndex((c) => c._id === overId);
     if (overCardIndex !== -1) {
@@ -374,7 +360,6 @@ export const KanbanBoard: React.FC = () => {
       newOrder = 0;
     }
 
-    // Optimistic update
     const updatedSource = sourceCards.filter((c) => c._id !== cardId);
     const updatedDest = [...destCards];
     updatedDest.splice(insertIndex, 0, { ...cardData, order: newOrder });
@@ -385,7 +370,6 @@ export const KanbanBoard: React.FC = () => {
       [overColumnId]: updatedDest,
     }));
 
-    // Notify same-project clients
     socket.emit('card-moved', {
       cardId,
       sourceColumnId,
