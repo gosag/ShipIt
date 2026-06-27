@@ -13,7 +13,7 @@ import socket from '../../../socket';
 import { MessageSquare, X} from 'lucide-react';
 import { CSS } from '@dnd-kit/utilities';
 export const DraggableCard: React.FC<DraggableCardProps> = ({ card, columnId, activeCardId, onClick, currentUserId, workspaceId }) => {
- const { attributes, listeners, setDraggableNodeRef, transform, transition, isDragging } = useSortable({ 
+ const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({ 
   id: card._id, 
   data: { columnId, card } 
 });
@@ -119,7 +119,7 @@ useEffect(()=>{
 },[]);
   return (
     <div
-      ref={setDraggableNodeRef}
+      ref={setNodeRef}
       onClick={onClick}
       style={style}
       {...listeners}
