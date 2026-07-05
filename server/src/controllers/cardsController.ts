@@ -88,7 +88,7 @@ export const createCard= asyncHandler(async(req:AuthRequest,res:Response,next:Ne
         }
         console.log("New card created:", newCard);
         const newAcivity = new Activity({
-            action: `Card titled:(${newCard.title}) created`,
+            action: `Card titled:${newCard.title} created by ${req.user.name} with email: ${req.user.email}`,
             card: newCard._id,
             project: newCard.project,
             workspace: newCard.workspace,
@@ -269,7 +269,7 @@ export const deleteCard= asyncHandler(async(req:AuthRequest,res:Response)=>{
     }
     await Card.findByIdAndDelete(cardId);
     const newActivity = new Activity({
-        action: `Card titled:(${cardToBeDeleted.title}) deleted`,
+        action: `Card titled:(${cardToBeDeleted.title}) deleted by Name: ${req.user.name} & email: ${req.user.email}`,
         card: cardToBeDeleted._id,
         project: cardToBeDeleted.project,
         workspace: cardToBeDeleted.workspace,
