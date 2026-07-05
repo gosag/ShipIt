@@ -87,6 +87,14 @@ export const createCard= asyncHandler(async(req:AuthRequest,res:Response,next:Ne
             throw new Error("Failed to save the card to the database");
         }
         console.log("New card created:", newCard);
+        const newAcivity = new Activity({
+            action: `Card titled:(${newCard.title}) created`,
+            card: newCard._id,
+            project: newCard.project,
+            workspace: newCard.workspace,
+            user: req.user._id
+        });
+        await newAcivity.save();
         res.status(201).json(newCard);
 })
 export const updateCard= asyncHandler(async(req:AuthRequest,res:Response,next:NextFunction)=>{
@@ -260,6 +268,14 @@ export const deleteCard= asyncHandler(async(req:AuthRequest,res:Response)=>{
         throw error;
     }
     await Card.findByIdAndDelete(cardId);
+    const newActivity = new Activity({
+        action: `Card titled:(${cardToBeDeleted.title}) deleted`,
+        card: cardToBeDeleted._id,
+        project: cardToBeDeleted.project,
+        workspace: cardToBeDeleted.workspace,
+        user: req.user._id
+    });
+    await newActivity.save();
     res.json({ message: "Card deleted successfully" });
 })
 export const commentRead = asyncHandler(async (req: AuthRequest, res: Response) => {
