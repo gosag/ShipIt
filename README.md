@@ -20,13 +20,14 @@ Every feature in ShipIt was built around one question: *would I actually use thi
 - Create and manage workspaces with multiple members
 - Organize work into projects within a workspace
 - Workspace join requests — send, accept, or reject requests to join a team
+- Wprkspace invitation requests - invite someone to the workspace by their Email or ShipIt username
 - Role-based access for workspace admins (manage members, change roles, remove members)
 
 ### Kanban Board
 - Drag-and-drop board built with `@hello-pangea/dnd`
 - Optimistic UI — cards move instantly on screen before the server confirms
 - Columns and cards with precise ordering, so positions stay accurate across drags
-- Priority levels (urgent, high, medium, low) with color-coded badges
+- Priority levels (high, medium, low) with color-coded badges
 - "For you" badge for cards assigned to the current user
 
 ### Real-Time Collaboration
@@ -115,9 +116,9 @@ When a card is dragged, the frontend updates state immediately and the server re
 
 ```bash
 # Clone the repository
-git clone https://github.com/your-username/shipit.git
+git clone https://github.com/gosag/shipit.git
 cd shipit
-
+npm install
 # Install backend dependencies
 cd server
 npm install
@@ -132,21 +133,27 @@ npm install
 Create a `.env` file in the `server` directory:
 
 ```env
-PORT=5000
-MONGODB_URI=your_mongodb_connection_string
+PORT=8000
 JWT_SECRET=your_jwt_secret
+GOOGLE_CLIENT_ID=your-Goolle_client_Id
+GOOGLE_CLIENT_SECRET=your-google_client_secret
+GOOGLE_CALLBACK_URL=http://localhost:8000/api/auth/google/callback
 CLIENT_URL=http://localhost:5173
 ```
 
 Create a `.env` file in the `client` directory:
 
 ```env
-VITE_API_URL=http://localhost:5000
+VITE_API_BASE_URL=http://localhost:8000
 ```
 
 ### Running Locally
 
 ```bash
+Start both the backend and frontend with npm run dev on the main folder since concurrently is supported.
+
+or
+
 # Start the backend
 cd server
 npm run dev
@@ -166,7 +173,6 @@ ShipIt is actively being developed. Planned improvements include:
 
 - Due dates and overdue card automation
 - AI-assisted card suggestions
-- Mobile-responsive board view
 - Email notifications
 - Integrations (GitHub, Slack)
 
