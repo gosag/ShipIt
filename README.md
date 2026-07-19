@@ -118,7 +118,7 @@ When a card is dragged, the frontend updates state immediately and the server re
 # Clone the repository
 git clone https://github.com/gosag/shipit.git
 cd shipit
-
+npm install
 # Install backend dependencies
 cd server
 npm install
@@ -133,21 +133,27 @@ npm install
 Create a `.env` file in the `server` directory:
 
 ```env
-PORT=5000
-MONGODB_URI=your_mongodb_connection_string
+PORT=8000
 JWT_SECRET=your_jwt_secret
+GOOGLE_CLIENT_ID=your-Goolle_client_Id
+GOOGLE_CLIENT_SECRET=your-google_client_secret
+GOOGLE_CALLBACK_URL=http://localhost:8000/api/auth/google/callback
 CLIENT_URL=http://localhost:5173
 ```
 
 Create a `.env` file in the `client` directory:
 
 ```env
-VITE_API_URL=http://localhost:5000
+VITE_API_BASE_URL=http://localhost:8000
 ```
 
 ### Running Locally
 
 ```bash
+Start both the backend and frontend with npm run dev on the main folder since concurrently is supported.
+
+or
+
 # Start the backend
 cd server
 npm run dev
@@ -167,7 +173,6 @@ ShipIt is actively being developed. Planned improvements include:
 
 - Due dates and overdue card automation
 - AI-assisted card suggestions
-- Mobile-responsive board view
 - Email notifications
 - Integrations (GitHub, Slack)
 
