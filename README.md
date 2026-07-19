@@ -20,13 +20,14 @@ Every feature in ShipIt was built around one question: *would I actually use thi
 - Create and manage workspaces with multiple members
 - Organize work into projects within a workspace
 - Workspace join requests — send, accept, or reject requests to join a team
+- Wprkspace invitation requests - invite someone to the workspace by their Email or ShipIt username
 - Role-based access for workspace admins (manage members, change roles, remove members)
 
 ### Kanban Board
 - Drag-and-drop board built with `@hello-pangea/dnd`
 - Optimistic UI — cards move instantly on screen before the server confirms
 - Columns and cards with precise ordering, so positions stay accurate across drags
-- Priority levels (urgent, high, medium, low) with color-coded badges
+- Priority levels (high, medium, low) with color-coded badges
 - "For you" badge for cards assigned to the current user
 
 ### Real-Time Collaboration
@@ -115,7 +116,7 @@ When a card is dragged, the frontend updates state immediately and the server re
 
 ```bash
 # Clone the repository
-git clone https://github.com/your-username/shipit.git
+git clone https://github.com/gosag/shipit.git
 cd shipit
 
 # Install backend dependencies
