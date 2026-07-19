@@ -178,7 +178,7 @@ export const moveCard= asyncHandler(async(req:AuthRequest,res:Response,next:Next
 
     const columnTitle = column.title;
         const activity = new Activity({
-            action: `Card titled:(${updatedCard.title}) moved from (${oldCardColumnTitle}) to (${columnTitle})`,
+            action: `Card titled: ${updatedCard.title} moved from (${oldCardColumnTitle}) to (${columnTitle})`,
             card: updatedCard._id,
             project: updatedCard.project,
             workspace: updatedCard.workspace,
